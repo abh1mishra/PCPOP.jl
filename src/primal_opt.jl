@@ -1,0 +1,309 @@
+using JuMP,Mosek,MosekTools
+
+function mons_at_level(list_vars::Vector{Variable},level::String)
+    Id=one(list_vars[1])
+    list_vars=unique(list_vars)
+    lvl_array=[]
+    lvl_str=split(level,"+")
+    total_types=Set([])
+    type_var_dict=Dict{String,Vector{Variable}}()
+    for i in lvl_str
+        if tryparse(Int, i) !== nothing
+            push!(lvl_array,parse(Int,i))
+        else
+            i_types=split(i,"*")
+            push!(total_types,i_types...)
+            push!(lvl_array,i_types)
+        end
+    end
+
+    for i in total_types
+        if(typeof(list_vars[1].parent_monoid[]))<:GraphProductMonoid
+            type_var_dict[i]=filter(x->extract_string_before_number(x.name)==i,list_vars)
+        else
+            type_var_dict[i]=filter(x->x.parent_monoid[].name==i,list_vars)
+        end
+    end
+    # return lvl_array,type_var_dict
+    mons=[]
+    push!(mons,Id)
+    list_vars=union(list_vars,[Id])
+
+    for l in lvl_array
+        if l isa Int
+            for res in kron([list_vars for i in 1:l]...,1)
+                if res==Id || typeof(res)<:Number
+                    continue
+                end
+                push!(mons,monomials(res))
+            end
+            # push!(mons,[monomials(prod(tup)) for tup in collect(product([list_vars for i in 1:l]...))]...)
+        else
+            for res in kron([type_var_dict[i] for i in l]...,1)
+                if res==Id || typeof(res)<:Number
+                    continue
+                end
+                push!(mons,monomials(res))
+            end
+            # push!(mons,[monomials(prod(tup)) for tup in collect(product([type_var_dict[i] for i in l]...))]...)
+        end
+    end
+    mons=vcat(mons...)
+    return isempty(mons) ? mons : monomials(sum(mons))
+end
+
+function mons_at_level(list_vars::Vector{Variable},level::Int)
+    if level==0
+        return [one(prod(list_vars))]
+    end
+    return mons_at_level(list_vars, string(level))
+end
+
+function mons_at_level(p::Polynomial,level::String)
+    return mons_at_level(variables(p),level)
+end
+
+function mons_at_level(p::Polynomial,level::Int)
+    return mons_at_level(variables(p),level)
+end
+
+function mons_at_level(M::AbstractMonoid, k::Int)
+    return mons_at_level(variables(M), k)
+end
+
+function get_monomials(obj, level; 
+    op_eq = 0, 
+    op_ge = 0,
+    tr_eq = 0,
+    tr_ge = 0,
+    list_vars=[])
+    # for a given level of the localising moment matrices, it returns the operators at that level and the ones of the principal moment matix (which will be larger)
+    if !isempty(list_vars)
+        ops= mons_at_level(list_vars, level)
+    else
+        pols=vcat([obj, op_ge..., op_eq...],[tr_ge[i][1] for i in 1:length(tr_ge)], [tr_eq[i][1] for i in 1:length(tr_eq)])
+        vars=unique_array(union([variables(g) for g in pols]...))
+        ops = mons_at_level(vars, level)
+    end
+    if op_ge==0
+        return ops, ops
+    end
+    deg = Int(ceil(maximum([degree(g) for g in op_ge])/2))
+    extra_vars= unique_array(union([variables(g) for g in op_ge]...))
+    ops_add = mons_at_level(extra_vars, deg)
+    ops_principal = unique_array([ops_add[o]*ops[p] 
+            for o in 1:length(ops_add) for p in 1:length(ops)])
+    return ops, ops_principal
+end
+
+
+function cyclic_npa_moments_block(list_monomials::Vector{M},model;cPoly=1,unique_mons=[],unique_vars=[]) where M<:AbstractMonomial
+
+    # Get the number of monomials
+    num_monomials = length(list_monomials)
+
+    # Initialize the matrix of JuMP variables
+    moments_matrix = Matrix{JuMP.AffExpr}(undef, num_monomials, num_monomials)
+
+    # Iterate over the list of monomials to fill the matrix
+    for i in 1:num_monomials
+        for j in 1:num_monomials
+            
+            # Compute the product of the monomials
+            monomial_product = list_monomials[i]'* cPoly * list_monomials[j]
+            # println("1",typeof(monomial_product))
+            # Initialize the JuMP variable for the matrix entry
+            moments_matrix[i, j] = 0.0
+            # Check if the product already exists in the dictionary
+            for (m,c) in monomial_product
+                # println("2",typeof(m))
+                m1,m2 =  (cyclic_reduce(m),cyclic_reduce(m'))
+                m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
+                if m_i !== nothing
+                    # Use the existing JuMP variable
+                    moments_matrix[i, j] += c*unique_vars[m_i]
+                else
+                    # Create a new JuMP variable
+                    new_var = @variable(model)
+                    # Store the new variable in the dictionary
+                    push!(unique_mons, m1)
+                    push!(unique_vars, new_var)
+                    # Use the new variable in the matrix
+                    moments_matrix[i, j] += c*new_var
+                end
+            end
+        end
+    end
+
+    @constraint(model, moments_matrix >= 0,PSDCone())
+    return moments_matrix, unique_mons, unique_vars
+end
+
+function npa_moments_block(list_monomials::Vector{M},model;cPoly=1,unique_mons=[],unique_vars=[],G=[]) where M<:AbstractMonomial
+
+    # Get the number of monomials
+    num_monomials = length(list_monomials)
+
+    # Initialize the matrix of JuMP variables
+    moments_matrix = Matrix{JuMP.AffExpr}(undef, num_monomials, num_monomials)
+
+    # Iterate over the list of monomials to fill the matrix
+    for i in 1:num_monomials
+        for j in 1:num_monomials
+            
+            # Compute the product of the monomials
+            monomial_product = real_rep(Polynomial(reduce_grobner(list_monomials[i]'* cPoly * list_monomials[j],G)))
+            # Initialize the JuMP variable for the matrix entry
+            moments_matrix[i, j] = 0.0
+            for (m,c) in monomial_product
+                # Check if the product already exists in the dictionary
+                m_i=findfirst(x->(x==m),unique_mons)
+                if m_i !== nothing
+                    # Use the existing JuMP variable
+                    moments_matrix[i, j] += c*unique_vars[m_i]
+                else
+                    # Create a new JuMP variable
+                    new_var = @variable(model)
+                    # Store the new variable in the dictionary
+                    push!(unique_mons, m)
+                    push!(unique_vars, new_var)
+                    # Use the new variable in the matrix
+                    moments_matrix[i, j] += c*new_var
+                end
+            end
+        end
+    end
+
+    @constraint(model, moments_matrix >= 0,PSDCone())
+    return moments_matrix, unique_mons, unique_vars
+end
+function npa(obj, level;
+    min=true,
+    op_eq = 0, 
+    op_ge = 0,
+    tr_eq = 0,
+    tr_ge = 0,
+    lvl_principal=0,
+    list_vars=[],
+    cyclic=false,
+    normalize=true,
+    optimizer=Mosek.Optimizer)
+    if lvl_principal==0
+        ops, ops_principal = get_monomials(obj,level; op_eq = op_eq, op_ge = op_ge, tr_eq = tr_eq, tr_ge = tr_ge,list_vars=list_vars)
+    else
+        if !isempty(list_vars)
+            ops_principal= mons_at_level(list_vars, level)
+            ops= mons_at_level(list_vars, lvl_principal)
+        else
+            pols=vcat([obj, op_ge..., op_eq...],[tr_ge[i][1] for i in 1:length(tr_ge)], [tr_eq[i][1] for i in 1:length(tr_eq)])
+            vars=unique_array(union([variables(g) for g in pols]...))
+            ops_principal = mons_at_level(vars, level)
+            ops = ops_at_level(vars, level_principal)
+        end
+    end
+    G=[]
+    if op_eq!=0
+        max_degree = maximum([degree(g) for g in op_eq])
+        G=macaulay_grobner(Polynomial.(op_eq),max_degree)
+    end
+    model=Model(optimizer)
+    principal_moments_matrix, unique_mons, unique_vars = cyclic ? cyclic_npa_moments_block(ops_principal,model) : npa_moments_block(ops_principal,model;G=G)
+    # Add the constraints for the principal moment matrix
+
+    if tr_eq!=0
+        for i in 1:length(tr_eq)
+            tr_eq_p=0
+            if cyclic
+                for (m,c) in 1*tr_eq[i][1]
+                    m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
+                    m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
+                    tr_eq_p+=c*unique_vars[m_i]
+                end
+            else
+                tr_eq_poly=real_rep(1*reduce_grobner(tr_eq[i][1],G))
+                for (m,c) in tr_eq_poly
+                    m_i=findfirst(x->x==m,unique_mons)
+                    tr_eq_p+=c*unique_vars[m_i]
+                end
+            end
+            @constraint(model, tr_eq_p == tr_eq[i][2])
+        end
+    end
+    if tr_ge!=0
+        for i in 1:length(tr_ge)
+            tr_ge_p=0
+            if cyclic
+                for (m,c) in 1*tr_ge[i][1]
+                    m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
+                    m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
+                    tr_ge_p+=c*unique_vars[m_i]
+                end
+            else
+                tr_ge_poly=real_rep(1*reduce_grobner(tr_ge[i][1],G))
+                for (m,c) in tr_ge_poly
+                    m_i=findfirst(x->x==m,unique_mons)
+                    tr_ge_p+=c*unique_vars[m_i]
+                end
+            end
+            @constraint(model, tr_ge_p >= tr_ge[i][2])
+        end
+    end
+    if op_ge!=0
+        for i in 1:length(op_ge)
+            if cyclic
+                cyclic_npa_moments_block(ops,model; cPoly=op_ge[i],unique_mons=unique_mons, unique_vars=unique_vars) 
+            else
+                npa_moments_block(ops,model; cPoly=op_ge[i], unique_mons=unique_mons, unique_vars=unique_vars,G=G) 
+            end
+        end
+    end
+
+    if normalize
+        id_elem=one(first(ops_principal))
+        if cyclic
+            id_elem=cyclic_reduce(id_elem)
+            @constraint(model,unique_vars[findfirst(check->check==id_elem,unique_mons)]==1.0)
+        else
+            @constraint(model,unique_vars[findfirst(check->check==id_elem,unique_mons)]==1.0)
+        end
+    end
+    obj_p=0
+    if cyclic
+        for (m,c) in obj
+            m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
+            m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
+            if m_i==nothing
+                throw(ArgumentError("level not enough"))
+            end
+            obj_p+=c*unique_vars[m_i]
+        end
+    else
+        obj_poly=real_rep(1*reduce_grobner(obj,G))
+        for (m,c) in obj_poly
+            m_i=findfirst(x->x==m,unique_mons)
+            if m_i==nothing
+                throw(ArgumentError("level not enough"))
+            end
+            obj_p+=c*unique_vars[m_i]
+        end
+    end
+    
+    min ? @objective(model, Min, obj_p) : @objective(model, Max, obj_p)
+    # Solve the model
+    optimize!(model)
+    # Check the optimization status
+    if termination_status(model) != MOI.OPTIMAL
+        @warn "The optimization problem is $(termination_status(model))."
+    end
+    # Extract the optimal value of the objective function
+    optimal_value = objective_value(model)
+    # Extract the optimal values of the variables and store it as a dictionary
+    optimal_vars = Dict{AbstractMonomial, Float64}()
+    for i in 1:length(unique_mons)
+        optimal_vars[unique_mons[i]] = value(unique_vars[i])
+    end
+    # Return the optimal value and the dictionary of optimal variables
+    # return optimal_value, optimal_vars, model
+    return optimal_value, model,Dict(zip(unique_mons,unique_vars)),principal_moments_matrix
+
+end

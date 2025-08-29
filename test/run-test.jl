@@ -1,0 +1,8 @@
+include("../traceGrobner.jl")
+using Test
+
+include("test-cyclic.jl")
+include("test-monomials.jl")
+include("test-optimization.jl")
+include("test-grobner.jl")
+include("test-tracepop.jl")

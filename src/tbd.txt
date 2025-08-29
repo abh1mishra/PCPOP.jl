@@ -1,0 +1,1 @@
+merge multiply of graphproductword{abstractword} with multiply of graphproductword{variable}
