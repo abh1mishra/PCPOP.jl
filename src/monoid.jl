@@ -153,7 +153,7 @@ function build(parent_monoid::GraphProductMonoid)
 
     # checking irregularities in input phase
     parent_monoid.is_built[] && throw("Operators already built")
-    num_monoids=length(parent_monoid.vertices)
+    num_monoids=length(unique!(parent_monoid.vertices))
     num_monoids==0 && throw("No variables")
 
     unique!(parent_monoid.commutations)

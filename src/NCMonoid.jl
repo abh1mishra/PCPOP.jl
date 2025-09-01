@@ -73,6 +73,9 @@ function exponents(m::NCWord)
     return Dict{Variable,Int}(zip(vertices,[count(==(i),e_w) for i in 1:length(vertices)]))
 end
 
+variables(w::NCWord)=Vector{Variable}(union([map(k->w.monoid.rev_var_dict[w.monoid.abs_alg_vars[k]],exponent_word(w.word,i)) for i in 1:length(w.word)]...))
+degree(w::NCWord)=total_degree(w.word)
+
 function Base.:(==)(M::NCWord,N::NCWord)
     (M.monoid!=N.monoid) && return (length(M)==length(N)==1) && (AbstractAlgebra.monomial(M.word,1)==1 && AbstractAlgebra.monomial(N.word,1)==1) && (M.word.coeffs[1]==N.word.coeffs[1])
     return (M.word==N.word)
@@ -158,8 +161,7 @@ Base.iterate(m::NCWord) = iterate(ncword_to_poly(m))
 Base.iterate(m::NCWord, state) = iterate(ncword_to_poly(m), state) 
 Base.getindex(m::NCWord, i::Int64) = collect(monomials(ncword_to_poly(m)))[i]
 
-variables(w::NCWord)=Vector{Variable}(union([map(k->w.monoid.rev_var_dict[w.monoid.abs_alg_vars[k]],exponent_word(w.word,i)) for i in 1:length(w.word)]...))
-degree(w::NCWord)=total_degree(w.word)
+
 
 function Base.conj(w::NCWord)
     w_=w.word
@@ -173,6 +175,7 @@ function Base.conj(w::NCWord)
     return NCWord(w.monoid,res_word)
 end
 Base.conj(v::Vector{W}) where W<:AbstractMonomial=conj.(v)
+Base.adjoint(w::NCWord)=conj(w)
 
 function multiply_ncword(w1::NCWord,w2::NCWord)
     monoid=w1.monoid
@@ -181,7 +184,7 @@ function multiply_ncword(w1::NCWord,w2::NCWord)
     return transform_ncword(NCWord(monoid,res))
 end
 function divide_ncword(w1::NCWord,w2::NCWord)
-    (length(w1.word)==length(w2.word)==1) || return Error("Provide monomials")
+    # (length(w1.word)==length(w2.word)==1) || return Error("Provide monomials")
     res=normal_form(w1.word,w2.word-1)
     return res==w1.word ? false : NCWord(w1.monoid,res)
 end
@@ -215,12 +218,12 @@ Base.:<(w1::NCWord,w2::GraphProductWord)=isless(w1,w2)
 Base.:<(w1::GraphProductWord,w2::NCWord)=!isless(w2,w1)
 
 function build(m::NCMonoid)
-    m.is_built[]=true
     push!(m.g_basis,AbstractAlgebra.groebner_basis(Array(m.relations),2*maximum(total_degree.(m.relations),init=0))...)
+    m.is_built[]=true
     nothing
 end
 function build(m::NCMonoid,degree::Int)
-    m.is_built[]=true
     push!(m.g_basis,AbstractAlgebra.groebner_basis(m.relations,degree)...)
+    m.is_built[]=true
     nothing
 end

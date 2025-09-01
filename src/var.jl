@@ -91,11 +91,45 @@ Base.adjoint(v::Variable)=conj(v)
 is_herm(v::Variable)=!isnothing(v.conj[]) ? false : true
 
 one(v::Variable)=one(v.parent_monoid[])
-is_identity(x::X) where X<:Variable=false
+is_identity(v::V) where V<:Variable=false
 
 exponents(v::Variable)=Tuple([v==i ? 1 : 0 for i in v.parent_monoid[].vertices])
 degree(v::Variable)=1
 
+
+function looper(args)
+    vars=[]
+    exprs=[]
+    for var in args
+        if isa(var,Symbol)
+            if(contains(string(var),"_"))
+                var_conj=Symbol(string(var)*"_")
+                push!(vars,var_conj)
+                push!(vars,var)
+                push!(exprs,:($(esc(var_conj)) = $Variable($"$var_conj")))
+                push!(exprs,:($(esc(var)) = $Variable($"$var")))
+                push!(exprs,:($(esc(var)).conj[] = $(esc(var_conj))))
+                push!(exprs,:($(esc(var_conj)).conj[] = $(esc(var))))
+            else
+                push!(vars,var)
+                push!(exprs,:($(esc(var)) = $Variable($"$var")))
+            end
+        else
+            k=var.args[1]
+            k_=Symbol(string(k)*"_")
+            k__=Symbol(string(k)*"__")
+            herm=var.args[2]
+            non_herm=var.args[3]
+
+            push!(exprs,:(($(esc(k_)),$(esc(k__))) = $varArray($(string(k)),1:$(esc(non_herm)),true)))
+            push!(exprs,:($(esc(k)) = $varArray($(string(k)),1:$(esc(herm)) ) ))
+            push!(vars,k)
+            push!(vars,k_)
+            push!(vars,k__)
+        end
+    end
+    return vars,exprs
+end
 
 function varArray(s::String,indices,herm::Bool=false)
     if(herm)
@@ -132,40 +166,6 @@ macro pcmonoid(M,args...)
     );
 end
 
-
-function looper(args)
-    vars=[]
-    exprs=[]
-    for var in args
-        if isa(var,Symbol)
-            if(contains(string(var),"_"))
-                var_conj=Symbol(string(var)*"_")
-                push!(vars,var_conj)
-                push!(vars,var)
-                push!(exprs,:($(esc(var_conj)) = $Variable($"$var_conj")))
-                push!(exprs,:($(esc(var)) = $Variable($"$var")))
-                push!(exprs,:($(esc(var)).conj[] = $(esc(var_conj))))
-                push!(exprs,:($(esc(var_conj)).conj[] = $(esc(var))))
-            else
-                push!(vars,var)
-                push!(exprs,:($(esc(var)) = $Variable($"$var")))
-            end
-        else
-            k=var.args[1]
-            k_=Symbol(string(k)*"_")
-            k__=Symbol(string(k)*"__")
-            herm=var.args[2]
-            non_herm=var.args[3]
-
-            push!(exprs,:(($(esc(k_)),$(esc(k__))) = $varArray($(string(k)),1:$(esc(non_herm)),true)))
-            push!(exprs,:($(esc(k)) = $varArray($(string(k)),1:$(esc(herm)) ) ))
-            push!(vars,k)
-            push!(vars,k_)
-            push!(vars,k__)
-        end
-    end
-    return vars,exprs
-end
 
 macro subsystem(M,args...)
     monoids=[]
@@ -215,4 +215,4 @@ function Unitary(var::Variable)
     nothing
 end
 
-variables(x)=Vector{Variable}()
+variables(x)=Variable.(x)
