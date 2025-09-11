@@ -18,10 +18,21 @@ function mons_at_level(list_vars::Vector{Variable},level::String)
     end
 
     for i in total_types
+        na_nu=string.(split(i,"["))
         if(typeof(list_vars[1].parent_monoid[]))<:GraphProductMonoid
-            type_var_dict[i]=filter(x->extract_string_before_number(x.name)==i,list_vars)
+            if length(na_nu)==1
+                type_var_dict[i]=filter(x->extract_string_before_number(x.name)==i,list_vars)
+            else
+                rng_arr=parse_range(na_nu[2][1:end-1])
+                type_var_dict[i]=filter(x->extract_string_before_number(x.name)==na_nu[1] && extract_index(x.name) in rng_arr,list_vars)
+            end
         else
-            type_var_dict[i]=filter(x->x.parent_monoid[].name==i,list_vars)
+            if length(na_nu)==1
+                type_var_dict[i]=filter(x->x.parent_monoid[].name==i,list_vars)
+            else
+                rng_arr=parse_range(na_nu[2][1:end-1])
+                type_var_dict[i]=filter(x->extract_string_before_number(x.name)==na_nu[1] && extract_index(x.name) in rng_arr,list_vars)
+            end
         end
     end
     # return lvl_array,type_var_dict

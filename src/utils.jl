@@ -360,7 +360,29 @@ function extract_string_before_number(s::String)
     return s  # Return the whole string if no number is found
 end
 
+function extract_index(s::String)
+    for i in 1:length(s)
 
+        if haskey(IndexMap_rev, s[i]) || isdigit(s[i])
+            ind_str=s[i:end]
+            res=tryparse(Int,ind_str)
+            if res !== nothing
+                return res
+            else
+                res= map(c -> IndexMap_rev[c],ind_str)
+                return parse(Int,res)
+            end
+        end
+    end
+    throw("No index found in string")
+end
+
+function parse_range(s::String)
+    res= split(s,":")
+    ind_start = parse(Int,res[1])
+    ind_end = parse(Int,res[2])
+    return collect(ind_start : ind_end)
+end
 # function prmt_terms_coeff(t1::Term,t2::Term,S)
 #     a,b=S(t1.coefficient)*t1.monomial,S(t2.coefficient)*t2.monomial
 #     return a,b
