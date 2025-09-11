@@ -1,0 +1,99 @@
+\documentclass[11pt]{scrartcl}
+% \documentclass[aps, 10pt, twocolumn, showpacs, superscriptaddress]{revtex4-2}
+\usepackage[utf8]{inputenc}
+% \usepackage{libertinus}
+% \usepackage{microtype}
+\usepackage{amsmath,amssymb,mathtools,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{dsfont, lmodern}
+\usepackage{braket}
+\usepackage{booktabs}
+\usepackage{enumerate}
+\usepackage{tikz}
+% \usepackage{pgfplots}
+\usetikzlibrary{cd, calc}
+\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{decorations.markings}
+\usetikzlibrary{fit}
+\usepackage{marginnote}
+\usepackage{MnSymbol}
+\usepackage{stmaryrd}
+\usepackage[most]{tcolorbox}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage[normalem]{ulem}
+\usepackage{cancel,xcolor}
+\usepackage{orcidlink}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{enumitem}
+
+\lstset{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue},
+  stringstyle=\color{red},
+  commentstyle=\color{gray},
+  showstringspaces=false,
+  breaklines=true,
+  frame=none,
+  captionpos=b
+}
+
+
+\usepackage[backend=biber,style=alphabetic]{biblatex}
+\addbibresource{refs.bib}
+
+\title{\Large PCPOP : A Julia library for polynomial optimization with partially commuting variables}
+
+\usepackage{authblk} 
+
+\author[1]{Abhishek Mishra}
+\author[2]{Moisés Bermejo Morán}
+\author[1]{Stefano Pironio}
+
+\affil[1]{\large Laboratoire d'Information Quantique, Université libre de Bruxelles, Belgium}
+\affil[2]{\large Bilkent University, Türkiye}
+
+\date{\today}
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+ Abstract
+\end{abstract}
+\section{Introduction}
+PCPOP is a Julia library that builds and solves SDP relaxations for polynomial optimization with partially-commuting variables, where some variables commute and some not, and hence generalizing the non-commutative and fully-commutative polynomial optimization. It supports both the eigen-value and tracial versions. The algebra associated with Partially-commutative polynomial optimization is the Partially-commutative polynomial algebra[see \cite{}] and it can be seen as special case of Graph product polynomial algebra [see \ref{sec:}]. At the core, 
+\begin{itemize}
+    \item PCPOP implements various data structures to efficiently build monomials belonging to Graph product algebra and do arithmetic with them.  
+    \item PCPOP implements various algorithms, the theory of which is mentioned in \cite{}, to find normal forms of polynomials under given polynomial identities. 
+\end{itemize}
+
+
+Optimizing a polynomial given some polynomial constraints, a.k.a. polynomial optimization, has become a central tool in many diverse fields, but is a NP-hard problem. The fully-commutative polynomial optimization was approximated by Lassere using a sequence of semi-definite programs(SDP), the optimal values of which converge to global optimum of the polynomial optimization under certain assumptions. This was then extended to Non-Commuting variables yielding the NPA hierarchy \cite{}. Given the natural structure of non-commutativity among operators in quantum physics, the NPA hierarchy finds numerous applications such as solving foundational questions, analyzing Device-Independent Quantum Information protocols, Self-Testing, and many-body physics. It has also been extended to trace polynomials, with many prominent applications, such as the analysis of quantum networks.
+
+Given $p(\underline{x}),q_i(\underline{x})$, polynomials in \underline{x}=($x_1,x_2...x_n$) variables, polynomial optimisation can be described as,
+\begin{equation}
+\begin{split}
+       p^* \: = \:\underset{\underline{x}}{inf} \: p(\underline{x}), \\
+    s.t \: q_i(\underline{x}) \geq 0. 
+\end{split}
+\end{equation}
+In non-commuting variables \textbf{X}=($\textbf{x}_1,\textbf{x}_2...\textbf{x}_n$) and polynomials p(X), $q_i(X)$, polynomials in free algebra,non-commuting polynomial optimization can be described as,
+\begin{equation}
+\begin{split}
+       p^* =\underset{\underline{A} \in \mathcal{B}(\mathcal{H})^n, \psi \in \mathcal{H}, \mathcal{H}}{inf} \: \braket{\psi,p(\underline{A}) \psi}, \\
+    s.t \: q_i(A) \geq 0. 
+\end{split}
+\end{equation}
+In non-commuting variables \textbf{X}=($\textbf{x}_1,\textbf{x}_2...\textbf{x}_n$) and polynomials p(X), $q_i(X)$, polynomials in free algebra, trace polynomial optimization can be described as,
+\begin{equation}
+\begin{split}
+       p^* =& inf \: tr(p(X)), \\
+    s.t \: & q_i(X) \geq 0. \\
+     & tr(r_j(X)) \geq 0
+\end{split}
+\end{equation}
+
+\end{document}

@@ -1,0 +1,88 @@
+\section{Introduction}
+Optimizing a polynomial given some polynomial constraints, a.k.a. Polynomial Optimization, has become a central tool in many diverse fields. Polynomial Optimization is an NP-hard problem, but it was approximated by Lassere using a sequence of Semi-Definite programs that converge to true optimum under certain assumptions. This was then extended to Non-Commuting variables yielding the NPA hierarchy. Given the natural structure of non-commutativity among operators in quantum physics, the NPA hierarchy finds numerous applications such as solving foundational questions, analyzing Device-Independent Quantum Information protocols, Self-Testing, and many-body physics. It has also been extended to trace polynomials, with many prominent applications, such as the analysis of quantum networks. \\~\\
+Given how intractable it can be to solve the SDPs for higher levels or bigger problem sizes, i.e., with bigger PSD matrices and a large number of PSD and scalar constraints, several solutions to reduce the problem complexity by harnessing the structure of the input problem have been proposed. For e.g in, they use the sparsity in the input problem to reduce the SDP size at each levels of hierarchy, in , they propose how to use symmetry in the input problem to reduce the problem size and in they propose efficient solution for special type of correlations called synchronous correlations.\\~\\
+In this package, we use equality constraints to shrink the problem space, i.e., going to the quotient space. This dramatically reduces the SDP size for all levels of hierarchy for many problems. We explicitly find normal forms for polynomials under equality constraints ubiquitously appearing in quantum information such as cyclic equivalence, partial commutations, i.e., some operators commute and some not, projectors, idempotent, unitary, etc. A special graph-monoid structure is used to extend to more general equality constraints. The package does arithmetic in the quotient space and also handles multiplicative-compatible ordering. It is then used to generate the SDPs for a given hierarchy level and solve polynomial optimization problems efficiently. It is supplemented by , to do symmetry reduction symbolically,thus reducing the problem size even more.\\~\\
+The paper is structured as follows: in section , we discuss the relevant preliminaries briefly, and then in section, we discuss the important algorithms in the package that generate the normal forms, convert one normal form to another, and do arithmetic, including monomial ordering with those normal forms. In the next section we saw how to do polynomial optisation. And then in next section we discuss...
+
+\section{Preliminaries}
+Given $p(\underline{x}),q_i(\underline{x})$, polynomials in \underline{x}=($x_1,x_2...x_n$) variables, polynomial optimisation can be described as,
+\begin{equation}
+\begin{split}
+       p^* \: = \:\underset{\underline{x}}{inf} \: p(\underline{x}), \\
+    s.t \: q_i(\underline{x}) \geq 0. 
+\end{split}
+\end{equation}
+In non-commuting variables \textbf{X}=($\textbf{x}_1,\textbf{x}_2...\textbf{x}_n$) and polynomials p(X), $q_i(X)$, polynomials in free algebra,non-commuting polynomial optimization can be described as,
+\begin{equation}
+\begin{split}
+       p^* =\underset{\underline{A} \in \mathcal{B}(\mathcal{H})^n, \mathcal{B}(\mathcal{H}), \psi \in \mathcal{H}}{inf} \: \braket{\psi,p(\underline{A}) \psi}, \\
+    s.t \: q_i(A) \geq 0. 
+\end{split}
+\end{equation}
+In non-commuting variables \textbf{X}=($\textbf{x}_1,\textbf{x}_2...\textbf{x}_n$) and polynomials p(X), $q_i(X)$, polynomials in free algebra, trace polynomial optimization can be described as,
+\begin{equation}
+\begin{split}
+       p^* =& inf \: tr(p(X)), \\
+    s.t \: & q_i(X) \geq 0. \\
+     & tr(r_j(X)) \geq 0
+\end{split}
+\end{equation}
+In trace optimization, we work in quotient space of cyclic equivalence i.e for $m_1,m_2 \in \langle \underline{X} \rangle, \: tr(m_1)=tr(m_2)\mbox{ iff } \exists u,v \in \langle \underline{X} \rangle\mbox{ s.t } m_1=u*v,m_2=v*u  $\\
+The polynomial optimization problem can be approximated using semi-definite programs.  Inserting $q_0 \equiv 1$ and for d  $> d_{max} \equiv \: max\{deg(p), deg(q_i); i \in [1:n]\}$, the SDP for non-commutative polynomial optimization reads as,
+\begin{equation}
+    \begin{split}
+        p_d = & \underset{L: \mathcal{R}\langle x\rangle \rightarrow{\mathcal{R}}}{inf} L(p) \\
+        & s.t \:M_i \geq 0 \\
+        & s.t \:M_{u,v}=L(u^**q_i*v) \\
+        & s.t \:L(1)=1\\
+        & s.t \:L(f)=L(f^*)
+    \end{split}
+\end{equation}
+Here L is a linear functional on the polynomial space.
+The SDP for it's tracial analogue again for appropriate d is same as the SDP for non-commutative case except we have an additional conditions - $L(p)=L(q) \iff tr(p)=tr(q), L(r_i)\geq 0$.\\~\\
+We now define partial commutations and graph monoid.\\
+Given a finite alphabet $A$, the commutation relations on  $A \coloneq R \subseteq A \times A \mbox{ eg }. a*b=b*a,a,b \in A$, induces commutation relation $C \mbox{ on } \langle A \rangle \coloneq$.  $t_Cu \mbox{ iff } \exists t_1,t_2...t_n \in \langle A \rangle \mbox{ s.t } t=t_1,u=t_n \mbox{ \& } t_{i}=g*a*b*h ; t_{i+1}=g*b*a*h; (a,b) \in R$ \\
+partial monoid generated by A,R is $\coloneq M=\langle A\rangle /C$\\
+Similarly, for a collection of monoids, $M=\{M_1,M_2...\}$ called child monoids, and partial commutations, i.e., the $M \mbox{ is endowed with a } C$, i.e., a collection of pairs of monoids $(M_i, M_j); [M_i, M_j]=0$ that commute.  $w_1*a*b*w_2\equiv w_1*b*a*w_2$, for some $a \in M_i,b \in M_j \: s.t\:  (M_i,M_j) \in C. \: M$ with $ C$ is called a Graph monoid. G=M/C. Elements of G have the form $a^1_{i_1}a^2_{i_2}a^3_{i_3}...a^n_{i_n};$ where $a^j_{i_j} \in M_{i_j} \in M \mbox{ and } [a^j_{i_j},a^{j'}_{i_{j+1}}]=0\mbox{ if }[M_{i_{j}},M_{i_{j+1}}]=0. $
+As graph monoid and partial-commutative monoid have the same structure except that the variables or letters in partial-commutative monoid are equivalent to elements in graph monoid, we will just mention elements to refer to both and will clarify when distinction is required.
+\section{Core algorithms related to normal forms}
+For partially-commutative monoid or graph monoid there exists two important normal forms that we will describe. The first is called clique normal form and the second graph normal form. \\ To represent a word w in $\langle A \rangle$ in clique-normal form, we follow the steps below,
+\begin{itemize}
+    \item First get the maximal cliques of the complement of the graph generated as nodes being letters $\in A$ or child monoids of G and edges connecting letters that commute. We denote the ordered maximal cliques of parent monoid M as $cl_i^M, i \in [1:n]$
+    \item Then we iterate through the maximal cliques and for i-th max-clique we project the word to subword of w with letters from the i-th clique in the order they appear in the word., for eg. for $A=\{a,b,c\}$, word w=$abcaabc$, and for clique $\{a,b\}$, the projected subword is $abaab$. It will be called i-th cliqueword and denoted $c^i_w$
+\end{itemize}
+Given an ordering on the maximal cliques, we can see the clique normal form as ordered array of array of letters.
+ To represent a word w in graph normal form, we follow the following steps,
+ \begin{outline}
+    \1 Di-Graph is created by placing letters as nodes in the order as in the word.
+    \1 As you introduce the letters, a letter is connected to previously placed letters(previous letter $\rightarrow$ new letter) only when they don't commute, and there doesn't exist any path before .
+\end{outline}
+Another normal form which isn't used in the package explicitly but important is the foata normal form. It is easy to get the foata normal form from graph normal form as follows. 
+\begin{outline}
+    \1 Partition the graph normal form for w into levels as- 
+    \2 The nodes with no incoming edge belong to first level and nodes with an edge from a node in i-th level belongs to (i+1)-th level.
+    \1 order the nodes/letters within a level lexicographically and place letters from higher levels(i) after lower(j) levels $i>j$.
+\end{outline}
+To convert from graph normal form $g_w$ to clique normal form $c_w$, we first convert it to foata word and then to its clique normal form. 
+% Mention how to go from c_w to g_w 
+\\
+We now discuss how to do arithmetic with the normal forms just discussed.
+\subsection{Multiplication}
+The structure that stores elements in graph monoid also stores their left and right edge elements i.e. elements that can be commuted to the left and right edges, respectively. They are denoted $e_l(c_w),e_r(c_w)$ respectively.  Multiplication of words with clique normal form, mult($c_l,c_r$) for words l,r is mentioned below,
+\begin{outline}
+    \1 We iterate through pair of elements (a,b) s.t $a \in e_r(c_l),b \in e_l(c_r), a,b \in M_i \in G$, i.e both belong to same child monoid.
+    \1 We store the result of multiplication of mult(a,b) in an array m.
+    \1 We remove a from $c_l$ and b from $c_r$
+    \1 We multiply all the elements in m together; this just translates to putting the elements in their normal form in disjoint cliques, and we create their left and right edges. Say the formed clique normal as $c_m$
+    \1 we then fix the edges of $c_l,c_r$.
+    \1 We multiply $c_l*c_m*c_r$
+\end{outline}
+\subsection{Division}
+Given graph monoid G with maximal cliques $ cl_i^G, i \in [1:n]$, to see if $c_n$ divides $c_m$, follow the steps below,
+\begin{outline}
+    \1 we check if there exists array of 2-tuple of words$[(l_i,r_i), i \in [1:n]]$ such that $c_m^i=l_i*c_n^i*r_i$
+    \1 And the two array of words $[l_i],[r_i]$ forms valid clique normal forms.
+    \2 To check if [$l_1,l_2,...l_n$] where $l_i$ is a non-commuting word in G, for each element a in [$l_i$] belonging to cliques $J \subseteq [1:n]$, the number of occurrences of a in words $\{l_i, i \in J\}$ is equal,
+    \2 And the graph normal form created from $l_i$ is acyclic.
+\end{outline}
+To check if $g_n$ divides $g_m$, we check if $g_n$ is a subgraph of $g_m$.
