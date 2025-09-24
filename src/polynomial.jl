@@ -306,3 +306,5 @@ real_rep(m::AbstractMonomial) = conj_min(m)
 function degree(p::Polynomial)
     return maximum([degree(m) for m in p.monomials])
 end
+
+Base.:^(e::A,p::Int) where {A<: Union{AbstractMonomial,Polynomial}}= e==0 ? one(e) : prod([e for _ in 1:p])

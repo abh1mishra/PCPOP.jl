@@ -1,0 +1,20 @@
+\section{Getting started with PCPOP}
+This secion is divided in four parts, starting with how to solve classic non-commutative polynomial optimization and then moving to partially-commutative polynomial optimization, then the graph product polynomial optimization and finally trace partailly-commutative polynomial optimization. 
+\subsection{Non-commutative polynomial optimization}
+We start with a simple example of non-commutative polynomial optimization. Consider the following problem with hermitian variables $X_1,X_2$.
+\begin{equation}
+  \label{ncpop}
+\begin{split}
+       p^* &=\underset{\underline{X} , \psi , \mathcal{H}}{inf} \: \braket{\psi, X_1 \mult X_2 + X_2 \mult X_1\psi}, \\
+    & s.t \quad \qquad X_1^2 - X_1 = 0, \\
+    & \qquad \quad -X_2^2+X_2+1/2 \geq 0, \\
+    & \qquad \quad \braket{\psi , \psi} = 1. \\ 
+\end{split}
+\end{equation} 
+
+\begin{code}
+@ncmonoid M X1 X2
+function abc(x,y)
+    return x*y + y*x
+end
+\end{code}

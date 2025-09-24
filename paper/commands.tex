@@ -1,0 +1,238 @@
+\newcommand{\prom}[1]{\left\langle #1 \right\rangle}
+\newcommand{\norm}[1]{\left\|#1 }
+\renewcommand{\AA}{\mathcal{A}}
+\newcommand{\BB}{\mathcal{B}}
+\newcommand{\CC}{\mathcal{C}}
+\newcommand{\DD}{\mathcal{D}}
+\newcommand{\II}{\mathcal{I}}
+\newcommand{\kx}{K\langle X\rangle}
+
+\newcommand{\name}[1]{ #1_\CC}
+
+\newcommand{\setting}{\mathfrak S}
+\newcommand{\events}{\mathfrak E}
+\newcommand{\maxevents}{\mathfrak m}
+\newcommand{\vsp}[1]{V_{#1}}
+
+\newcommand{\pmodel}{\mathcal P}
+\newcommand{\pnons}{\mathcal N}
+\newcommand{\plocal}{\mathcal L}
+\newcommand{\pquant}{\mathcal Q}
+
+\newcommand{\disjoint}{D(S)}
+\newcommand{\opa}{\mathfrak A}
+\def \xxx {\langle \vec x \rangle}
+\def \sxx {\xx [\rho]}
+\def \txx {\xx [\tau]}
+\renewcommand{\ss}[1]{M(#1)}
+
+\def \P {\mathfrak P}
+\def \O {\mathfrak O}
+
+\newcommand{\zero}{\mathbf{0}}
+\newcommand{\one}{\mathbf{1}}
+
+\newcommand{\parts}[1]{\mathcal P(#1)}
+\renewcommand{\norm}[1]{\left \| #1 \right\|}
+\newcommand{\innerprod}[2]{\langle #1, #2 \rangle}
+
+\newcommand{\st}{\operatorname{s.t.}}
+
+% matrices
+\newcommand{\matrices}{\operatorname{Mat}}
+\newcommand{\rank}{\operatorname{rank}}
+% unit ball
+\newcommand{\ball}[1]{\operatorname{Ball}(#1)}
+% extremal
+\newcommand{\ext}{\operatorname{ext}}
+% support
+\newcommand{\supp}[1]{\operatorname{supp}(#1)}
+% convex hull
+\newcommand{\conv}{{\operatorname{conv}}}
+
+% ame state
+\newcommand{\ame}[2]{\operatorname{AME}(#1, #2)}
+
+% Number fields
+\newcommand{\N}{\mathds N}
+\newcommand{\Q}{\mathds Q}
+\newcommand{\R}{\mathds R}
+\newcommand{\C}{\mathds C}
+% Grobner basis generated from v
+\newcommand{\GB}[1]{\text{GB}\langle #1 \rangle}
+% field
+\newcommand{\kk}{\mathds K}
+% complex conjugate
+\newcommand{\conj}[1]{#1^\inv}
+% adjoint
+\newcommand{\adj}{*}
+% Letters
+\newcommand{\xx}{X}
+\newcommand{\pp}{P}
+% Presentation
+\newcommand{\pres}[2]{\langle #1 ; #2 \rangle}
+% Monoid
+\newcommand{\monoid}{\mathds M}
+\newcommand{\ncmonoid}{\mathcal W}
+\newcommand{\ncalgebra}{\mathcal P}
+\newcommand{\pcalgebra}{\kk \ncmonoid}
+\newcommand{\gpalgebra}{\mathcal{GP}}
+\newcommand{\cmonoid}{[ \xx ]}
+\newcommand{\pcmonoid}{\pres{\xx}{C}}
+\newcommand{\statemonoid}{\mathds M_S(\xx, \rho)}
+\newcommand{\tracemonoid}{\mathds M_T(\xx, \tau)}
+\newcommand{\formalmonoid}{\llangle \mathds M \rrangle}
+\newcommand{\lpmonoid}{[\xx|\pp]}
+% Involution
+\newcommand{\inv}{*}
+% Polynomial rings
+\newcommand{\ncring}{k \ncmonoid }
+\newcommand{\cring}{k \cmonoid}
+\newcommand{\pcring}{k \pcmonoid }
+\newcommand{\statering}{\kk \langle \statemonoid \rangle}
+\newcommand{\tracering}{\kk \langle \tracemonoid \rangle}
+\newcommand{\lpring}{\kk \lpmonoid }
+\newcommand{\polyalg}{R}
+\newcommand{\monoidring}{\kk \langle \monoid \rangle}
+
+% Equivalence classes
+\newcommand{\canonical}[1]{ \left\ulcorner #1 \right\urcorner }
+\newcommand{\eqclass}[1]{ [ #1]}
+\newcommand{\replacement}[1]{\mapsto_{#1}}
+\newcommand{\ideal}{\mathcal I}
+\newcommand{\idealgen}[1]{\langle #1 \rangle}
+\newcommand{\monoidgen}[1]{\langle #1 \rangle}
+% Leading terms
+\newcommand{\lc}[1]{\operatorname{lc}(#1)}
+\newcommand{\lm}[1]{\operatorname{lm}(#1)}
+\newcommand{\lt}[1]{\operatorname{lt}(#1)}
+% Letterplace
+\newcommand{\shift}[1]{\operatorname{sh}(#1)}
+%  maximal-clique
+\newcommand{\clique}{\mathcal C}
+% Jordan algebra
+% linear space
+\newcommand{\LL}{\mathcal L}
+% linear span
+\newcommand{\lspn}{\operatorname{span}}
+
+% expectation
+\newcommand{\expectation}[1]{\langle #1 \rangle}
+
+% clifford algebra
+\newcommand{\clifford}{\mathfrak C}
+
+% moments
+\newcommand{\moments}{\mathcal M}
+
+% highlight comments
+\newcommand{\moi}[1]{\textcolor{yellow!70!red!80!black}{#1}}
+
+\newcommand{\AM}[1]{\textcolor{blue!80!black}{#1}}
+\newcommand{\aM}[1]{\textcolor{purple!80!black}{#1}}
+
+\newcommand{\SP}[1]{\textcolor{red!80!black}{#1}}
+
+% multiplication
+\newcommand{\mult}{ }
+% involution
+\newcommand{\invol}{*}
+
+% Color boxes
+\colorlet{summarycolor}{yellow!70!red!90!blue!80!white}
+\colorlet{algorithmcolor}{blue!50!white}
+\colorlet{softwarecolor}{red!50!white}
+
+\newtcbtheorem[auto counter,number within=section]{summary}%
+  {Highlight}{fonttitle=\bfseries\upshape, fontupper=\slshape,
+     arc=0mm, colback=blue!5!white,colframe=summarycolor}{theorem}
+     
+\newcommand{\summarybox}[2]{
+\begin{figure}[h!]
+\begin{tcolorbox}[colback=summarycolor!70!white,colframe=summarycolor,title=#1, fonttitle=\bfseries]
+  \raggedright{#2}
+\end{tcolorbox}
+\end{figure}
+}
+
+\newcommand{\algorithmbox}[2]{
+\begin{figure}[h!]
+\begin{tcolorbox}[colback=white,colframe=algorithmcolor,title=#1, fonttitle=\bfseries]
+  #2
+\end{tcolorbox}
+\end{figure}
+}
+
+\newcommand{\softwarebox}[2]{
+\begin{figure}[h!]
+\begin{tcolorbox}[colback=softwarecolor!70!white,colframe=softwarecolor,title=#1, fonttitle=\bfseries]
+  #2
+\end{tcolorbox}
+\end{figure}
+}
+
+\newcommand\blueout{\bgroup\markoverwith
+{\textcolor{blue}{\rule[.5ex]{2pt}{0.4pt}}}\ULon}
+\newcommand{\mathsout}[1]% will draw line through middle of #1
+{\bgroup\mathchoice
+  {\sbox0{$\displaystyle{#1}$}%
+    \usebox0\hspace{-\wd0}%
+    \rule[0.5\ht0-0.5\dp0-.5pt]{\wd0}{1pt}}%
+  {\sbox0{$\textstyle{#1}$}%
+    \usebox0\hspace{-\wd0}%
+    \rule[0.5\ht0-0.5\dp0-.5pt]{\wd0}{1pt}}%
+  {\sbox0{$\scriptstyle{#1}$}%
+    \usebox0\hspace{-\wd0}%
+    \rule[0.5\ht0-0.5\dp0-.5pt]{\wd0}{1pt}}%
+  {\sbox0{$\scriptscriptstyle{#1}$}%
+    \usebox0\hspace{-\wd0}%
+    \rule[0.5\ht0-0.5\dp0-.5pt]{\wd0}{1pt}}%
+\egroup}
+\let \vec \textbf
+\newcommand{\id}{\mathbf{1}}
+
+\newcommand{\ketbra}[2]{\mathinner{|#1\rangle \langle#2|}}
+\newcommand{\dyad}[1]{| #1\rangle \langle #1|}
+\newcommand\hcancel[2][black]{\setbox0=\hbox{$#2$}%
+\rlap{\raisebox{.45\ht0}{\textcolor{#1}{\rule{\wd0}{1pt}}}}#2} 
+\newcommand{\nn}{\nonumber}
+\newcommand{\tr}{\operatorname{tr}}
+
+\newcommand{\adjpair}{\pi}
+
+
+% Tracial optimization
+\newcommand{\inonto}{\lhook\joinrel\twoheadrightarrow}
+\newcommand{\onto}{\twoheadrightarrow}
+\newcommand{\into}{\hookrightarrow}
+\newcommand{\headparagraph}[1]{\noindent \textbf{#1} --}
+\newcommand{\FF}{\mathds{F}}
+\newcommand{\Hclass}[1]{\llbracket #1 \rrbracket}
+\newcommand{\Gcan}[1]{\lceil #1 \rceil}
+\newcommand\cyclic[1]{\mathring{#1}}
+\renewcommand{\AA}{\mathcal{A}}
+\newcommand{\EE}{\mathcal{E}}
+\newcommand{\HH}{\mathcal{H}}
+\newcommand{\PP}{\mathcal{P}}
+\newcommand{\JJ}{\mathcal{J}}
+
+\newcommand{\csupp}{\operatorname{csupp}}
+
+%vectores en negrita
+\let\vec\mathbf
+%epsilon
+\let\epsilon\varepsilon
+
+
+\newcommand{\graph}{\mathcal G}
+%\newcommand{\canonical}[1]{[#1]}
+\newcommand{\complem}[1]{\bar #1}
+\newcommand{\pcmonoidgraph}{\ncmonoid_\graph}
+\newcommand{\pcalgebragraph}{\ncalgebra_\graph}
+
+\newcommand{\cliqueword}[1]{#1^\clique}
+\newcommand{\graphword}[1]{#1^G}
+
+\newcommand{\graphcanonical}[1]{[#1]}
+
+\newcommand{\sos}{\operatorname{SOS}_{R, Q}}

@@ -24,76 +24,115 @@
 \usepackage[normalem]{ulem}
 \usepackage{cancel,xcolor}
 \usepackage{orcidlink}
-\usepackage{listings}
 \usepackage{xcolor}
 \usepackage{enumitem}
+\usepackage{float} % for [H] exact figure placement
 
-\lstset{
-  language=Python,
-  basicstyle=\ttfamily\small,
-  keywordstyle=\color{blue},
-  stringstyle=\color{red},
-  commentstyle=\color{gray},
-  showstringspaces=false,
-  breaklines=true,
-  frame=none,
-  captionpos=b
+\usepackage{listings}
+\makeatletter
+
+
+\def\jlbasicfont{\ttfamily\large\selectfont} % Add this line
+% Custom colors for code
+\definecolor{jlkeyword}{RGB}{33,74,135}
+\definecolor{jlcomment}{RGB}{120,120,120}
+\definecolor{jlidentifier}{RGB}{0,102,0}
+\definecolor{jlmacro}{RGB}{160,32,240} % purple for macros
+\definecolor{jlstring}{RGB}{196,26,22}
+
+% Define a custom Julia language (minimal subset; extend as needed)
+\lstdefinelanguage{JuliaCustom}{
+  sensitive=true,
+  morekeywords={abstract,baremodule,begin,break,catch,const,continue,do,else,elseif,end,export,finally,for,function,if,import,importall,let,local,macro,module,mutable,primitive,quote,return,struct,try,using,while},
+  morecomment=[l]{\#},
+  morecomment=[n]{\#=}{=\#},
+  morestring=[b]" , % double quoted strings
+  morestring=[b]'   % character literals
 }
 
+% List your macros (include the leading @ because we mark @ as a letter). Add more here.
+\newcommand{\JuliaMacroList}{@ncmonoid,@time,@show,@assert}
+
+% Style: group 1 = language keywords, group 2 = macros, emph for types if desired
+\lstdefinestyle{code}{
+  columns=fullflexible,
+  keepspaces=true,
+  language=JuliaCustom,
+  alsoletter={@},
+  morekeywords=[2]{@ncmonoid,@time,@show,@assert}, % expand as needed
+  keywordstyle=\color{jlkeyword}\bfseries,
+  keywordstyle=[2]\color{jlmacro}\bfseries,
+  commentstyle=\color{jlcomment}\itshape,
+  identifierstyle=\color{jlidentifier},
+  stringstyle=\color{jlstring},
+  showstringspaces=false,
+  xleftmargin=1.5cm,
+  basicstyle=\ttfamily\small,
+  frame=single,
+  framesep=4pt,
+  rulecolor=\color{black!15},
+  breaklines=true,
+  tabsize=4
+}
+\lstnewenvironment{code}{\lstset{style=code}}{} % I also updated this, which is simpler now
+\newcommand{\codefile}[1]{\lstinputlisting[style=code]{#1}}
+\newcommand{\codelink}[1]{\lstinputlisting[style=code]{#1}
+            \begin{center}
+            \href{http://m3g.iqm.unicamp.br/main/didatico/simulacoes2/#1}
+                 {\textcolor{blue}{~\hspace{6.5cm}[Clique aqui para baixar o código]}}
+            \end{center}}
+\newcommand{\inline}{\jlinl}
+\newcommand{\il}{\jlinl}
+
+
+% \usepackage{fontspec}
+% \newfontfamily \JuliaMono {JuliaMono-Light.ttf}[
+%     Path      = ./,
+%     Extension = .ttf
+%     ]
+% \newfontface \JuliaMonoLight{JuliaMono-Light}
+% \setmonofont{JuliaMono-Light}[ Contextuals=Alternate ]
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{question}[theorem]{Question}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem*{theorem*}{Theorem}
+\newtheorem{observation}[theorem]{Observation}
+\newtheorem{scheme}{Scheme}
+
+\input{commands.tex}
 
 \usepackage[backend=biber,style=alphabetic]{biblatex}
 \addbibresource{refs.bib}
 
-\title{\Large PCPOP : A Julia library for polynomial optimization with partially commuting variables}
+\title{\Large PCPOP : A Julia library for polynomial optimization with partially commutative variables}
 
 \usepackage{authblk} 
 
-\author[1]{Abhishek Mishra}
 \author[2]{Moisés Bermejo Morán}
-\author[1]{Stefano Pironio}
+\author[1]{Abhishek Mishra}
+
 
 \affil[1]{\large Laboratoire d'Information Quantique, Université libre de Bruxelles, Belgium}
 \affil[2]{\large Bilkent University, Türkiye}
 
 \date{\today}
+
 \begin{document}
 
 \maketitle
 
 \begin{abstract}
- Abstract
+PCPOP implements mathematical structures and new algorithms to represent and manipulate elements of free algebra, partially-commutative algebra, graph product algebra and space of trace polynomials. The main objective is to leverage the equality constraints to reduce the complexity of the SDP relaxations for polynomial optimization problems. Given the set of equality constriants $G$ with subset $S$ of them being special binomial constraints such as partial commutations, projectors, unitaries, dichotomic, orthogonality etc., PCPOP finds normal forms directly and efficiently and then for the remaining equality constraints $G \setminus S$, it uses the theory of Gr\"obner basis in the quotient space modulo $S$ to reduce the polynomials and hence reduce the complexity of the SDP relaxations. For trace polynomial optimization, it finds normal forms with resepct to cyclic equivalence, partial commutations and other special binomial constraints. 
 \end{abstract}
-\section{Introduction}
-PCPOP is a Julia library that builds and solves SDP relaxations for polynomial optimization with partially-commuting variables, where some variables commute and some not, and hence generalizing the non-commutative and fully-commutative polynomial optimization. It supports both the eigen-value and tracial versions. The algebra associated with Partially-commutative polynomial optimization is the Partially-commutative polynomial algebra[see \cite{}] and it can be seen as special case of Graph product polynomial algebra [see \ref{sec:}]. At the core, 
-\begin{itemize}
-    \item PCPOP implements various data structures to efficiently build monomials belonging to Graph product algebra and do arithmetic with them.  
-    \item PCPOP implements various algorithms, the theory of which is mentioned in \cite{}, to find normal forms of polynomials under given polynomial identities. 
-\end{itemize}
-
-
-Optimizing a polynomial given some polynomial constraints, a.k.a. polynomial optimization, has become a central tool in many diverse fields, but is a NP-hard problem. The fully-commutative polynomial optimization was approximated by Lassere using a sequence of semi-definite programs(SDP), the optimal values of which converge to global optimum of the polynomial optimization under certain assumptions. This was then extended to Non-Commuting variables yielding the NPA hierarchy \cite{}. Given the natural structure of non-commutativity among operators in quantum physics, the NPA hierarchy finds numerous applications such as solving foundational questions, analyzing Device-Independent Quantum Information protocols, Self-Testing, and many-body physics. It has also been extended to trace polynomials, with many prominent applications, such as the analysis of quantum networks.
-
-Given $p(\underline{x}),q_i(\underline{x})$, polynomials in \underline{x}=($x_1,x_2...x_n$) variables, polynomial optimisation can be described as,
-\begin{equation}
-\begin{split}
-       p^* \: = \:\underset{\underline{x}}{inf} \: p(\underline{x}), \\
-    s.t \: q_i(\underline{x}) \geq 0. 
-\end{split}
-\end{equation}
-In non-commuting variables \textbf{X}=($\textbf{x}_1,\textbf{x}_2...\textbf{x}_n$) and polynomials p(X), $q_i(X)$, polynomials in free algebra,non-commuting polynomial optimization can be described as,
-\begin{equation}
-\begin{split}
-       p^* =\underset{\underline{A} \in \mathcal{B}(\mathcal{H})^n, \psi \in \mathcal{H}, \mathcal{H}}{inf} \: \braket{\psi,p(\underline{A}) \psi}, \\
-    s.t \: q_i(A) \geq 0. 
-\end{split}
-\end{equation}
-In non-commuting variables \textbf{X}=($\textbf{x}_1,\textbf{x}_2...\textbf{x}_n$) and polynomials p(X), $q_i(X)$, polynomials in free algebra, trace polynomial optimization can be described as,
-\begin{equation}
-\begin{split}
-       p^* =& inf \: tr(p(X)), \\
-    s.t \: & q_i(X) \geq 0. \\
-     & tr(r_j(X)) \geq 0
-\end{split}
-\end{equation}
-
+\input{introduction.tex}
+\input{technical_background.tex}
+\input{getting_started.tex}
 \end{document}

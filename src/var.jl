@@ -215,4 +215,4 @@ function Unitary(var::Variable)
     nothing
 end
 
-variables(x)=Variable.(x)
+variables(x)=Variable[]

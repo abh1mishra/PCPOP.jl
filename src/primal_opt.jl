@@ -163,7 +163,7 @@ function npa_moments_block(list_monomials::Vector{M},model;cPoly=1,unique_mons=[
         for j in 1:num_monomials
             
             # Compute the product of the monomials
-            monomial_product = real_rep(Polynomial(reduce_grobner(list_monomials[i]'* cPoly * list_monomials[j],G)))
+            monomial_product = real_rep(reduce_grobner(Polynomial(list_monomials[i]'* cPoly * list_monomials[j]),G))
             # Initialize the JuMP variable for the matrix entry
             moments_matrix[i, j] = 0.0
             for (m,c) in monomial_product
@@ -212,6 +212,7 @@ function npa(obj, level;
             ops = ops_at_level(vars, level_principal)
         end
     end
+    println("Number of operators in the principal moment matrix: ", length(ops_principal))
     G=[]
     if op_eq!=0
         max_degree = maximum([degree(g) for g in op_eq])
