@@ -235,7 +235,7 @@ function npa(obj, level;
                     tr_eq_p+=c*unique_vars[m_i]
                 end
             else
-                tr_eq_poly=real_rep(1*reduce_grobner(tr_eq[i][1],G))
+                tr_eq_poly=real_rep(1*reduce_grobner(1*tr_eq[i][1],G))
                 for (m,c) in tr_eq_poly
                     m_i=findfirst(x->x==m,unique_mons)
                     tr_eq_p+=c*unique_vars[m_i]
@@ -254,7 +254,7 @@ function npa(obj, level;
                     tr_ge_p+=c*unique_vars[m_i]
                 end
             else
-                tr_ge_poly=real_rep(1*reduce_grobner(tr_ge[i][1],G))
+                tr_ge_poly=real_rep(1*reduce_grobner(1*tr_ge[i][1],G))
                 for (m,c) in tr_ge_poly
                     m_i=findfirst(x->x==m,unique_mons)
                     tr_ge_p+=c*unique_vars[m_i]
@@ -293,7 +293,7 @@ function npa(obj, level;
             obj_p+=c*unique_vars[m_i]
         end
     else
-        obj_poly=real_rep(1*reduce_grobner(obj,G))
+        obj_poly=real_rep(1*reduce_grobner(1*obj,G))
         for (m,c) in obj_poly
             m_i=findfirst(x->x==m,unique_mons)
             if m_i==nothing

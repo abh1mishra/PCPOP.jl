@@ -33,7 +33,6 @@ To solve a non-commutative polynomial optimization problem using PCPOP, we follo
 \begin{itemize}
     \item First we need to define the non-commutative variables and an object that stores information about the corresponding monoid using the macro \texttt{@ncmonoid}. The first argument is always for the monoid object and the rest for the variables. 
     \item Then we define the equality constraints using \texttt{add\_relations!}. For constriants like \emph{projector,Unitary,Unipotent} we can use built-in functions \texttt{Projector,Unitary,Unipotent} respectively. 
-    \item Next, we define the objective function, inequality constraints and level of relaxation.
     \item Finally, we call the function \texttt{npa} to solve the optimization problem. \texttt{npa} takes the objective polynomial and the level as compulsory arguments and also some optional arguments like arrays of operator inequalities(\texttt{op\_ge}), operator equalities(\texttt{op\_eq}), expectation value equalities(\texttt{tr\_eq}) and inequalities(\texttt{tr\_ge}). The function returns the optimal value, the SDP model, a dictionary that maps the monomial basis to coressponding JuMP variables and finally the principal matrix.
 \end{itemize}
 PCPOP provides nice interface to declare variables. We can create a container of variables using \texttt{X[n,m]} where $X$ is the name for variable array,  $n$ is the number of hermitian variables and $m$ is the number of non-hermitian variables. In that case $X$ stores the hermitian variables and $X\_$ stores the non-hermitian variables. 
@@ -65,3 +64,63 @@ $2.0b*a + 1.0b$
 \end{lstlisting}
 
 \subsection{Partially-commutative polynomial optimization}
+Consider the problem of certifying genuine multi-partite non-locality in a Bell scenario with n parties where each party performs two dichotomic measurements \cite{PhysRevA.110.L010401}. Here we illustrate the case for two parties. This can be cast as a polynomial optimization problem with variables $X=\{A_1,A_2,B_1,B_2\}$ each being projectors and where $A_i,B_j$ belong to Alice and Bob respectively. The problem reads as follows.
+\begin{equation}
+  \label{ex:pcpop_hardy}
+   \begin{split}
+       p^* &=\underset{\underline{X} , \psi , \mathcal{H}}{inf} \: \braket{\psi, A_1 \mult B_1 \psi}, \\
+    & s.t \quad [A_i,B_j] =0, \forall i,j \in \{1,2\}\\
+    & s.t \quad A_i^2-A_i = B_j^2-B_j = 0, \forall i,j \in \{1,2\} \\
+    & s.t \quad \braket{\psi, A_2 \mult B_1 \psi} = \braket{\psi, A_1 \mult B_2 \psi} = 0, \\
+    & s.t \quad \braket{\psi, (1-A_2) \mult (1-B_2) \psi} = 0, \\
+    & \qquad \quad \braket{\psi , \psi} = 1. \\ 
+\end{split}
+\end{equation} 
+This can be solved with PCPOP as follows.
+\begin{code}
+    @pcmonoid M A[2,0] B[2,0]
+    Projector.([A;B])
+    @comms A B
+    build(M)
+    obj=A[1]*B[1]
+    tr_eq= [[A[2] * B[1],0],[A[1] * B[2],0],[(1-A[2]) * (1-B[2]),0]]
+    level=2
+    ov,model,var_dict,principal_matrix=npa(obj,level;tr_eq=tr_eq;min=false)
+    println("Optimal value is ",ov)
+\end{code}
+THis returns optimal value as $0.0902$ as in \cite{PhysRevA.110.L010401}. The steps to solve a partially-commutative polynomial optimization problem are similar to that of non-commutative polynomial optimization with some differences.
+\begin{itemize}
+    \item First we define the partially-commutative monoid using the macro \texttt{@pcmonoid}. The first argument is always for the monoid object and the rest for the variables. 
+    \item Then, we define which variables commute using the built-in macro \texttt{@comms}. 
+    \item Then we define some special operator equality constraints like \emph{projector}, \emph{unitary}, \emph{dichotomic} and \emph{orthogonal pairs} using built-in functions \texttt{Projector,Unitary,Unipotent} and macro \texttt{@ortho} respectively. We leave the general equality constraints to be fed to \texttt{npa} function as the optional argument \texttt{op\_eq}.
+    \item Finally, we call the function \texttt{npa} to solve the optimization problem. \texttt{npa} takes the objective polynomial and the level as compulsory arguments and also some optional arguments like arrays of operator inequalities(\texttt{op\_ge}), operator equalities(\texttt{op\_eq}), expectation value equalities(\texttt{tr\_eq}) and inequalities(\texttt{tr\_ge}). The function returns the optimal value, the SDP model, a dictionary that maps the monomial basis to coressponding JuMP variables and finally the principal matrix.
+\end{itemize}
+\begin{remark}
+Notice, that compared to the non-commutative case, where we we enforce all the equality constraint before building the monoid, here we only enforce the special equality constraints like projector, unitary, dichotomic and orthogonality before building the monoid. These special equality constraints are directly and efficiently handled using normal forms and not using Macaulay method which handles the general operator equality constraints. 
+\end{remark}
+The user interface to define the variables and the monoid is same as in non-commutative case. The macro \texttt{@comms} provides multiple ways to define commutation relations. We illustrate all the options.
+\begin{lstlisting}[style=code, mathescape=true]
+julia>@pcmonoid M a b # a and b are two hermitian variables
+julia>@comms a b #  variable a commutes with variable b
+julia>print(a*b,"\n",b*a)
+(a)(b)
+(a)(b)
+julia> a*b==b*a
+true
+\end{lstlisting}
+\begin{lstlisting}[style=code, mathescape=true]
+julia> @pcmonoid M A[2,0] B[2,0] # A1,A2 are hermitian variables for Alice and B1,B2 for Bob
+julia> @comms A B # all variables of A commute with all variables of B
+\end{lstlisting}
+\begin{lstlisting}[style=code, mathescape=true]
+julia>@pcmonoid M a b c d e f # a,b,c,d,e,f are six hermitian variables
+julia>@comms [a,b,c] # to enforce [a,b]=[b,c]=[a,c]=0
+julia>a*b*c==c*a*b
+true
+julia>a*e*b == b*e*a
+false 
+\end{lstlisting}
+To enforce the orthogonality constraint $a*b=0$, we can use the built-in macro \texttt{@ortho} as $\texttt{@ortho a b}$. The \texttt{@ortho} macro works similarly as \texttt{@comms} macro.
+\subsection{Graph product polynomial optimization}
+% Let us represent the projector for the first outocme of first measurement of Alice(Bob,Charlie) as $A_1(B_1,C_1)$ and similarly for the first outcome of second measurement as $A_2(B_2,C_2)$. The projectors for the second outcome  are just $1-x$ where $x$ is the projector for the first outcome. The projectors belonging to different parties commute with each other but not the projectors belonging to the same party. The objective is to minimize the following polynomial
+

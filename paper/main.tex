@@ -31,6 +31,8 @@
 \usepackage{listings}
 \makeatletter
 
+\usepackage[backend=biber,style=alphabetic]{biblatex}
+\addbibresource{refs.bib}
 
 \def\jlbasicfont{\ttfamily\large\selectfont} % Add this line
 % Custom colors for code
@@ -136,4 +138,6 @@ PCPOP implements mathematical structures and new algorithms to represent and man
 \input{introduction.tex}
 \input{technical_background.tex}
 \input{getting_started.tex}
+
+\printbibliography
 \end{document}

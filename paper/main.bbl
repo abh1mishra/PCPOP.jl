@@ -1,0 +1,75 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{anyt/global//global/global}
+    \entry{PhysRevA.110.L010401}{article}{}
+      \name{author}{3}{}{%
+        {{hash=1821f803a140b0a1abfc339b0fda1ef9}{%
+           family={Adhikary},
+           familyi={A\bibinitperiod},
+           given={Ranendu},
+           giveni={R\bibinitperiod}}}%
+        {{hash=958950c88662775a81b93c2049e730a4}{%
+           family={Mishra},
+           familyi={M\bibinitperiod},
+           given={Abhishek},
+           giveni={A\bibinitperiod}}}%
+        {{hash=10c12167f44eb6865f2ceeb4b5a670c9}{%
+           family={Rahaman},
+           familyi={R\bibinitperiod},
+           given={Ramij},
+           giveni={R\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {American Physical Society}%
+      }
+      \strng{namehash}{6f2e3f1dfffb6c2eddc42e326757c648}
+      \strng{fullhash}{6f2e3f1dfffb6c2eddc42e326757c648}
+      \strng{bibnamehash}{6f2e3f1dfffb6c2eddc42e326757c648}
+      \strng{authorbibnamehash}{6f2e3f1dfffb6c2eddc42e326757c648}
+      \strng{authornamehash}{6f2e3f1dfffb6c2eddc42e326757c648}
+      \strng{authorfullhash}{6f2e3f1dfffb6c2eddc42e326757c648}
+      \field{labelalpha}{AMR24}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issue}{1}
+      \field{journaltitle}{Phys. Rev. A}
+      \field{month}{7}
+      \field{title}{Self-testing of genuine multipartite entangled states without network assistance}
+      \field{volume}{110}
+      \field{year}{2024}
+      \field{pages}{L010401}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1103/PhysRevA.110.L010401
+      \endverb
+      \verb{urlraw}
+      \verb https://link.aps.org/doi/10.1103/PhysRevA.110.L010401
+      \endverb
+      \verb{url}
+      \verb https://link.aps.org/doi/10.1103/PhysRevA.110.L010401
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

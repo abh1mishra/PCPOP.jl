@@ -1,14 +1,14 @@
 # Fdb version 4
-["biber main"] 0 "main.bcf" "main.bbl" "main" 1758730649.10107 0
-  "main.bcf" 0 -1 0 "pdflatex"
-  "refs.bib" 0 -1 0 ""
+["biber main"] 0 "main.bcf" "main.bbl" "main" 1758815570.59018 -1
+  "main.bcf" 1758815570.49085 108035 629936ab1aee3d8b7ec5dd571b4d35b2 "pdflatex"
+  "refs.bib" 1758809011.04343 480 b659cd23c5a280d9446ff2926d4c3c4a ""
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1758730647.52912 "/home/abhishek-mishra/Dropbox/repo/QCMaterial/Groebner/TraceGrobner/PCPOP/paper/main.tex" "main.pdf" "main" 1758730649.10134 0
+["pdflatex"] 1758815569.04046 "/home/abhishek-mishra/Dropbox/repo/QCMaterial/Groebner/TraceGrobner/PCPOP/paper/main.tex" "main.pdf" "main" 1758815570.59039 0
   "/etc/texmf/web2c/texmf.cnf" 1739201795.78675 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/abhishek-mishra/Dropbox/repo/QCMaterial/Groebner/TraceGrobner/PCPOP/paper/main.tex" 1758727680.28939 5258 7ab1da34fac72ad9a090a858bb1d312d ""
+  "/home/abhishek-mishra/Dropbox/repo/QCMaterial/Groebner/TraceGrobner/PCPOP/paper/main.tex" 1758809038.77282 5358 b93df20f75f662c664c8614d76c70458 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/mnsymbol/MnSymbolA.enc" 1177804218 3341 78e600b269762aa2a25a5293cc4535c0 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/mnsymbol/MnSymbolC.enc" 1177804218 3275 8d7166dfdbc31ffdc8aba0c31b3bd5c8 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/mnsymbol/MnSymbolD.enc" 1177804218 3375 808c88761dbdc66fc653d18f42765b64 ""
@@ -294,6 +294,7 @@
   "/usr/share/texlive/texmf-dist/web2c/texmf.cnf" 1707919699 40399 f2c302f7d2af602abb742093540a5834 ""
   "/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc" 1202520719 2405 5dcf2c1b967ee25cc46c58cd52244aed ""
   "/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc" 1202520719 2327 9d6df24f9c4f7368395224341a95523a ""
+  "/usr/share/texmf/fonts/enc/dvips/lm/lm-rmsc.enc" 1202520719 2355 3e74b90173fc699673a5163cee277702 ""
   "/usr/share/texmf/fonts/enc/dvips/lm/lm-rmtt.enc" 1254269338 2359 de53213020575850c8f8debc35095765 ""
   "/usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc" 1254269338 3031 6c4d3515bf7115d8518af1c9ab97ca44 ""
   "/usr/share/texmf/fonts/tfm/public/lm/lmmi10.tfm" 1148093231 1528 6d36b2385e0ca062a654de6ac59cb34f ""
@@ -306,6 +307,7 @@
   "/usr/share/texmf/fonts/tfm/public/lm/rm-lmbx10.tfm" 1254269338 11880 35fcf136a2198418dfc53c83e9e2a07f ""
   "/usr/share/texmf/fonts/tfm/public/lm/rm-lmbx6.tfm" 1254269338 11852 eda7061aa4cc8552ba736dae866e4460 ""
   "/usr/share/texmf/fonts/tfm/public/lm/rm-lmbx8.tfm" 1254269338 11868 731e03b24d399279cf9609d002110394 ""
+  "/usr/share/texmf/fonts/tfm/public/lm/rm-lmcsc10.tfm" 1254269338 11088 74137ed57ef5d28227a6f78692896bed ""
   "/usr/share/texmf/fonts/tfm/public/lm/rm-lmr10.tfm" 1254269338 11868 4f81e9b6033c032bdaf9884f4d7ef412 ""
   "/usr/share/texmf/fonts/tfm/public/lm/rm-lmr12.tfm" 1254269338 11888 6841b91e46b65cf41a49b160e6e74130 ""
   "/usr/share/texmf/fonts/tfm/public/lm/rm-lmr5.tfm" 1254269338 11804 aefb10c002e6492c25236524a447f969 ""
@@ -321,6 +323,7 @@
   "/usr/share/texmf/fonts/tfm/public/lm/rm-lmtti10.tfm" 1254269338 1340 7042fba54e6301adc4002664af965e60 ""
   "/usr/share/texmf/fonts/tfm/public/lm/ts1-lmr10.tfm" 1254269338 1556 b86d923e6b2f9aab2e313098a95cb0b8 ""
   "/usr/share/texmf/fonts/type1/public/lm/lmbx10.pfb" 1255129361 121021 1bf809ce4a594679006bd72263eba59b ""
+  "/usr/share/texmf/fonts/type1/public/lm/lmcsc10.pfb" 1255129361 116427 4a5b1ccaa7cce719091920a86b58608d ""
   "/usr/share/texmf/fonts/type1/public/lm/lmmi10.pfb" 1254269338 30388 702fae6a5f0e6e9c48a1d872b442ffcf ""
   "/usr/share/texmf/fonts/type1/public/lm/lmmi6.pfb" 1254269338 31113 04b711c9a4c7f8cb4ed784c6fc4cc1c5 ""
   "/usr/share/texmf/fonts/type1/public/lm/lmmi8.pfb" 1254269338 30635 833ec815d446ec453a4913fc26d24cbc ""
@@ -345,13 +348,13 @@
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1740671695.56708 5472669 54eaf61a88b6b7896ebd0dac973cb29c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1740671717 8214689 689c021566decea0cb423cd40c149465 ""
   "commands.tex" 1758013409.52401 6684 9d5ed0ba444f42d2c2b016bf9746ccb7 ""
-  "getting_started.tex" 1758730645.77784 4021 b6c07914fec53b2634bacae5d2847c3e ""
+  "getting_started.tex" 1758815567.32446 8799 e97681468b4fe0ea7b5c875f0e52df1e ""
   "introduction.tex" 1758704270.35288 11339 edbc24997a315748904a38a00b441cbb ""
-  "main.aux" 1758730648.93089 5801 a2010eec0086e4c820faedc4cc8d2e2a "pdflatex"
-  "main.bbl" 0 -1 0 "biber main"
-  "main.out" 1758730648.68877 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "main.run.xml" 1758730648.9336 2305 6f2db2c7fdb8690081283d767cdc3b84 "pdflatex"
-  "main.tex" 1758727680.28939 5258 7ab1da34fac72ad9a090a858bb1d312d ""
+  "main.aux" 1758815570.48885 6780 706eaf7a41f929b912bd569e8f63ff98 "pdflatex"
+  "main.bbl" 1758809055.48082 2404 262ac5a7ae7cc584e2b5090ec64a9198 "biber main"
+  "main.out" 1758815570.21367 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "main.run.xml" 1758815570.49185 2305 6f2db2c7fdb8690081283d767cdc3b84 "pdflatex"
+  "main.tex" 1758809038.77282 5358 b93df20f75f662c664c8614d76c70458 ""
   "technical_background.tex" 1758704573.40407 8664 a2f0b3471aa544d814aa46f1a557ac16 ""
   (generated)
   "main.aux"
