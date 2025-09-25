@@ -261,6 +261,9 @@ function multiply(m::GraphProductWord{Variable},n::GraphProductWord{Variable})
     middle_list=Vector{}()
 
     for (i,j) in prods
+        if j in i.ortho_conj
+            return Polynomial(parent_monoid)
+        end
         if(i==j && i.mult_type[]==:Projector)
             clique_indices=i.clique_indices
             for index in clique_indices

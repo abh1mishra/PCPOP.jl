@@ -129,6 +129,9 @@ function cyclic_npa_moments_block(list_monomials::Vector{M},model;cPoly=1,unique
             for (m,c) in monomial_product
                 # println("2",typeof(m))
                 m1,m2 =  (cyclic_reduce(m),cyclic_reduce(m'))
+                if m1==0 || m2==0
+                    continue
+                end
                 m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
                 if m_i !== nothing
                     # Use the existing JuMP variable

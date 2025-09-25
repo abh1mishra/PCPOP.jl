@@ -255,8 +255,9 @@ function mult_poly(p::Polynomial{C_T_1}, q::Polynomial{C_T_2}) where {C_T_1,C_T_
             end
         end
     end
+
     # Sum all the monic polynomials in the result vector
-    return sum(res_vec)
+    return sum(res_vec;init=Polynomial{T}(p.monoid))
 end
 Base.one(p::Polynomial)=one(p.monoid)
 

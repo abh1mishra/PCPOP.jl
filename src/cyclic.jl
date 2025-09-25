@@ -13,6 +13,9 @@ function cyclic_reduce(m::GraphProductWord{V}) where V<: Variable
     m_r=copy(m.edge_r)
     prod=product(m_r,m_l)
     for (i,j) in prod
+        if j in i.ortho_conj
+            return 0
+        end
         # projector
         if i==j && i.mult_type[]==:Projector && length(m_words[i.clique_indices[1]])!=1
             for index in i.clique_indices

@@ -33,12 +33,13 @@ struct Variable <: AbstractMonomial
     monomial::Base.RefValue{AbstractMonomial}
     conj::Base.RefValue{Union{Variable,Nothing}}
     mult_type::Base.RefValue{Symbol}
+    ortho_conj::Vector{Variable}
     # To manipulate current monoid within parent monoid
     clique_indices::Vector{Int}
     commutes_with::Vector{Variable}
     function Variable(name)
         new(string(name),Base.RefValue{AbstractMonoid}(),Base.RefValue{AbstractMonomial}(),
-        Base.RefValue{Union{Variable,Nothing}}(nothing),Base.RefValue{Symbol}(:Free),Vector{Int}(),Vector{AbstractMonoid}())
+        Base.RefValue{Union{Variable,Nothing}}(nothing),Base.RefValue{Symbol}(:Free),Vector{Variable}(),Vector{Int}(),Vector{Variable}())
     end
 end
 

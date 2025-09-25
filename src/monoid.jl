@@ -110,6 +110,52 @@ function add_comms!(comms::Vector{Tuple{m,m}}) where m<: Union{Variable,Abstract
 end
 
 
+"""
+    add_comms!(comms)
+
+    Adds commutations to a given set.
+
+    # Arguments
+    - `comms`: A set of commutations. It can be a vector of Variables or a vector of vectors.
+
+    # Returns
+    - None. The function modifies the `comms` set in-place.
+"""
+function add_orthos!(orthos)
+
+    (length(orthos)==1 && isa(orthos[1],Vector)) ? orthos=orthos[1] : nothing
+    length(orthos)==1 && isa(orthos[1],Variable) && throw("Provide orthogonal pairs")
+
+    z=[(isa(i,Variable)) ? [i] : i for i in orthos]
+    z=collect(combinations(z,2))
+    z=[vec(collect(product(i...))) for i in z]
+    z=union(z...)
+    add_orthos!(z)
+end
+
+macro ortho(vars...)
+    return :($add_orthos!($(Expr(:tuple, esc.(vars)...))))
+end
+
+function add_orthos!(orthos::Vector{Tuple{m,m}}) where m<: Variable
+
+    M=isempty(orthos) ? throw("Provide orthogonal pairs") : first(first(orthos)).parent_monoid[]
+    M.is_built[] && throw("Operators already built")
+
+    for (i,j) in orthos
+
+        if i.parent_monoid[] != j.parent_monoid[]
+            throw("Variables belong to different monoids")
+        end
+        if typeof(i.parent_monoid[]) == NCMonoid
+            add_relations!([i*j,j'*i'])
+        else    
+            push!(i.ortho_conj,j)
+            push!(j'.ortho_conj,i')
+        end
+    end
+end
+
     
 
 """
