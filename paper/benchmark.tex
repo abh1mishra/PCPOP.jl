@@ -1,0 +1,67 @@
+\section{Benchmarking PCPOP}
+We report the performance of PCPOP on examples considered before. We use the size of the principal moment matrix, number of scalar variables and cpu time as measure of performance on a problem at specific level of relaxation.
+
+We start with the example \ref{ex:pcpop_hardy} as it can be generalized to any number of parties to show genuine multipartite entanglement. We consider   
+
+\begin{table}[H]
+	\centering
+	\caption{Benchmark summary for PCPOP relaxations. SDP size refers to the principal moment matrix dimension; CPU time measured in seconds.}
+	\label{tab:pcpop-bench}
+	\begin{tabular}{@{}ccrrr@{}}
+		\# of parties & level & SDP size & \# scalar vars& CPU time (s) \\
+		\midrule
+		% Fill rows below with your data
+		% parties  order  size  vars  time(s)
+		2 & 2 & 13 & 31 & 0.127 \\
+		2 & 3 & 25 & 61 & 0.612 \\
+		2 & 4 & 41 & 101 & 1.917 \\
+		3 & 2 & 25 & 93 & 0.516 \\
+        3 & 3 & 63 & 250 & 5.189 \\
+        3 & 4 & 129 & 529 & 45.915 \\
+        4 & 2 & 41 & 229 & 1.646 \\
+        4 & 3 & 129 & 833 & 44.58 \\
+        4 & 4 & 321 & 2241 & 643.277 \\ 
+		\bottomrule
+	\end{tabular}
+\end{table}
+Now, we compare the performance of PCPOP with Ncpol2sdpa on the examples $\ref{ex:3comms},\ref{ex:4comms},\ref{ex:5comms}$. We compare the size of the principal moment matrix and the number of scalar variables for both packages at the same relaxation order.
+\begin{table}[H]
+	\centering
+	\caption{Comparison of PCPOP and Ncpol2sdpa by relaxation order. SDP size refers to the principal moment matrix dimension.}
+	\label{tab:compare-pcpop-ncpol}
+	\begin{tabular}{@{}cccrrr@{}}
+		\toprule
+		Example & level & Gr\"obner size & Package & SDP size & \# scalar vars \\
+		\midrule
+		\multirow{2}{*}{\ref{ex:3comms}} & \multirow{2}{*}{2} & \multirow{2}{*}{6} & PCPOP      & 9 & 23 \\
+		                           &                    &                      & Ncpol2sdpa & 9 & 25 \\
+		\addlinespace
+		\multirow{2}{*}{\ref{ex:3comms}} & \multirow{2}{*}{3} & \multirow{2}{*}{8} & PCPOP      & 17 & 58 \\
+		                           &                    &                      & Ncpol2sdpa & 18 & 73 \\
+		\addlinespace
+        \multirow{2}{*}{\ref{ex:3comms}} & \multirow{2}{*}{4} & \multirow{2}{*}{10} & PCPOP      & 30 & 142 \\
+		                           &                    &                      & Ncpol2sdpa & 35 & 223 \\
+		\addlinespace
+
+		\multirow{2}{*}{\ref{ex:4comms}} & \multirow{2}{*}{2} & \multirow{2}{*}{10} & PCPOP      & 15 & 60 \\
+		                           &                    &                      & Ncpol2sdpa & 15 & 64 \\
+		\addlinespace
+		\multirow{2}{*}{\ref{ex:4comms}} & \multirow{2}{*}{3} & \multirow{2}{*}{14} & PCPOP      & 37 & 219 \\
+		                           &                    &                      & Ncpol2sdpa & 40 & 284 \\
+		\addlinespace
+        \multirow{2}{*}{\ref{ex:4comms}} & \multirow{2}{*}{4} & \multirow{2}{*}{18} & PCPOP      & 82 & 723 \\
+		                           &                    &                      & Ncpol2sdpa & 96 & 1339 \\
+		\addlinespace
+		\multirow{2}{*}{\ref{ex:5comms}} & \multirow{2}{*}{2} & \multirow{2}{*}{13} & PCPOP      & 24 & 176 \\
+		                           &                    &                      & Ncpol2sdpa & 24 & 184 \\
+		\addlinespace
+		\multirow{2}{*}{\ref{ex:5comms}} & \multirow{2}{*}{3} & \multirow{2}{*}{19} & PCPOP      & 85 & 1686 \\
+		                           &                    &                      & Ncpol2sdpa & 89 & 1934 \\
+		\addlinespace
+		\multirow{2}{*}{\ref{ex:5comms}} & \multirow{2}{*}{4} & \multirow{2}{*}{25} & PCPOP      & 287 & 17226 \\
+		                           &                    &                      & Ncpol2sdpa & 315 & 22126 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+On top of improvements in the size of the principal moment matrix and number of scalar variables, PCPOP also provides tighter bounds as compared to Ncpol2sdpa. This is obvious as PCPOP imposes more constraints on th emoment matrix.
+

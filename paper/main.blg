@@ -1,0 +1,17 @@
+[0] Config.pm:307> INFO - This is Biber 2.19
+[0] Config.pm:310> INFO - Logfile is 'main.blg'
+[36] biber:340> INFO - === Sun Sep 28, 2025, 14:49:19
+[44] Biber.pm:419> INFO - Reading 'main.bcf'
+[73] Biber.pm:979> INFO - Found 2 citekeys in bib section 0
+[79] Biber.pm:4419> INFO - Processing section 0
+[84] Biber.pm:4610> INFO - Looking for bibtex file 'refs.bib' for section 0
+[85] bibtex.pm:1713> INFO - LaTeX decoding ...
+[87] bibtex.pm:1519> INFO - Found BibTeX data source 'refs.bib'
+[111] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[111] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[111] Biber.pm:4239> INFO - Sorting list 'anyt/global//global/global' of type 'entry' with template 'anyt' and locale 'en-US'
+[111] Biber.pm:4245> INFO - No sort tailoring available for locale 'en-US'
+[114] bbl.pm:660> INFO - Writing 'main.bbl' with encoding 'UTF-8'
+[115] bbl.pm:763> INFO - Output to main.bbl
+[115] Biber.pm:131> WARN - legacy month field 'Jul' in entry 'PhysRevA.110.L010401' is not an integer - this will probably not sort properly.
+[115] Biber.pm:133> INFO - WARNINGS: 1

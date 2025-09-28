@@ -24,15 +24,10 @@
 \usepackage[normalem]{ulem}
 \usepackage{cancel,xcolor}
 \usepackage{orcidlink}
-\usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage{float} % for [H] exact figure placement
-
 \usepackage{listings}
-\makeatletter
-
-\usepackage[backend=biber,style=alphabetic]{biblatex}
-\addbibresource{refs.bib}
+\usepackage{multirow}
 
 \def\jlbasicfont{\ttfamily\large\selectfont} % Add this line
 % Custom colors for code
@@ -75,7 +70,25 @@
   rulecolor=\color{black!15},
   breaklines=true,
   tabsize=4,
-  mathescape=true
+  mathescape=true,
+  % Map common UTF-8 symbols used in code to LaTeX so pdflatex can handle them
+  literate={ρ}{{$\rho$}}1
+           {σ}{{$\sigma$}}1
+           {α}{{$\alpha$}}1
+           {β}{{$\beta$}}1
+           {γ}{{$\gamma$}}1
+           {δ}{{$\delta$}}1
+           {λ}{{$\lambda$}}1
+           {μ}{{$\mu$}}1
+           {π}{{$\pi$}}1
+           {φ}{{$\phi$}}1
+           {θ}{{$\theta$}}1
+           {ω}{{$\omega$}}1
+           {≤}{{$\le$}}1
+           {≥}{{$\ge$}}1
+           {≠}{{$\ne$}}1
+           {∈}{{$\in$}}1
+           {∀}{{$\forall$}}1
 }
 \lstnewenvironment{code}{\lstset{style=code}}{} % I also updated this, which is simpler now
 \newcommand{\codefile}[1]{\lstinputlisting[style=code]{#1}}
@@ -84,8 +97,7 @@
             \href{http://m3g.iqm.unicamp.br/main/didatico/simulacoes2/#1}
                  {\textcolor{blue}{~\hspace{6.5cm}[Clique aqui para baixar o código]}}
             \end{center}}
-\newcommand{\inline}{\jlinl}
-\newcommand{\il}{\jlinl}
+% Removed undefined \jlinl commands
 
 
 % \usepackage{fontspec}
@@ -115,7 +127,7 @@
 \usepackage[backend=biber,style=alphabetic]{biblatex}
 \addbibresource{refs.bib}
 
-\title{\Large PCPOP : A Julia library for polynomial optimization with partially commutative variables}
+\title{\Large PCPOP: A Julia library for polynomial optimization with partially commutative variables}
 
 \usepackage{authblk} 
 
@@ -133,11 +145,19 @@
 \maketitle
 
 \begin{abstract}
-PCPOP implements mathematical structures and new algorithms to represent and manipulate elements of free algebra, partially-commutative algebra, graph product algebra and space of trace polynomials. The main objective is to leverage the equality constraints to reduce the complexity of the SDP relaxations for polynomial optimization problems. Given the set of equality constriants $G$ with subset $S$ of them being special binomial constraints such as partial commutations, projectors, unitaries, dichotomic, orthogonality etc., PCPOP finds normal forms directly and efficiently and then for the remaining equality constraints $G \setminus S$, it uses the theory of Gr\"obner basis in the quotient space modulo $S$ to reduce the polynomials and hence reduce the complexity of the SDP relaxations. For trace polynomial optimization, it finds normal forms with resepct to cyclic equivalence, partial commutations and other special binomial constraints. 
+PCPOP implements mathematical structures and new algorithms to represent and manipulate elements of free algebra, partially-commutative algebra, graph product algebra and space of trace polynomials. The main objective is to leverage the equality constraints to reduce the complexity of the SDP relaxations for polynomial optimization problems. Given the set of equality constraints $G$ with subset $S$ of them being special binomial constraints such as partial commutations, projectors, unitaries, dichotomic, orthogonality etc., PCPOP finds normal forms directly and efficiently for S and then for the remaining equality constraints $G \setminus S$, it uses the theory of Gr\"obner basis in the quotient space modulo $S$ to reduce the polynomials and hence reduce the complexity of the SDP relaxations. For trace polynomial optimization, it finds normal forms with respect to cyclic equivalence, partial commutations and other special binomial constraints. 
 \end{abstract}
 \input{introduction.tex}
 \input{technical_background.tex}
+\input{installation.tex}
 \input{getting_started.tex}
-
+\input{ncpop.tex}
+\input{pcpop.tex}
+\input{gpop.tex}
+\input{tpop.tex}
+\input{symmetries.tex}
+\input{benchmark.tex}
+\input{conclusion.tex}
+\input{acknowledgement.tex}
 \printbibliography
 \end{document}

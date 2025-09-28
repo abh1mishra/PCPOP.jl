@@ -35,32 +35,43 @@ function mons_at_level(list_vars::Vector{Variable},level::String)
             end
         end
     end
-    # return lvl_array,type_var_dict
-    mons=[]
-    push!(mons,Id)
-    list_vars=union(list_vars,[Id])
+    # mons always has Id
+    mons=AbstractMonomial[Id]
 
     for l in lvl_array
         if l isa Int
-            for res in kron([list_vars for i in 1:l]...,1)
-                if res==Id || typeof(res)<:Number
-                    continue
-                end
-                push!(mons,monomials(res))
+            if l<1
+                continue
             end
-            # push!(mons,[monomials(prod(tup)) for tup in collect(product([list_vars for i in 1:l]...))]...)
+            # level 1 done
+            union!(mons,list_vars)
+            if l==1
+                continue
+            end
+
+            temp_=copy(list_vars)
+            for _ in 2:l
+                temp_=union(monomials.(filter(res->(res!=Id && !(typeof(res)<:Number) ),kron(temp_,list_vars,1)))...)
+                union!(mons,temp_)
+            end
+
         else
-            for res in kron([type_var_dict[i] for i in l]...,1)
-                if res==Id || typeof(res)<:Number
-                    continue
-                end
-                push!(mons,monomials(res))
+            if length(l)==0
+                continue
             end
-            # push!(mons,[monomials(prod(tup)) for tup in collect(product([type_var_dict[i] for i in l]...))]...)
+            if length(l)==1
+                union!(mons,type_var_dict[l[1]])
+                continue
+            end
+            temp_=copy(type_var_dict[l[1]])
+            for i in 2:length(l)
+                temp_=union(monomials.(filter(res->(res!=Id && !(typeof(res)<:Number) ),kron(temp_,type_var_dict[l[i]],1)))...)
+            end
+            union!(mons,temp_)
+
         end
     end
-    mons=vcat(mons...)
-    return isempty(mons) ? mons : monomials(sum(mons))
+    return unique_array(mons)
 end
 
 function mons_at_level(list_vars::Vector{Variable},level::Int)

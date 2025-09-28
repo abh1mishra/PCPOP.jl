@@ -1,7 +1,7 @@
 \section{Technical background}
 PCPOP implements the monomials in partially-commutative monoid through the \emph{clique normal forms} and \emph{graph normal forms} as discussed in \cite{}. Here we briefly introduce and illustrate these normal forms.
 
-Given a set of variables $X= \{x_1, x_2, \ldots, x_n\}$, and a graph $\graph=(X,E)$ with the vertices as the variables and the edge set capturing the independence relations, i.e $(x_i,x_j) \in E$ if and only if $x_i$ and $x_j$ don't commute. This graph is called the independence graph. The dependence graph is the complement of the independence graph. To find the \emph{clique-normal form} $w^\clique$ for a word $w$, we project the word onto the maximal cliques of the dependence graph. This has been illustrated though the example below.
+Given a set of variables $X= \{x_1, x_2, \ldots, x_n\}$, and a graph $\graph=(X,E)$ with the vertices as the variables and the edge set capturing the commutation relations, i.e $(x_i,x_j) \in E$ if and only if $x_i$ and $x_j$ don't commute. This graph is called the independence graph. The dependence graph is the complement of the independence graph. To find the \emph{clique-normal form} $w^\clique$ for a word $w$, we project the word onto the maximal cliques of the dependence graph. This has been illustrated though the example below.
 \begin{example}
 Say $X=\{a,b,c\}$ and $[a,b] = [b,c]=0$ are the only commutations. The dependence graph is as shown below.
 \begin{figure}[H]
@@ -34,7 +34,10 @@ Say $X=\{a,b,c\}$ and $[a,b] = [b,c]=0$ are the only commutations. Consider the 
 \caption{Graph $w^G$}
 \end{figure}
 \end{example}
-PCPOP implements data structures to represent polynomials in graph product algebras and some new algorithms to find normal forms for certian type of graph product algebras and class of equality constriants[ see \cite{} for details]. A graph product algebra is the span of monomials belonging to a graph product monoid. Informally speaking, a graph product monoid is a monoid that combines different monoids where some monoids commute and some not. Partially-commutative monoid can be seen as special instance of grpah product algebra by repalcing the monoids with letters.
+PCPOP handles special equality constraints like projectors, unitaries, dichotomic, orthogonality etc alongside partial commutations directly in the clique normal form. Although figure~\ref{fig:graph_product_multiplication} illustrates multiplication of graph product monomials, the mechanism to handle special equality constraints in partially commutative monomials is the same.
+
+
+PCPOP also implements data structures to represent polynomials in graph product algebras and some new algorithms to find normal forms for certian type of graph product algebras and class of equality constriants[ see \cite{} for details]. A graph product algebra is the span of monomials belonging to a graph product monoid. Informally speaking, a graph product monoid is a monoid that combines different monoids where some monoids commute and some not. Partially-commutative monoid can be seen as special instance of grpah product algebra by repalcing the monoids with letters.
 
 PCPOP implements the elements of partially commutative monoid and graph product monoid using same data structure called $\texttt{GraphProductWord\{V\}}$ where $V$ takes the type for variables when it partially-commutative word and type for monoid elements when it is a graph product word. The data structure $\texttt{GraphProductWord\{V\}}$ essentially consists of three fields, first being an array of array $\texttt{clique\_words}$ to hold the clique normal form and the other two are sets($\texttt{edge\_l,edge\_r}$) that hold the letters or monoid elements that can be commuted to the edge(left, right edge). Having the fields $\texttt{edge\_l, edge\_r}$ helps in efficiently implementing the multiplication of two graph product words. Below is an example, that illustrates how to find normal forms under partial commutations and projectors.
 \begin{example}
@@ -50,6 +53,7 @@ In their clique normal forms, the multiplication algorithm is illustrated below.
 
 \begin{figure}[H]
 \centering
+\label{fig:graph_product_multiplication}
 \begin{tikzpicture}[scale=1]
   % w1 label above
   \node at (-5, 3) {$w_1$};
