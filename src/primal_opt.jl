@@ -71,8 +71,9 @@ function mons_at_level(list_vars::Vector{Variable},level::String)
 
         end
     end
-    return unique_array(mons)
+    return monomials(sum(mons))
 end
+
 
 function mons_at_level(list_vars::Vector{Variable},level::Int)
     if level==0

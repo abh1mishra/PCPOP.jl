@@ -140,7 +140,7 @@ end
 function exponents(m::GraphProductWord)
     vertices=m.monoid.vertices
     if is_identity(m)
-        return merge([exponents(one(mo)) for mo in vertices])
+        return merge([exponents(one(mo)) for mo in vertices]...)
     end
     expo=[]
     for vertex in vertices
@@ -158,7 +158,7 @@ degree(x::Number) = !iszero(x) ? 0 : -Inf
 """
 
 # degree(m::GraphProductWord)=sum(values(exponents(m)))
-degree(m::GraphProductWord)=sum(values(exponents(m)))
+degree(m::GraphProductWord)=sum(values(exponents(m));init=0)
 
 
 
