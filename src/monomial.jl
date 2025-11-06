@@ -57,7 +57,7 @@ Base.show(io::IO,m::GraphProductWord)=show_monomial(io,m)
 
 # Hashing and comparison
 Base.hash(m::GraphProductWord, h::UInt)=hash(m.monoid, hash(m.clique_words, hash(0x7d6979235cb005d0, h))) 
-Base.:(==)(m::GraphProductWord,n::GraphProductWord)=m.monoid == n.monoid ? (m.clique_words==n.clique_words) : throw("Different monoids")
+Base.:(==)(m::GraphProductWord,n::GraphProductWord)=m.monoid == n.monoid ? (m.clique_words==n.clique_words) : general_equals(m,n)
 Base.:(==)(m::GraphProductWord,n::Number)=n==1 && one(m)==m
 Base.:(==)(n::Number,m::GraphProductWord)=n==1 && one(m)==m
 Base.isless(m::GraphProductWord,n::GraphProductWord)=less_or_not(m,n)
@@ -71,7 +71,7 @@ is_identity(x::X) where X<:AbstractMonomial=one(x)==x
 
 function monomial(w::W) where W<:AbstractMonomial
     if isdefined(w.monomial,:x)
-        return  w.monomial[]
+        return one(w.monomial[])*w.monomial[]
     end
     monoid=nothing
     if isa(w,Variable) && isa(w.parent_monoid[],GraphProductMonoid)
@@ -89,8 +89,8 @@ function monomial(w::W) where W<:AbstractMonomial
     else
         throw(ArgumentError("Cannot convert to monomial, parent monoid is not a GraphProductMonoid"))
     end
-
-    return w.monomial[]=words_to_monomial(monoid,[w])
+    w.monomial[]=words_to_monomial(monoid,[w])
+    return w.monomial[]*one(w.monomial[])
 end
 """
     variables(monomial::GraphProductWord)

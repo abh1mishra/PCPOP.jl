@@ -241,13 +241,13 @@ function npa(obj, level;
         for i in 1:length(tr_eq)
             tr_eq_p=0
             if cyclic
-                for (m,c) in 1*tr_eq[i][1]
+                for (m,c) in Polynomial(tr_eq[i][1])
                     m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
                     m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
                     tr_eq_p+=c*unique_vars[m_i]
                 end
             else
-                tr_eq_poly=real_rep(1*reduce_grobner(1*tr_eq[i][1],G))
+                tr_eq_poly=real_rep(Polynomial(reduce_grobner(Polynomial(tr_eq[i][1]),G)))
                 for (m,c) in tr_eq_poly
                     m_i=findfirst(x->x==m,unique_mons)
                     tr_eq_p+=c*unique_vars[m_i]
@@ -260,13 +260,13 @@ function npa(obj, level;
         for i in 1:length(tr_ge)
             tr_ge_p=0
             if cyclic
-                for (m,c) in 1*tr_ge[i][1]
+                for (m,c) in Polynomial(tr_ge[i][1])
                     m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
                     m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
                     tr_ge_p+=c*unique_vars[m_i]
                 end
             else
-                tr_ge_poly=real_rep(1*reduce_grobner(1*tr_ge[i][1],G))
+                tr_ge_poly=real_rep(Polynomial(reduce_grobner(Polynomial(tr_ge[i][1]),G)))
                 for (m,c) in tr_ge_poly
                     m_i=findfirst(x->x==m,unique_mons)
                     tr_ge_p+=c*unique_vars[m_i]
@@ -305,7 +305,7 @@ function npa(obj, level;
             obj_p+=c*unique_vars[m_i]
         end
     else
-        obj_poly=real_rep(1*reduce_grobner(1*obj,G))
+        obj_poly=real_rep(Polynomial(reduce_grobner(Polynomial(obj),G)))
         for (m,c) in obj_poly
             m_i=findfirst(x->x==m,unique_mons)
             if m_i==nothing

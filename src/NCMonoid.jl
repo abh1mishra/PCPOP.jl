@@ -86,13 +86,13 @@ Base.:(==)(M::Number,N::NCWord)=M==N.word
 Base.:-(v::AbstractMonomial)=-1*v
 
 Base.:+(w1::NCWord,w2::NCWord)= Polynomial(w1)+Polynomial(w2)
-Base.:+(x::Number,y::Variable)=x+y.monomial[]
+Base.:+(x::Number,y::Variable)=x+monomial(y)
 Base.:+(x::Variable,y::Number)=y+x
 Base.:+(x::Number,m::NCWord)=x*one(m)+m
 Base.:+(m::NCWord,x::Number)=x+m
-Base.:+(w::NCWord,v::Variable) = w+v.monomial[]
+Base.:+(w::NCWord,v::Variable) = w+monomial(v)
 Base.:+(v::Variable,w::NCWord) = w+v
-Base.:+(v1::Variable,v2::Variable) = v1.monomial[]+v2.monomial[]
+Base.:+(v1::Variable,v2::Variable) = monomial(v1)+monomial(v2)
 
 Base.:-(w1::NCWord,w2::NCWord) = w1+(-w2)
 Base.:-(x::Number,y::Variable)=x+(-y)
@@ -111,7 +111,7 @@ end
 # Base.:*(w::NCWord,v::Variable) = w*v.monomial[]
 # Base.:*(w::NCWord,m::AbstractMonomial)=check_ncword_is_poly(w) ? ncword_to_poly(w)*m : general_mult(w,m)
 # Base.:*(m::AbstractMonomial,w::NCWord)=check_ncword_is_poly(w) ? ncword_to_poly(w)*m : general_mult(m,w)
-Base.:*(x::Number,y::Variable)=x*y.monomial[]
+Base.:*(x::Number,y::Variable)=x*monomial(y)
 Base.:*(x::Variable,y::Number)=y*x
 Base.:*(x::Number,m::NCWord)=NCWord(m.monoid,x*m.word)
 Base.:*(m::NCWord,x::Number)=x*m
@@ -124,8 +124,8 @@ Base.:/(w1::NCWord,w2::NCWord) = (w1.monoid==w2.monoid) ? divide_ncword(w1,w2) :
 
 
 
-Base.:/(w::NCWord,v::Variable) = (w.monoid==v.parent_monoid[]) ? w/v.monomial[] : throw(ArgumentError("Cannot divide words from different monoids"))
-Base.:/(v::Variable,w::NCWord) = (w.monoid==v.parent_monoid[]) ? v.monomial[]/w : throw(ArgumentError("Cannot divide words from different monoids"))
+Base.:/(w::NCWord,v::Variable) = (w.monoid==v.parent_monoid[]) ? w/monomial(v) : throw(ArgumentError("Cannot divide words from different monoids"))
+Base.:/(v::Variable,w::NCWord) = (w.monoid==v.parent_monoid[]) ? monomial(v)/w : throw(ArgumentError("Cannot divide words from different monoids"))
 
 Base.hash(m::NCWord, h::UInt) = hash(m.monoid, hash(m.word, hash(0x7d6979235cb005d0, h)))
 one(nc::NCMonoid)=NCWord(nc,AbstractAlgebra.one(nc.base_ring))

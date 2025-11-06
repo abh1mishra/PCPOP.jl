@@ -1,7 +1,8 @@
 \subsection{Partially-commutative polynomial optimization}
+\label{sec:pcpop}
 \begin{example}
 \label{ex:pcpop_hardy}
-Consider the problem of certifying genuine multi-partite non-locality in a Bell scenario with n parties where each party performs two dichotomic measurements \cite{PhysRevA.110.L010401}. Here we illustrate the case for two parties. This can be cast as a polynomial optimization problem with variables $X=\{A_1,A_2,B_1,B_2\}$ each being projectors and where $A_i,B_j$ belong to Alice and Bob respectively. The problem reads as follows.
+Consider the problem of certifying genuine multipartite nonlocality in a Bell scenario with $n$ parties where each party performs two dichotomic measurements \cite{PhysRevA.110.L010401}. Here we illustrate the case for two parties. This can be cast as a polynomial optimization problem with variables $X=\{A_1,A_2,B_1,B_2\}$, each being a projector, and where $A_i,B_j$ belong to Alice and Bob, respectively. The problem reads as follows.
 \begin{equation}
    \begin{split}
        p^* &=\underset{\underline{X} , \psi , \mathcal{H}}{inf} \: \braket{\psi, A_1 \mult B_1 \psi}, \\
@@ -24,16 +25,17 @@ This can be solved with PCPOP as follows.
     ov,model,var_dict,principal_matrix=npa(obj,level;tr_eq=tr_eq,min=false)
     println("Optimal value is ",ov)
 \end{code}
-This returns optimal value as $0.0902$ as in \cite{PhysRevA.110.L010401}. The steps to solve a partially-commutative polynomial optimization problem are similar to that of non-commutative polynomial optimization with some differences.
+This returns the optimal value $0.0902$ as in \cite{PhysRevA.110.L010401}. Instances of the previous example for $n=2,3,4$ parties and for $\texttt{level}=2,3,4$ have been solved and benchmarked in Section~\ref{sec:benchmark}.
 \end{example}
+The steps to solve a partially-commutative polynomial optimization problem are similar to that of non-commutative polynomial optimization with some differences.
 \begin{itemize}
     \item First we define the partially-commutative monoid using the macro \texttt{@pcmonoid}. The first argument is always for the monoid object and the rest for the variables. 
     \item Then, we define which variables commute using the built-in macro \texttt{@comms}. 
-    \item Then we define some special operator equality constraints like \emph{projector}, \emph{unitary}, \emph{dichotomic} and \emph{orthogonal pairs} using built-in functions \texttt{Projector,Unitary,Unipotent} and macro \texttt{@ortho} respectively. We leave the general equality constraints to be fed to \texttt{npa} function as the optional argument \texttt{op\_eq}.
-    \item Finally, we call the function \texttt{npa} to solve the optimization problem. \texttt{npa} takes the objective polynomial and the level as compulsory arguments and also some optional arguments like arrays of operator inequalities(\texttt{op\_ge}), operator equalities(\texttt{op\_eq}), expectation value equalities(\texttt{tr\_eq}) and inequalities(\texttt{tr\_ge}). The function returns the optimal value, the SDP model, a dictionary that maps the monomial basis to coressponding JuMP variables and finally the principal matrix.
+    \item Then we define some special operator equality constraints like \emph{projector}, \emph{unitary}, \emph{dichotomic}, and \emph{orthogonal pairs} using built-in functions \texttt{Projector,Unitary,Unipotent} and the macro \texttt{@ortho}, respectively. We leave the general equality constraints to be fed to the \texttt{npa} function as the optional argument \texttt{op\_eq}.
+    \item Finally, we call the function \texttt{npa} to solve the optimization problem. \texttt{npa} takes the objective polynomial and the level as compulsory arguments and also some optional arguments like arrays of operator inequalities (\texttt{op\_ge}), operator equalities (\texttt{op\_eq}), expectation-value equalities (\texttt{tr\_eq}) and inequalities (\texttt{tr\_ge}). The function returns the optimal value, the SDP model, a dictionary that maps the monomial basis to corresponding JuMP variables, and the principal matrix.
 \end{itemize}
 \begin{remark}
-Notice, that compared to the non-commutative case, where we we enforce all the equality constraint before building the monoid, here we only enforce the special equality constraints like projector, unitary, dichotomic and orthogonality before building the monoid. These special equality constraints are directly and efficiently handled using normal forms and not using Macaulay method which handles the general operator equality constraints. 
+Notice that compared to the non-commutative case, where we enforce all equality constraints before building the monoid, here we only enforce the special equality constraints like projector, unitary, dichotomic, and orthogonality before building the monoid. These special equality constraints are handled directly and efficiently using normal forms and not using the Macaulay method, which handles the general operator equality constraints. 
 \end{remark}
 The user interface to define the variables and the monoid is same as in non-commutative case. The macro \texttt{@comms} provides multiple ways to define commutation relations. We illustrate all the options.
 \begin{lstlisting}[style=code, mathescape=true]
@@ -57,9 +59,9 @@ true
 julia>a*e*b == b*e*a
 false 
 \end{lstlisting}
-To enforce the orthogonality constraint $a*b=0$, we can use the built-in macro \texttt{@ortho} as $\texttt{@ortho a b}$. The \texttt{@ortho} macro works similarly as \texttt{@comms} macro.
+To enforce the orthogonality constraint $a*b=0$, we can use the built-in macro \texttt{@ortho} as $\texttt{@ortho a b}$. The \texttt{@ortho} macro works similarly as \texttt{@comms} macro with the exception that it doesn't assume $b*a=0$ when $a*b=0$.
 
-For certain equality constraints, the full Gr"obner basis is infinite; even reductions using finite truncations (at a fixed degree) remain costly, and the substitution method in the ncpol2sdpa package~\cite{} is ineffective in that case. We illustrate this with examples of partial commutations whose independence graph have non-transitive orientation[see \cite{} for details] and in which some variables are projectors.  
+For certain equality constraints, the full Gr\"obner basis is infinite; even reductions using finite truncations (at a fixed degree) remain costly, and the substitution method in the Ncpol2sdpa package~\cite{10.1145/2699464} is ineffective in that case. We illustrate this with examples of partial commutations whose independence graph have non-transitive orientation[see \cite{} for details] and in which some variables are projectors.  
 
 \begin{example}
   \label{ex:3comms}

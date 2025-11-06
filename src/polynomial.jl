@@ -35,8 +35,8 @@ end
 
 
 Polynomial(p::Polynomial)=p
-Polynomial(v::Variable)=Polynomial(v.monomial[])
-Polynomial(v::Variable,n)=Polynomial(v.monomial[],n)
+Polynomial(v::Variable)=Polynomial(monomial(v))
+Polynomial(v::Variable,n)=Polynomial(monomial(v),n)
 Base.hash(p::Polynomial, h::UInt)=hash(p.monoid, hash(p.monomials, hash(p.coeffs,hash(0x7d6979235cb005d0, h))))
 Base.zero(p::Polynomial)=Polynomial(p.monoid)
 

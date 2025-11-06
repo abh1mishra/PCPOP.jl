@@ -1,0 +1,23 @@
+\subsection{Handling intermediate levels of hierarchy}
+PCPOP provides excellent and simple interface to define intermediate levels of hierarchy. This is useful when some level is not enough and the next integer level is too large to solve. We illustrate all the available ways to define intermediate levels.
+
+Consider three groups $X_1,X_2,X_3$ where each group could be an array of variables whose names start with the name of the respective group or it could be monoids with names being $X_1,X_2,X_3$ respectively.   
+\begin{lstlisting}[style=code, mathescape=true]
+# Define three groups each having two hermitian variables.
+julia>@pcmonoid M X1[2,0] X2[2,0] X3[2,0]
+# This defines level where the index monomials are the union of three groups.
+#First, all the level 2 monomials. By level 1 we mean the union of all variables of X1,X2,X3 and the identity monomial and by level 2, all the two-products of level 1 monomials.
+#Second, all the monomials that are product of one variable in array X1 and one in array X2.
+#Third, all the monomials that are product of one variable in array X2 and one in array X3.
+julia>level="2+X1*X2+X2*X3"
+#Here we define three non-commuative monoids each having two hermitian variables and where monoid A commutes with monoid B.
+julia>@subsystem M A[2,0] B[2,0] AB[2,0]
+# This defines level where the index monomials are the union of three groups.
+#First, all the level 2 monomials. 
+#Second, all the monomials that are product of one variable in monoid X1 and one in monoid X2.
+#Third, all the monomials that are product of one variable in monoid X2 and one in monoid X3.
+julia>level="2+X1*X2+X2*X3"
+julia> @pcmonoid M X1[3,0] X2[5,0]
+# All monomials that are product of first two variables in X1 and first three variables in X2.
+julia> level="X1[2]*X2[3]"
+\end{lstlisting}

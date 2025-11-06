@@ -145,7 +145,7 @@
 \maketitle
 
 \begin{abstract}
-PCPOP implements mathematical structures and new algorithms to represent and manipulate elements of free algebra, partially-commutative algebra, graph product algebra and space of trace polynomials. The main objective is to leverage the equality constraints to reduce the complexity of the SDP relaxations for polynomial optimization problems. Given the set of equality constraints $G$ with subset $S$ of them being special binomial constraints such as partial commutations, projectors, unitaries, dichotomic, orthogonality etc., PCPOP finds normal forms directly and efficiently for S and then for the remaining equality constraints $G \setminus S$, it uses the theory of Gr\"obner basis in the quotient space modulo $S$ to reduce the polynomials and hence reduce the complexity of the SDP relaxations. For trace polynomial optimization, it finds normal forms with respect to cyclic equivalence, partial commutations and other special binomial constraints. 
+PCPOP implements mathematical structures and new algorithms to represent and manipulate elements of free algebra, partially-commutative algebra, graph product algebra and space of trace polynomials. The main objective is to leverage the equality constraints to reduce the complexity of the SDP relaxations for polynomial optimization problems. Given the set of equality constraints $G$ with subset $S$ of them being special binomial constraints such as partial commutations, projectors, unitaries, dichotomic, orthogonality etc., PCPOP finds normal forms directly and efficiently for S and then for the remaining equality constraints $G \setminus S$, it uses Macaulay matrix in the quotient space modulo $S$ to reduce the polynomials. For trace polynomial optimization, it finds normal forms with respect to cyclic equivalence, partial commutations and other special binomial constraints. 
 \end{abstract}
 \input{introduction.tex}
 \input{technical_background.tex}
@@ -156,6 +156,7 @@ PCPOP implements mathematical structures and new algorithms to represent and man
 \input{gpop.tex}
 \input{tpop.tex}
 \input{symmetries.tex}
+\input{int_level.tex}
 \input{benchmark.tex}
 \input{conclusion.tex}
 \input{acknowledgement.tex}

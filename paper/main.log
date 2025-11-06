@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.2.27)  28 SEP 2025 17:45
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.2.27)  29 SEP 2025 17:56
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -1293,76 +1293,42 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 145.
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Trying to load font information for U+stmry on input line 145.
- (/usr/share/texlive/texmf-dist/tex/latex/stmaryrd/Ustmry.fd) (./introduction.tex
-LaTeX Font Info:    Trying to load font information for OML+lmr on input line 10.
+ (/usr/share/texlive/texmf-dist/tex/latex/stmaryrd/Ustmry.fd) (./introduction.tex [1
+
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/mnsymbol/MnSymbolC.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/mnsymbol/MnSymbolE.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/mnsymbol/MnSymbolD.enc}]
+LaTeX Font Info:    Trying to load font information for OML+lmr on input line 41.
  (/usr/share/texmf/tex/latex/lm/omllmr.fd
 File: omllmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Font shape `OML/lmr/bx/n' in size <10.95> not available
-(Font)              Font shape `OML/lmm/b/it' tried instead on input line 10.
+(Font)              Font shape `OML/lmm/b/it' tried instead on input line 41.
 
 
-LaTeX Warning: Citation '' on page 1 undefined on input line 10.
-
-[1
-
-
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/mnsymbol/MnSymbolC.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/mnsymbol/MnSymbolE.enc}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/mnsymbol/MnSymbolD.enc}]
-
-LaTeX Warning: Citation '' on page 2 undefined on input line 37.
-
-
-LaTeX Warning: Citation '' on page 2 undefined on input line 60.
-
-
-LaTeX Warning: Citation '' on page 2 undefined on input line 60.
+LaTeX Warning: Citation '' on page 2 undefined on input line 41.
 
 [2{/usr/share/texlive/texmf-dist/fonts/enc/dvips/mnsymbol/MnSymbolS.enc}]
 
-LaTeX Warning: Reference `' on page 3 undefined on input line 64.
+LaTeX Warning: Citation '' on page 3 undefined on input line 72.
 
 
-LaTeX Warning: Citation '' on page 3 undefined on input line 67.
+LaTeX Warning: Citation '' on page 3 undefined on input line 74.
 
 
-LaTeX Warning: Reference `' on page 3 undefined on input line 67.
+LaTeX Warning: Reference `sec:tpop' on page 3 undefined on input line 74.
 
-
-LaTeX Warning: Reference `' on page 3 undefined on input line 69.
-
-
-LaTeX Warning: Citation '' on page 3 undefined on input line 69.
-
-
-LaTeX Warning: Reference `' on page 3 undefined on input line 69.
-
-LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 74.
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 79.
 (/usr/share/texmf/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
+LaTeX Font Info:    Trying to load font information for OT1+lmtt on input line 79.
+ (/usr/share/texmf/tex/latex/lm/ot1lmtt.fd
+File: ot1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
 
-LaTeX Warning: Reference `sec:' on page 3 undefined on input line 74.
+LaTeX Warning: Reference `sec:tpop' on page 3 undefined on input line 82.
 
-
-LaTeX Warning: Reference `sec:' on page 3 undefined on input line 75.
-
-
-LaTeX Warning: Reference `sec:' on page 3 undefined on input line 77.
-
-[3{/usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc}]
-
-LaTeX Warning: Reference `' on page 4 undefined on input line 84.
-
-
-LaTeX Warning: Reference `' on page 4 undefined on input line 86.
-
-
-LaTeX Warning: Reference `' on page 4 undefined on input line 91.
-
-
-LaTeX Warning: Reference `' on page 4 undefined on input line 99.
-
-) (./technical_background.tex
+[3{/usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-rmtt.enc}]) (./technical_background.tex
 
 LaTeX Warning: Citation '' on page 4 undefined on input line 2.
 
@@ -1370,13 +1336,8 @@ LaTeX Warning: Citation '' on page 4 undefined on input line 2.
 
 LaTeX Warning: Citation '' on page 5 undefined on input line 40.
 
-LaTeX Font Info:    Trying to load font information for OT1+lmtt on input line 42.
-(/usr/share/texmf/tex/latex/lm/ot1lmtt.fd
-File: ot1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
 LaTeX Font Info:    Trying to load font information for OMS+lmtt on input line 42.
 LaTeX Font Info:    No file OMSlmtt.fd. on input line 42.
-
 
 LaTeX Font Warning: Font shape `OMS/lmtt/m/n' undefined
 (Font)              using `OMS/cmsy/m/n' instead
@@ -1385,35 +1346,39 @@ LaTeX Font Warning: Font shape `OMS/lmtt/m/n' undefined
 LaTeX Font Info:    Trying to load font information for U+dsrom on input line 44.
 (/usr/share/texlive/texmf-dist/tex/latex/doublestroke/Udsrom.fd
 File: Udsrom.fd 1995/08/01 v0.1 Double stroke roman font definitions
-) [5{/usr/share/texlive/texmf-dist/fonts/enc/dvips/mnsymbol/MnSymbolA.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-rmtt.enc}]) (./installation.tex) (./getting_started.tex [6]) (./ncpop.tex
-
-LaTeX Warning: Citation '' on page 7 undefined on input line 3.
-
-
-Overfull \hbox (42.21054pt too wide) in paragraph at lines 3--4
-[][]\OT1/lmr/bx/n/10.95 Example 4. []\OT1/lmr/m/it/10.95 Con-sider the fol-low-ing prob-lem with her-mi-tian vari-ables $\OML/lmm/m/it/10.95 X[]; X[]$ \OT1/lmr/m/it/10.95 from [[]]
+) [5{/usr/share/texlive/texmf-dist/fonts/enc/dvips/mnsymbol/MnSymbolA.enc}]) (./installation.tex) (./getting_started.tex
+Overfull \hbox (13.92706pt too wide) in paragraph at lines 2--3
+\OT1/lmr/m/n/10.95 This sec-tion has six parts: (1{4) solv-ing four classes of poly-no-mial optimization|non-commutative,
  []
 
+) (./ncpop.tex [6]
 
 LaTeX Font Warning: Font shape `OT1/lmtt/bx/it' in size <10> not available
-(Font)              Font shape `OT1/lmtt/b/sl' tried instead on input line 16.
+(Font)              Font shape `OT1/lmtt/b/sl' tried instead on input line 17.
 
-[7]
-Overfull \hbox (14.0556pt too wide) in paragraph at lines 56--57
-\OT1/lmr/m/n/10.95 of non-commutative poly-no-mi-als. When the monoid is build us-ing \OT1/lmtt/m/n/10.95 build(M)\OT1/lmr/m/n/10.95 , the \OT1/lmtt/m/n/10.95 AbstractAlgebra
+
+Overfull \hbox (12.2308pt too wide) in paragraph at lines 57--58
+\OT1/lmr/m/n/10.95 of non-commutative poly-no-mi-als. When the monoid is built us-ing \OT1/lmtt/m/n/10.95 build(M)\OT1/lmr/m/n/10.95 , the \OT1/lmtt/m/n/10.95 AbstractAlgebra
  []
 
-) (./pcpop.tex [8]
+[7]) (./pcpop.tex [8]
 
-LaTeX Warning: Citation '' on page 9 undefined on input line 62.
+LaTeX Warning: Citation '' on page 9 undefined on input line 64.
 
-
-LaTeX Warning: Citation '' on page 9 undefined on input line 62.
-
-[9] [10]) (./gpop.tex [11]
+[9] [10]) (./gpop.tex
 LaTeX Font Info:    Font shape `OT1/lmtt/bx/n' in size <10> not available
-(Font)              Font shape `OT1/lmtt/b/n' tried instead on input line 17.
- [12{/usr/share/texlive/texmf-dist/fonts/enc/dvips/mnsymbol/MnSymbolF.enc}]) (./tpop.tex [13]) (./symmetries.tex) (./benchmark.tex [14]) (./conclusion.tex) (./acknowledgement.tex) [15{/usr/share/texmf/fonts/enc/dvips/lm/lm-rmsc.enc}] [16] (./main.aux)
+(Font)              Font shape `OT1/lmtt/b/n' tried instead on input line 18.
+ [11{/usr/share/texlive/texmf-dist/fonts/enc/dvips/mnsymbol/MnSymbolF.enc}] [12]) (./tpop.tex) (./symmetries.tex) (./int_level.tex [13]) (./benchmark.tex [14]) (./conclusion.tex) (./acknowledgement.tex) [15{/usr/share/texmf/fonts/enc/dvips/lm/lm-rmsc.enc}]
+Overfull \hbox (9.82362pt too wide) in paragraph at lines 164--164
+[]\OT1/lmr/m/n/10.95 ewoodhead. \OT1/lmr/m/it/10.95 Quan-tum-NPA.jl\OT1/lmr/m/n/10.95 . https://github.com/ewoodhead/QuantumNPA.jl. com-
+ []
+
+
+Overfull \hbox (1.61055pt too wide) in paragraph at lines 164--164
+[]\OT1/lmr/m/n/10.95 Tillmann Weisser et al. ``Poly-no-mial and Mo-ment Op-ti-miza-tion in Ju-lia and JuMP''.
+ []
+
+[16] [17] (./main.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2020/03/25>
@@ -1432,18 +1397,18 @@ Package logreq Info: Writing requests to 'main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 45177 strings out of 474222
- 911618 string characters out of 5748733
- 2415975 words of memory out of 5000000
- 66434 multiletter control sequences out of 15000+600000
- 640224 words of font info for 163 fonts, out of 8000000 for 9000
+ 45274 strings out of 474222
+ 915092 string characters out of 5748733
+ 2347975 words of memory out of 5000000
+ 66495 multiletter control sequences out of 15000+600000
+ 643406 words of font info for 165 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  110i,21n,107p,11006b,2111s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/mnsymbol/MnSymbol10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/mnsymbol/MnSymbol7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/mnsymbol/MnSymbol8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/doublestroke/dsrom10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/doublestroke/dsrom8.pfb></usr/share/texmf/fonts/type1/public/lm/lmbx10.pfb></usr/share/texmf/fonts/type1/public/lm/lmcsc10.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi10.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi6.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi8.pfb></usr/share/texmf/fonts/type1/public/lm/lmmib10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr12.pfb></usr/share/texmf/fonts/type1/public/lm/lmr7.pfb></usr/share/texmf/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/lmri10.pfb></usr/share/texmf/fonts/type1/public/lm/lmssbx10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtk10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtko10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtti10.pfb>
-Output written on main.pdf (16 pages, 471037 bytes).
+Output written on main.pdf (17 pages, 483848 bytes).
 PDF statistics:
- 591 PDF objects out of 1000 (max. 8388607)
- 491 compressed objects within 5 object streams
- 221 named destinations out of 1000 (max. 500000)
- 277 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 706 PDF objects out of 1000 (max. 8388607)
+ 603 compressed objects within 7 object streams
+ 254 named destinations out of 1000 (max. 500000)
+ 285 words of extra memory for PDF output out of 10000 (max. 10000000)
 

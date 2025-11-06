@@ -3,9 +3,9 @@
 % We try to maximize the probability that Eve can guess Alice input by eavesdropping on the channel. The quantum states have to obey two constraints. First, they cannot be distinguished with more than $G$ probability. Second, they have to reproduce the correlations that Alice and Bob $p(b|x,y) $ find. $G$ and $p(b|xy$) are parameters of the protocol.
 % The optimization variables are the four quantum states $\{\rho_1,\rho_2,\rho_3,\rho_4\}$ and free hermitian operator $\sigma$ acting on Bob and Eve's joint quantum system ,the povm for the first coutcome of the three measurements of Bob $\{B_1,B_2,B_3\}$ acting only on Bob's system and Eve's povm $E$ acting only on Eve's system.This can be cast as a trace polynomial optimization problem as follows.
 
-Consider the problem, studied in \cite{Tavakoli2022informationally}, of characterizing correlations in a prepare-and-measure scenario where the information capacity of the ensemble of prepared quantum states is constrined.
+Consider the problem, studied in \cite{Tavakoli2022informationally}, of characterizing correlations in a prepare-and-measure scenario where the information capacity of the ensemble of prepared quantum states is constrained.
 The trace polynomial optimization problem reads as follows.
-With PCPOP, We reproduce the figure 3 in \cite{Tavakoli2022informationally}.
+With PCPOP, we reproduce Figure~3 in \cite{Tavakoli2022informationally}.
 % \begin{equation}
 % \begin{split}
 %     p^* &= \underset{\rho_1,\rho_2 , \mathcal{H}}{inf} \: 0.5*tr(\rho_1*E+\rho_2*(1-E)), \\
@@ -48,7 +48,7 @@ With PCPOP, We reproduce the figure 3 in \cite{Tavakoli2022informationally}.
     # The following two lines impose information constraint.
     ge = [σ-1/3*ρ[i] for i in 1:3]
     ge_constr = [[-σ,-G]]
-    # To impsoe the constraint that the states are mixed states.
+    # To impose the constraint that the states are mixed states.
     ge=vcat(ge,[i-i*i for i in ρ])
     # Normalization of states.
     eq_constr = [[ρ[x],1] for x in 1:3]
@@ -57,4 +57,4 @@ With PCPOP, We reproduce the figure 3 in \cite{Tavakoli2022informationally}.
     ov,_,_=npa(wit,level;op_ge=ge,tr_eq=eq_constr,tr_ge=ge_constr,cyclic=true,min=false,normalize=false)
     # Notice here we use cyclic=true to do tracial reductions.
 \end{code}
-\AM{Extend with more examples that solves general state polynomial optimization problems.}
+\AM{Moi: Maybe you can extend with more examples that solves general state polynomial optimization problems.}

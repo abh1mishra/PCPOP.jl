@@ -69,6 +69,409 @@
       \verb https://link.aps.org/doi/10.1103/PhysRevA.110.L010401
       \endverb
     \endentry
+    \entry{Burgdorf2013}{article}{}
+      \name{author}{4}{}{%
+        {{hash=0be20dceb5c90002851ff994caa61701}{%
+           family={Burgdorf},
+           familyi={B\bibinitperiod},
+           given={Sabine},
+           giveni={S\bibinitperiod}}}%
+        {{hash=c341a1d149434c108163fc71596d244c}{%
+           family={Cafuta},
+           familyi={C\bibinitperiod},
+           given={Kristijan},
+           giveni={K\bibinitperiod}}}%
+        {{hash=3692f4846ef1134236ab09d5645f69a9}{%
+           family={Klep},
+           familyi={K\bibinitperiod},
+           given={Igor},
+           giveni={I\bibinitperiod}}}%
+        {{hash=a0cdc06f77cd9f9296fd2de6d78a5c1c}{%
+           family={Povh},
+           familyi={P\bibinitperiod},
+           given={Janez},
+           giveni={J\bibinitperiod}}}%
+      }
+      \strng{namehash}{699c84275002b585913aff56355519e8}
+      \strng{fullhash}{60f66d1a2925390dc39c02a36dbc16f5}
+      \strng{bibnamehash}{699c84275002b585913aff56355519e8}
+      \strng{authorbibnamehash}{699c84275002b585913aff56355519e8}
+      \strng{authornamehash}{699c84275002b585913aff56355519e8}
+      \strng{authorfullhash}{60f66d1a2925390dc39c02a36dbc16f5}
+      \field{labelalpha}{Bur+13}
+      \field{sortinit}{B}
+      \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{The main topic addressed in this paper is trace-optimization of polynomials in noncommuting (nc) variables: given an nc polynomial f, what is the smallest trace {\$}{\$}{\{}f({\backslash}underline {\{}A{\}}){\}}{\$}{\$}can attain for a tuple of matrices {\$}{\$}{\{}{\backslash}underline {\{}A{\}}{\}}{\$}{\$}? A relaxation using semidefinite programming (SDP) based on sums of hermitian squares and commutators is proposed. While this relaxation is not always exact, it gives effectively computable bounds on the optima. To test for exactness, the solution of the dual SDP is investigated. If it satisfies a certain condition called flatness, then the relaxation is exact. In this case it is shown how to extract global trace-optimizers with a procedure based on two ingredients. The first is the solution to the truncated tracial moment problem, and the other crucial component is the numerical implementation of the Artin-Wedderburn theorem for matrix *-algebras due to Murota, Kanno, Kojima, Kojima, and Maehara. Trace-optimization of nc polynomials is a nontrivial extension of polynomial optimization in commuting variables on one side and eigenvalue optimization of nc polynomials on the other side---two topics with many applications, the most prominent being to linear systems engineering and quantum physics. The optimization problems discussed here facilitate new possibilities for applications, e.g. in operator algebras and statistical physics.}
+      \field{issn}{1436-4646}
+      \field{journaltitle}{Mathematical Programming}
+      \field{month}{2}
+      \field{number}{1}
+      \field{title}{The tracial moment problem and trace-optimization of polynomials}
+      \field{volume}{137}
+      \field{year}{2013}
+      \field{pages}{557\bibrangedash 578}
+      \range{pages}{22}
+      \verb{doi}
+      \verb 10.1007/s10107-011-0505-8
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1007/s10107-011-0505-8
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1007/s10107-011-0505-8
+      \endverb
+    \endentry
+    \entry{QuantumNPA.jl}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=ccca5f9fad1b8f4860679fd457d5f7a5}{%
+           family={ewoodhead},
+           familyi={e\bibinitperiod}}}%
+      }
+      \strng{namehash}{ccca5f9fad1b8f4860679fd457d5f7a5}
+      \strng{fullhash}{ccca5f9fad1b8f4860679fd457d5f7a5}
+      \strng{bibnamehash}{ccca5f9fad1b8f4860679fd457d5f7a5}
+      \strng{authorbibnamehash}{ccca5f9fad1b8f4860679fd457d5f7a5}
+      \strng{authornamehash}{ccca5f9fad1b8f4860679fd457d5f7a5}
+      \strng{authorfullhash}{ccca5f9fad1b8f4860679fd457d5f7a5}
+      \field{labelalpha}{ewo25}
+      \field{sortinit}{e}
+      \field{sortinithash}{8da8a182d344d5b9047633dfc0cc9131}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{https://github.com/ewoodhead/QuantumNPA.jl}
+      \field{note}{commit 9ec9eea4b5a864874d52c23da96cf639395b9734}
+      \field{title}{QuantumNPA.jl}
+      \field{year}{2025}
+    \endentry
+    \entry{doi:10.1137/S1052623400366802}{article}{}
+      \name{author}{1}{}{%
+        {{hash=366d2edd6024dd4b81f160f712ad3069}{%
+           family={Lasserre},
+           familyi={L\bibinitperiod},
+           given={Jean\bibnamedelima B.},
+           giveni={J\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+      }
+      \strng{namehash}{366d2edd6024dd4b81f160f712ad3069}
+      \strng{fullhash}{366d2edd6024dd4b81f160f712ad3069}
+      \strng{bibnamehash}{366d2edd6024dd4b81f160f712ad3069}
+      \strng{authorbibnamehash}{366d2edd6024dd4b81f160f712ad3069}
+      \strng{authornamehash}{366d2edd6024dd4b81f160f712ad3069}
+      \strng{authorfullhash}{366d2edd6024dd4b81f160f712ad3069}
+      \field{labelalpha}{Las01}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{We consider the problem of finding the unconstrained global minimum of a real-valued polynomial p(x): {\mathbb{R}}^n\to {\mathbb{R}}\$, as well as the global minimum of p(x), in a compact set K defined by polynomial inequalities. It is shown that this problem reduces to solving an (often finite) sequence of convex linear matrix inequality (LMI) problems. A notion of Karush--Kuhn--Tucker polynomials is introduced in a global optimality condition. Some illustrative examples are provided.}
+      \field{journaltitle}{SIAM Journal on Optimization}
+      \field{number}{3}
+      \field{title}{Global Optimization with Polynomials and the Problem of Moments}
+      \field{volume}{11}
+      \field{year}{2001}
+      \field{pages}{796\bibrangedash 817}
+      \range{pages}{22}
+      \verb{doi}
+      \verb 10.1137/S1052623400366802
+      \endverb
+      \verb{eprint}
+      \verb https://doi.org/10.1137/S1052623400366802
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1137/S1052623400366802
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1137/S1052623400366802
+      \endverb
+    \endentry
+    \entry{Navascués_2008}{article}{}
+      \name{author}{3}{}{%
+        {{hash=46e353afe806d9161313d0e3e777d2cb}{%
+           family={Navascués},
+           familyi={N\bibinitperiod},
+           given={Miguel},
+           giveni={M\bibinitperiod}}}%
+        {{hash=ad1f46b7dac90a975a39ebda42e0dde9}{%
+           family={Pironio},
+           familyi={P\bibinitperiod},
+           given={Stefano},
+           giveni={S\bibinitperiod}}}%
+        {{hash=7d47cabb005519ee85640c0cc218de7d}{%
+           family={Acín},
+           familyi={A\bibinitperiod},
+           given={Antonio},
+           giveni={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{b588c2b9bbc457c25e2891f52fdb95bc}
+      \strng{fullhash}{b588c2b9bbc457c25e2891f52fdb95bc}
+      \strng{bibnamehash}{b588c2b9bbc457c25e2891f52fdb95bc}
+      \strng{authorbibnamehash}{b588c2b9bbc457c25e2891f52fdb95bc}
+      \strng{authornamehash}{b588c2b9bbc457c25e2891f52fdb95bc}
+      \strng{authorfullhash}{b588c2b9bbc457c25e2891f52fdb95bc}
+      \field{labelalpha}{NPA08}
+      \field{sortinit}{N}
+      \field{sortinithash}{22369a73d5f88983a108b63f07f37084}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{We are interested in the problem of characterizing the correlations that arise when performing local measurements on separate quantum systems. In a previous work (Navascués et al 2007 Phys. Rev. Lett. 98 010401), we introduced an infinite hierarchy of conditions necessarily satisfied by any set of quantum correlations. Each of these conditions could be tested using semidefinite programming. We present here new results concerning this hierarchy. We prove in particular that it is complete, in the sense that any set of correlations satisfying every condition in the hierarchy has a quantum representation in terms of commuting measurements. Although our tests are conceived to rule out non-quantum correlations, and can in principle certify that a set of correlations is quantum only in the asymptotic limit where all tests are satisfied, we show that in some cases it is possible to conclude that a given set of correlations is quantum after performing only a finite number of tests. We provide a criterion to detect when such a situation arises, and we explain how to reconstruct the quantum states and measurement operators reproducing the given correlations. Finally, we present several applications of our approach. We use it in particular to bound the quantum violation of various Bell inequalities.}
+      \field{journaltitle}{New Journal of Physics}
+      \field{month}{7}
+      \field{number}{7}
+      \field{title}{A convergent hierarchy of semidefinite programs characterizing the set of quantum correlations}
+      \field{volume}{10}
+      \field{year}{2008}
+      \field{pages}{073013}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1088/1367-2630/10/7/073013
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1088/1367-2630/10/7/073013
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1088/1367-2630/10/7/073013
+      \endverb
+    \endentry
+    \entry{doi:10.1137/090760155}{article}{}
+      \name{author}{3}{}{%
+        {{hash=35f8251a4b6875518a43ad8e8942dac5}{%
+           family={Pironio},
+           familyi={P\bibinitperiod},
+           given={S.},
+           giveni={S\bibinitperiod}}}%
+        {{hash=abab8580ae9bb70541b004b54843f2f9}{%
+           family={Navascués},
+           familyi={N\bibinitperiod},
+           given={M.},
+           giveni={M\bibinitperiod}}}%
+        {{hash=716b05f3bfdb55ceb315db0a93f305ba}{%
+           family={Acín},
+           familyi={A\bibinitperiod},
+           given={A.},
+           giveni={A\bibinitperiod}}}%
+      }
+      \strng{namehash}{537aa4a6772acd66388bd5c49ddf9f1c}
+      \strng{fullhash}{537aa4a6772acd66388bd5c49ddf9f1c}
+      \strng{bibnamehash}{537aa4a6772acd66388bd5c49ddf9f1c}
+      \strng{authorbibnamehash}{537aa4a6772acd66388bd5c49ddf9f1c}
+      \strng{authornamehash}{537aa4a6772acd66388bd5c49ddf9f1c}
+      \strng{authorfullhash}{537aa4a6772acd66388bd5c49ddf9f1c}
+      \field{labelalpha}{PNA10}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{We consider optimization problems with polynomial inequality constraints in noncommuting variables. These noncommuting variables are viewed as bounded operators on a Hilbert space whose dimension is not fixed and the associated polynomial inequalities as semidefinite positivity constraints. Such problems arise naturally in quantum theory and quantum information science. To solve them, we introduce a hierarchy of semidefinite programming relaxations which generates a monotone sequence of lower bounds that converges to the optimal solution. We also introduce a criterion to detect whether the global optimum is reached at a given relaxation step and show how to extract a global optimizer from the solution of the corresponding semidefinite programming problem.}
+      \field{journaltitle}{SIAM Journal on Optimization}
+      \field{number}{5}
+      \field{title}{Convergent Relaxations of Polynomial Optimization Problems with Noncommuting Variables}
+      \field{volume}{20}
+      \field{year}{2010}
+      \field{pages}{2157\bibrangedash 2180}
+      \range{pages}{24}
+      \verb{doi}
+      \verb 10.1137/090760155
+      \endverb
+      \verb{eprint}
+      \verb https://doi.org/10.1137/090760155
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1137/090760155
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1137/090760155
+      \endverb
+    \endentry
+    \entry{Primaatmaja2023securityofdevice}{article}{}
+      \name{author}{6}{}{%
+        {{hash=88a12d5880a5ed6f6c2710bbfccc8fd7}{%
+           family={Primaatmaja},
+           familyi={P\bibinitperiod},
+           given={Ignatius\bibnamedelima W.},
+           giveni={I\bibinitperiod\bibinitdelim W\bibinitperiod}}}%
+        {{hash=1006992fc121748b48843d953abced38}{%
+           family={Goh},
+           familyi={G\bibinitperiod},
+           given={Koon\bibnamedelima Tong},
+           giveni={K\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+        {{hash=a905b72f99e86e59893ff46f9177e0c5}{%
+           family={Tan},
+           familyi={T\bibinitperiod},
+           given={Ernest\bibnamedelima Y.-Z.},
+           giveni={E\bibinitperiod\bibinitdelim Y\bibinithyphendelim Z\bibinitperiod}}}%
+        {{hash=f94dce2a5211e4c9afe01ac76df40cec}{%
+           family={Khoo},
+           familyi={K\bibinitperiod},
+           given={John\bibnamedelima T.-F.},
+           giveni={J\bibinitperiod\bibinitdelim T\bibinithyphendelim F\bibinitperiod}}}%
+        {{hash=d3d83501283716e8f37e57e94efc03e8}{%
+           family={Ghorai},
+           familyi={G\bibinitperiod},
+           given={Shouvik},
+           giveni={S\bibinitperiod}}}%
+        {{hash=8a844d61a3df84ba4030666addc6d251}{%
+           family={Lim},
+           familyi={L\bibinitperiod},
+           given={Charles\bibnamedelima C.-W.},
+           giveni={C\bibinitperiod\bibinitdelim C\bibinithyphendelim W\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Verein zur Förderung des Open Access Publizierens in den Quantenwissenschaften}%
+      }
+      \strng{namehash}{7c478f010ddbed1a153df2fbb10e6d38}
+      \strng{fullhash}{edc5a4845ee63de06596d87cd9973de3}
+      \strng{bibnamehash}{7c478f010ddbed1a153df2fbb10e6d38}
+      \strng{authorbibnamehash}{7c478f010ddbed1a153df2fbb10e6d38}
+      \strng{authornamehash}{7c478f010ddbed1a153df2fbb10e6d38}
+      \strng{authorfullhash}{edc5a4845ee63de06596d87cd9973de3}
+      \field{labelalpha}{Pri+23}
+      \field{sortinit}{P}
+      \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{2521-327X}
+      \field{journaltitle}{{Quantum}}
+      \field{month}{3}
+      \field{title}{Security of device-independent quantum key distribution protocols: a review}
+      \field{volume}{7}
+      \field{year}{2023}
+      \field{pages}{932}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.22331/q-2023-03-02-932
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.22331/q-2023-03-02-932
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.22331/q-2023-03-02-932
+      \endverb
+    \endentry
+    \entry{rosset2018symdpolysymmetryadaptedmomentrelaxations}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=0262d2e0ac3ef21b4f6b4ad7a95c324d}{%
+           family={Rosset},
+           familyi={R\bibinitperiod},
+           given={Denis},
+           giveni={D\bibinitperiod}}}%
+      }
+      \strng{namehash}{0262d2e0ac3ef21b4f6b4ad7a95c324d}
+      \strng{fullhash}{0262d2e0ac3ef21b4f6b4ad7a95c324d}
+      \strng{bibnamehash}{0262d2e0ac3ef21b4f6b4ad7a95c324d}
+      \strng{authorbibnamehash}{0262d2e0ac3ef21b4f6b4ad7a95c324d}
+      \strng{authornamehash}{0262d2e0ac3ef21b4f6b4ad7a95c324d}
+      \strng{authorfullhash}{0262d2e0ac3ef21b4f6b4ad7a95c324d}
+      \field{labelalpha}{Ros18}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{quant-ph}
+      \field{eprinttype}{arXiv}
+      \field{title}{SymDPoly: symmetry-adapted moment relaxations for noncommutative polynomial optimization}
+      \field{year}{2018}
+      \verb{eprint}
+      \verb 1808.09598
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/1808.09598
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/1808.09598
+      \endverb
+    \endentry
+    \entry{russell2023synchronousnpahierarchyapplications}{misc}{}
+      \name{author}{1}{}{%
+        {{hash=982ffd8cad8bb409ce3710bd8b1ce7f2}{%
+           family={Russell},
+           familyi={R\bibinitperiod},
+           given={Travis\bibnamedelima B.},
+           giveni={T\bibinitperiod\bibinitdelim B\bibinitperiod}}}%
+      }
+      \strng{namehash}{982ffd8cad8bb409ce3710bd8b1ce7f2}
+      \strng{fullhash}{982ffd8cad8bb409ce3710bd8b1ce7f2}
+      \strng{bibnamehash}{982ffd8cad8bb409ce3710bd8b1ce7f2}
+      \strng{authorbibnamehash}{982ffd8cad8bb409ce3710bd8b1ce7f2}
+      \strng{authornamehash}{982ffd8cad8bb409ce3710bd8b1ce7f2}
+      \strng{authorfullhash}{982ffd8cad8bb409ce3710bd8b1ce7f2}
+      \field{labelalpha}{Rus23}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprintclass}{quant-ph}
+      \field{eprinttype}{arXiv}
+      \field{title}{A synchronous NPA hierarchy with applications}
+      \field{year}{2023}
+      \verb{eprint}
+      \verb 2105.01555
+      \endverb
+      \verb{urlraw}
+      \verb https://arxiv.org/abs/2105.01555
+      \endverb
+      \verb{url}
+      \verb https://arxiv.org/abs/2105.01555
+      \endverb
+    \endentry
+    \entry{Tavakoli_2022}{article}{}
+      \name{author}{4}{}{%
+        {{hash=d9674ba4a125ee10bfdef9ec2a3051e5}{%
+           family={Tavakoli},
+           familyi={T\bibinitperiod},
+           given={Armin},
+           giveni={A\bibinitperiod}}}%
+        {{hash=1ca2a3386d5fab4f604379191a293580}{%
+           family={Pozas-Kerstjens},
+           familyi={P\bibinithyphendelim K\bibinitperiod},
+           given={Alejandro},
+           giveni={A\bibinitperiod}}}%
+        {{hash=3efdc37946db580f3291c1cf56acf872}{%
+           family={Luo},
+           familyi={L\bibinitperiod},
+           given={Ming-Xing},
+           giveni={M\bibinithyphendelim X\bibinitperiod}}}%
+        {{hash=c72641b74ecb8f5114fea2a7f7a526cb}{%
+           family={Renou},
+           familyi={R\bibinitperiod},
+           given={Marc-Olivier},
+           giveni={M\bibinithyphendelim O\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {IOP Publishing}%
+      }
+      \strng{namehash}{ac82539dcb4adc056e2de3dd321d221f}
+      \strng{fullhash}{d761df318b1ed5b505656d89a3489adb}
+      \strng{bibnamehash}{ac82539dcb4adc056e2de3dd321d221f}
+      \strng{authorbibnamehash}{ac82539dcb4adc056e2de3dd321d221f}
+      \strng{authornamehash}{ac82539dcb4adc056e2de3dd321d221f}
+      \strng{authorfullhash}{d761df318b1ed5b505656d89a3489adb}
+      \field{extraname}{1}
+      \field{labelalpha}{Tav+22}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{extraalpha}{1}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Bell’s theorem proves that quantum theory is inconsistent with local physical models. It has propelled research in the foundations of quantum theory and quantum information science. As a fundamental feature of quantum theory, it impacts predictions far beyond the traditional scenario of the Einstein-Podolsky-Rosen paradox. In the last decade, the investigation of nonlocality has moved beyond Bell's theorem to consider more sophisticated experiments that involve several independent sources which distribute shares of physical systems among many parties in a network. Network scenarios, and the nonlocal correlations that they give rise to, lead to phenomena that have no counterpart in traditional Bell experiments, thus presenting a formidable conceptual and practical challenge. This review discusses the main concepts, methods, results and future challenges in the emerging topic of Bell nonlocality in networks.}
+      \field{journaltitle}{Reports on Progress in Physics}
+      \field{month}{3}
+      \field{number}{5}
+      \field{title}{Bell nonlocality in networks}
+      \field{volume}{85}
+      \field{year}{2022}
+      \field{pages}{056001}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1088/1361-6633/ac41bb
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1088/1361-6633/ac41bb
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1088/1361-6633/ac41bb
+      \endverb
+    \endentry
     \entry{Tavakoli2022informationally}{article}{}
       \name{author}{4}{}{%
         {{hash=d9674ba4a125ee10bfdef9ec2a3051e5}{%
@@ -101,9 +504,11 @@
       \strng{authorbibnamehash}{ac82539dcb4adc056e2de3dd321d221f}
       \strng{authornamehash}{ac82539dcb4adc056e2de3dd321d221f}
       \strng{authorfullhash}{9e941602eb6ceb394de95aed6e7d5ea0}
+      \field{extraname}{2}
       \field{labelalpha}{Tav+22}
       \field{sortinit}{T}
       \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{extraalpha}{2}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
       \field{issn}{2521-327X}
@@ -122,6 +527,226 @@
       \endverb
       \verb{url}
       \verb https://doi.org/10.22331/q-2022-01-05-620
+      \endverb
+    \endentry
+    \entry{RevModPhys.96.045006}{article}{}
+      \name{author}{4}{}{%
+        {{hash=d9674ba4a125ee10bfdef9ec2a3051e5}{%
+           family={Tavakoli},
+           familyi={T\bibinitperiod},
+           given={Armin},
+           giveni={A\bibinitperiod}}}%
+        {{hash=1ca2a3386d5fab4f604379191a293580}{%
+           family={Pozas-Kerstjens},
+           familyi={P\bibinithyphendelim K\bibinitperiod},
+           given={Alejandro},
+           giveni={A\bibinitperiod}}}%
+        {{hash=ba0f875a2e518de68d3b474de01c0e9b}{%
+           family={Brown},
+           familyi={B\bibinitperiod},
+           given={Peter},
+           giveni={P\bibinitperiod}}}%
+        {{hash=27b3b4344b88a7bc1ec594560b5f4e36}{%
+           family={Araújo},
+           familyi={A\bibinitperiod},
+           given={Mateus},
+           giveni={M\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {American Physical Society}%
+      }
+      \strng{namehash}{ac82539dcb4adc056e2de3dd321d221f}
+      \strng{fullhash}{6ae22a27141f21c10b4993f051dc4cdb}
+      \strng{bibnamehash}{ac82539dcb4adc056e2de3dd321d221f}
+      \strng{authorbibnamehash}{ac82539dcb4adc056e2de3dd321d221f}
+      \strng{authornamehash}{ac82539dcb4adc056e2de3dd321d221f}
+      \strng{authorfullhash}{6ae22a27141f21c10b4993f051dc4cdb}
+      \field{extraname}{3}
+      \field{labelalpha}{Tav+24}
+      \field{sortinit}{T}
+      \field{sortinithash}{9af77f0292593c26bde9a56e688eaee9}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issue}{4}
+      \field{journaltitle}{Rev. Mod. Phys.}
+      \field{month}{12}
+      \field{title}{Semidefinite programming relaxations for quantum correlations}
+      \field{volume}{96}
+      \field{year}{2024}
+      \field{pages}{045006}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1103/RevModPhys.96.045006
+      \endverb
+      \verb{urlraw}
+      \verb https://link.aps.org/doi/10.1103/RevModPhys.96.045006
+      \endverb
+      \verb{url}
+      \verb https://link.aps.org/doi/10.1103/RevModPhys.96.045006
+      \endverb
+    \endentry
+    \entry{PhysRevX.14.031006}{article}{}
+      \name{author}{7}{}{%
+        {{hash=fcd6114a30fda9801eef65b9d374f56b}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Jie},
+           giveni={J\bibinitperiod}}}%
+        {{hash=871ef58f119ae8a17c139943c9cc0356}{%
+           family={Surace},
+           familyi={S\bibinitperiod},
+           given={Jacopo},
+           giveni={J\bibinitperiod}}}%
+        {{hash=df7b2613917c0140e4ee7dcb3ad6113c}{%
+           family={Frérot},
+           familyi={F\bibinitperiod},
+           given={Irénée},
+           giveni={I\bibinitperiod}}}%
+        {{hash=b2457c8250c4c09987eec825dc104c00}{%
+           family={Legat},
+           familyi={L\bibinitperiod},
+           given={Benoı̂t},
+           giveni={B\bibinitperiod}}}%
+        {{hash=c72641b74ecb8f5114fea2a7f7a526cb}{%
+           family={Renou},
+           familyi={R\bibinitperiod},
+           given={Marc-Olivier},
+           giveni={M\bibinithyphendelim O\bibinitperiod}}}%
+        {{hash=19567e921db6b68c86394bcc52711e13}{%
+           family={Magron},
+           familyi={M\bibinitperiod},
+           given={Victor},
+           giveni={V\bibinitperiod}}}%
+        {{hash=7d47cabb005519ee85640c0cc218de7d}{%
+           family={Acín},
+           familyi={A\bibinitperiod},
+           given={Antonio},
+           giveni={A\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {American Physical Society}%
+      }
+      \strng{namehash}{f94a4355da23aa07bd6eac7dffc0ca80}
+      \strng{fullhash}{dbec360a424c0d364b02a9f76befa911}
+      \strng{bibnamehash}{f94a4355da23aa07bd6eac7dffc0ca80}
+      \strng{authorbibnamehash}{f94a4355da23aa07bd6eac7dffc0ca80}
+      \strng{authornamehash}{f94a4355da23aa07bd6eac7dffc0ca80}
+      \strng{authorfullhash}{dbec360a424c0d364b02a9f76befa911}
+      \field{labelalpha}{Wan+24}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issue}{3}
+      \field{journaltitle}{Phys. Rev. X}
+      \field{month}{7}
+      \field{title}{Certifying Ground-State Properties of Many-Body Systems}
+      \field{volume}{14}
+      \field{year}{2024}
+      \field{pages}{031006}
+      \range{pages}{1}
+      \verb{doi}
+      \verb 10.1103/PhysRevX.14.031006
+      \endverb
+      \verb{urlraw}
+      \verb https://link.aps.org/doi/10.1103/PhysRevX.14.031006
+      \endverb
+      \verb{url}
+      \verb https://link.aps.org/doi/10.1103/PhysRevX.14.031006
+      \endverb
+    \endentry
+    \entry{10.1145/2699464}{article}{}
+      \name{author}{1}{}{%
+        {{hash=f5a146c5713dd2c5d0bae5d5b944d722}{%
+           family={Wittek},
+           familyi={W\bibinitperiod},
+           given={Peter},
+           giveni={P\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {New York, NY, USA}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computing Machinery}%
+      }
+      \strng{namehash}{f5a146c5713dd2c5d0bae5d5b944d722}
+      \strng{fullhash}{f5a146c5713dd2c5d0bae5d5b944d722}
+      \strng{bibnamehash}{f5a146c5713dd2c5d0bae5d5b944d722}
+      \strng{authorbibnamehash}{f5a146c5713dd2c5d0bae5d5b944d722}
+      \strng{authornamehash}{f5a146c5713dd2c5d0bae5d5b944d722}
+      \strng{authorfullhash}{f5a146c5713dd2c5d0bae5d5b944d722}
+      \field{labelalpha}{Wit15}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{A hierarchy of semidefinite programming (SDP) relaxations approximates the global optimum of polynomial optimization problems of noncommuting variables. Generating the relaxation, however, is a computationally demanding task, and only problems of commuting variables have efficient generators. We develop an implementation for problems of noncommuting variables that creates the relaxation to be solved by SDPA--a high-performance solver that runs in a distributed environment. We further exploit the inherent sparsity of optimization problems in quantum physics to reduce the complexity of the resulting relaxations. Constrained problems with a relaxation of order two may contain up to a hundred variables. The implementation is available in Python. The tool helps solve such as finding the ground state energy or testing quantum correlations.}
+      \field{issn}{0098-3500}
+      \field{journaltitle}{ACM Trans. Math. Softw.}
+      \field{month}{6}
+      \field{number}{3}
+      \field{title}{Algorithm 950: Ncpol2sdpa—Sparse Semidefinite Programming Relaxations for Polynomial Optimization Problems of Noncommuting Variables}
+      \field{volume}{41}
+      \field{year}{2015}
+      \verb{doi}
+      \verb 10.1145/2699464
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1145/2699464
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1145/2699464
+      \endverb
+      \keyw{Semidefinite programming,ground state energy,noncommuting variables,quantum correlations}
+    \endentry
+    \entry{doi:10.1137/19M1307871}{article}{}
+      \name{author}{3}{}{%
+        {{hash=fcd6114a30fda9801eef65b9d374f56b}{%
+           family={Wang},
+           familyi={W\bibinitperiod},
+           given={Jie},
+           giveni={J\bibinitperiod}}}%
+        {{hash=19567e921db6b68c86394bcc52711e13}{%
+           family={Magron},
+           familyi={M\bibinitperiod},
+           given={Victor},
+           giveni={V\bibinitperiod}}}%
+        {{hash=e412b60453957dcca652e44e3528448a}{%
+           family={Lasserre},
+           familyi={L\bibinitperiod},
+           given={Jean-Bernard},
+           giveni={J\bibinithyphendelim B\bibinitperiod}}}%
+      }
+      \strng{namehash}{903cd8bea17ff0a6d172a0ffc9481f19}
+      \strng{fullhash}{903cd8bea17ff0a6d172a0ffc9481f19}
+      \strng{bibnamehash}{903cd8bea17ff0a6d172a0ffc9481f19}
+      \strng{authorbibnamehash}{903cd8bea17ff0a6d172a0ffc9481f19}
+      \strng{authornamehash}{903cd8bea17ff0a6d172a0ffc9481f19}
+      \strng{authorfullhash}{903cd8bea17ff0a6d172a0ffc9481f19}
+      \field{labelalpha}{WML21}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{This paper is concerned with polynomial optimization problems. We show how to exploit term (or monomial) sparsity of the input polynomials to obtain a new converging hierarchy of semidefinite programming relaxations. The novelty (and distinguishing feature) of such relaxations is to involve block-diagonal matrices obtained in an iterative procedure performing completion of the connected components of certain adjacency graphs. The graphs are related to the terms arising in the original data and not to the links between variables. Our theoretical framework is then applied to compute lower bounds for polynomial optimization problems either randomly generated or coming from the networked system literature.}
+      \field{journaltitle}{SIAM Journal on Optimization}
+      \field{number}{1}
+      \field{title}{TSSOS: A Moment-SOS Hierarchy That Exploits Term Sparsity}
+      \field{volume}{31}
+      \field{year}{2021}
+      \field{pages}{30\bibrangedash 58}
+      \range{pages}{29}
+      \verb{doi}
+      \verb 10.1137/19M1307871
+      \endverb
+      \verb{eprint}
+      \verb https://doi.org/10.1137/19M1307871
+      \endverb
+      \verb{urlraw}
+      \verb https://doi.org/10.1137/19M1307871
+      \endverb
+      \verb{url}
+      \verb https://doi.org/10.1137/19M1307871
       \endverb
     \endentry
   \enddatalist

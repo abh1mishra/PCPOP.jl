@@ -1,4 +1,5 @@
 \subsection{Graph product polynomial optimization}
+\label{sec:gpop}
 Consider three groups($A,B,AB$) where each group has two variables and so, $X=\{X_{j,i} : i \in \{A,B,AB\},j \in \{1,2\}\}$. All the variables of group $A$ commute with all the variables of group $B$ but not with the variables of group $AB$. The variables $X_1^i,X_2^i$ of each group $i$ follow the constraints as in problem~\ref{ncpop_pna}. The optimization problem we consider reads as follows.
 
 \begin{equation}
@@ -6,7 +7,7 @@ Consider three groups($A,B,AB$) where each group has two variables and so, $X=\{
 \begin{split}
        p^* &=\underset{\underline{X} , \psi , \mathcal{H}}{inf} \: \braket{\psi| \:\bigl[\sum_{i \in \{A,B,AB\}} X_{1,i} \mult X_{2,i} + X_{2,i} \mult X_{1,i} + \sum_{i,j \in \{A,B,AB\}} X_{1,i}*X_{2,j} \:\bigr]\: |\psi}, \\
     & s.t \quad \qquad X_{1,i}^2 - X_{1,i} = 0,\forall i \in \{A,B,AB\} \\
-    & \quad \qquad [X_{i,A},X_{j,B}]=0, \forall j,k \in \{1,2\}\\
+    & \quad \qquad [X_{i,A},X_{j,B}]=0, \forall i,j \in \{1,2\}\\
     & \qquad \quad -X_{2,i}^2+X_{2,i}+1/2 \geq 0,\forall i \in \{A,B,AB\} \\
     & \qquad \quad \braket{\psi , \psi} = 1. \\ 
 \end{split}
@@ -20,15 +21,14 @@ With PCPOP, the above problem can be solved as follows.
     # Monoid for group AB
     @ncmonoid AB X1AB X2AB
     vars=[X1A,X2A,X1B,X2B,X1AB,X2AB]
-     #All variables are hermitian and projectors. This constraint only #involve variables of same group.
+     #All variables are hermitian and projectors. This constraint only involve variables of same group.
     Projector.(vars)
     # We build each child monoids.
-    build.( [A,B,AB] )
     # We create the parent monoid using the child monoids.
     M=graph_product_monoid("M",[A,B,AB])
-    # We enforce the commutation relations between the child monoids, this #is enough to enforce all the required commutation relations.
+    # We enforce the commutation relations between the child monoids, this is enough to enforce all the required commutation relations.
     @comms A B
-    # Build the parent monoid.
+    # Build the parent monoid, it automatically builds the child monoids.
     build(M)
     # Define the objective function.
     obj_local=X1A*X2A + X2A*X1A + X1B*X2B + X2B*X1B + X1AB*X2AB + X2AB*X1AB
