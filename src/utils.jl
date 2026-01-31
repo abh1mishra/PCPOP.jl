@@ -39,9 +39,12 @@ function get_clique_indices(monoid::m,cliques::Vector{Vector{m}}) where m<:Union
     return [clique_index for (clique_index,clique) in enumerate(cliques) if monoid in clique]
 end
 
-function merge(x::Vector{Vector{w}},y::Vector{Vector{w}}) where w<:AbstractMonomial
-
-    result=Vector{Vector{w}}([[x[clique_index];y[clique_index]] for clique_index in 1:length(x)])
+function merge(x::Vector{Vector{w}},y::Vector{Vector{w}}) where w<: Any
+    n = length(x)
+    result = Vector{w}[]
+    @inbounds for i in 1:n
+        push!(result, vcat(x[i], y[i]))
+    end
     return result
 end
 

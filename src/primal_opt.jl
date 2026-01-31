@@ -1,5 +1,21 @@
 using JuMP,Mosek,MosekTools
-
+function mons_at_levelint(list_vars::Vector{Variable},level::Int)
+    Id=one(list_vars[1])
+    if level==0
+        return [Id]
+    end
+    mons=AbstractMonomial[Id]
+    union!(mons,list_vars)
+    if level==1
+        return mons
+    end
+    temp_=copy(list_vars)
+    for _ in 2:level
+        temp_=union(monomials.(filter(res->(res!=Id && !(typeof(res)<:Number) ),kron(temp_,list_vars,1)))...)
+        union!(mons,temp_)
+    end
+    return mons
+end
 function mons_at_level(list_vars::Vector{Variable},level::String)
     Id=one(list_vars[1])
     list_vars=unique(list_vars)
@@ -8,13 +24,24 @@ function mons_at_level(list_vars::Vector{Variable},level::String)
     total_types=Set([])
     type_var_dict=Dict{String,Vector{Variable}}()
     for i in lvl_str
-        if tryparse(Int, i) !== nothing
-            push!(lvl_array,parse(Int,i))
-        else
-            i_types=split(i,"*")
-            push!(total_types,i_types...)
-            push!(lvl_array,i_types)
+        # if tryparse(Int, i) !== nothing
+        #     push!(lvl_array,parse(Int,i))
+        # else
+        #     i_types=split(i,"*")
+        #     push!(total_types,i_types...)
+        #     push!(lvl_array,i_types)
+        # end
+        i_types=split(i,"*")
+        li_arr=[]
+        for j in i_types
+            if tryparse(Int, j) === nothing
+                push!(total_types,j)
+                push!(li_arr, j)
+            else
+                push!(li_arr,parse(Int,j))
+            end
         end
+        push!(lvl_array, li_arr)
     end
 
     for i in total_types
@@ -38,38 +65,57 @@ function mons_at_level(list_vars::Vector{Variable},level::String)
     # mons always has Id
     mons=AbstractMonomial[Id]
 
+    # for l in lvl_array
+    #     if l isa Int
+    #         if l<1
+    #             continue
+    #         end
+    #         # level 1 done
+    #         union!(mons,list_vars)
+    #         if l==1
+    #             continue
+    #         end
+
+    #         temp_=copy(list_vars)
+    #         for _ in 2:l
+    #             temp_=union(monomials.(filter(res->(res!=Id && !(typeof(res)<:Number) ),kron(temp_,list_vars,1)))...)
+    #             union!(mons,temp_)
+    #         end
+
+    #     else
+    #         if length(l)==0
+    #             continue
+    #         end
+    #         if length(l)==1
+    #             union!(mons,type_var_dict[l[1]])
+    #             continue
+    #         end
+    #         temp_=copy(type_var_dict[l[1]])
+    #         for i in 2:length(l)
+    #             temp_=union(monomials.(filter(res->(res!=Id && !(typeof(res)<:Number) ),kron(temp_,type_var_dict[l[i]],1)))...)
+    #         end
+    #         union!(mons,temp_)
+
+    #     end
+    # end
+
     for l in lvl_array
-        if l isa Int
-            if l<1
-                continue
+        mons_l=[]
+        for l_ in l
+            if l_ isa Int
+                push!(mons_l,mons_at_levelint(list_vars,l_))
+            else
+                push!(mons_l,type_var_dict[l_])
             end
-            # level 1 done
-            union!(mons,list_vars)
-            if l==1
-                continue
-            end
-
-            temp_=copy(list_vars)
-            for _ in 2:l
-                temp_=union(monomials.(filter(res->(res!=Id && !(typeof(res)<:Number) ),kron(temp_,list_vars,1)))...)
-                union!(mons,temp_)
-            end
-
-        else
-            if length(l)==0
-                continue
-            end
-            if length(l)==1
-                union!(mons,type_var_dict[l[1]])
-                continue
-            end
-            temp_=copy(type_var_dict[l[1]])
-            for i in 2:length(l)
-                temp_=union(monomials.(filter(res->(res!=Id && !(typeof(res)<:Number) ),kron(temp_,type_var_dict[l[i]],1)))...)
-            end
-            union!(mons,temp_)
-
         end
+        if mons_l==[]
+            continue
+        end
+        if length(mons_l)==1
+            union!(mons,mons_l[1])
+            continue
+        end
+        union!(mons,kron(mons_l...))
     end
     return monomials(sum(mons))
 end
@@ -209,22 +255,24 @@ function npa(obj, level;
     op_ge = 0,
     tr_eq = 0,
     tr_ge = 0,
-    lvl_principal=0,
+    lvl_lm=0,
     list_vars=[],
     cyclic=false,
     normalize=true,
-    optimizer=Mosek.Optimizer)
-    if lvl_principal==0
+    optimizer=Mosek.Optimizer,
+    model_flags=[],
+    rm=false)
+    if lvl_lm==0
         ops, ops_principal = get_monomials(obj,level; op_eq = op_eq, op_ge = op_ge, tr_eq = tr_eq, tr_ge = tr_ge,list_vars=list_vars)
     else
         if !isempty(list_vars)
             ops_principal= mons_at_level(list_vars, level)
-            ops= mons_at_level(list_vars, lvl_principal)
+            ops= mons_at_level(list_vars, lvl_lm)
         else
             pols=vcat([obj, op_ge..., op_eq...],[tr_ge[i][1] for i in 1:length(tr_ge)], [tr_eq[i][1] for i in 1:length(tr_eq)])
             vars=unique_array(union([variables(g) for g in pols]...))
             ops_principal = mons_at_level(vars, level)
-            ops = ops_at_level(vars, level_principal)
+            ops = mons_at_level(vars, lvl_lm)
         end
     end
     println("Number of operators in the principal moment matrix: ", length(ops_principal))
@@ -234,6 +282,9 @@ function npa(obj, level;
         G=macaulay_grobner(Polynomial.(op_eq),max_degree)
     end
     model=Model(optimizer)
+    for (flag,val) in model_flags
+        set_optimizer_attribute(model,flag,val)
+    end
     principal_moments_matrix, unique_mons, unique_vars = cyclic ? cyclic_npa_moments_block(ops_principal,model) : npa_moments_block(ops_principal,model;G=G)
     # Add the constraints for the principal moment matrix
 
@@ -296,7 +347,7 @@ function npa(obj, level;
     end
     obj_p=0
     if cyclic
-        for (m,c) in obj
+        for (m,c) in Polynomial(obj)
             m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
             m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
             if m_i==nothing
@@ -316,6 +367,9 @@ function npa(obj, level;
     end
     
     min ? @objective(model, Min, obj_p) : @objective(model, Max, obj_p)
+    if rm
+        return model,Dict(zip(unique_mons,unique_vars)),principal_moments_matrix
+    end
     # Solve the model
     optimize!(model)
     # Check the optimization status

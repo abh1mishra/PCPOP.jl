@@ -188,6 +188,23 @@ function general_equals(m1,m2)
 end
 
 
+function simple_mult(m::GraphProductWord{Variable},n::GraphProductWord{Variable})
+    if m.monoid!=n.monoid
+        return general_mult(m,n)
+    end
+
+    parent_monoid=m.monoid
+
+    m_words = m.clique_words
+    n_words = n.clique_words
+    m_l=m.edge_l
+    n_r=n.edge_r
+
+    res_clique_words=merge(m_words,n_words)
+    res=GraphProductWord(parent_monoid,Base.RefValue{AbstractMonomial}(),res_clique_words,m_l,n_r)
+    return res
+end
+
 
 
 
@@ -243,6 +260,7 @@ end
 
 
 function multiply(m::GraphProductWord{Variable},n::GraphProductWord{Variable})
+    # return simple_mult(m,n)
     if m.monoid!=n.monoid
         return general_mult(m,n)
     end
