@@ -71,7 +71,7 @@ is_identity(x::X) where X<:AbstractMonomial=one(x)==x
 
 function monomial(w::W) where W<:AbstractMonomial
     if isdefined(w.monomial,:x)
-        return one(w.monomial[])*w.monomial[]
+        return w.monomial[]
     end
     monoid=nothing
     if isa(w,Variable) && isa(w.parent_monoid[],GraphProductMonoid)
@@ -90,7 +90,7 @@ function monomial(w::W) where W<:AbstractMonomial
         throw(ArgumentError("Cannot convert to monomial, parent monoid is not a GraphProductMonoid"))
     end
     w.monomial[]=words_to_monomial(monoid,[w])
-    return w.monomial[]*one(w.monomial[])
+    return w.monomial[]
 end
 """
     variables(monomial::GraphProductWord)
@@ -197,11 +197,11 @@ function simple_mult(m::GraphProductWord{Variable},n::GraphProductWord{Variable}
 
     m_words = m.clique_words
     n_words = n.clique_words
-    m_l=m.edge_l
-    n_r=n.edge_r
 
     res_clique_words=merge(m_words,n_words)
-    res=GraphProductWord(parent_monoid,Base.RefValue{AbstractMonomial}(),res_clique_words,m_l,n_r)
+    # edge_l=get_edge_variables(res_clique_words,:first)
+    # edge_r=get_edge_variables(res_clique_words,:last)
+    res=GraphProductWord(parent_monoid,Base.RefValue{AbstractMonomial}(),res_clique_words,Set{Variable}(),Set{Variable}())
     return res
 end
 
@@ -266,7 +266,9 @@ function multiply(m::GraphProductWord{Variable},n::GraphProductWord{Variable})
     end
 
     parent_monoid=m.monoid
-
+    if !parent_monoid.has_relations[]
+        return simple_mult(m,n)
+    end
     m_words = copy(m.clique_words)
     n_words = copy(n.clique_words)
     m_l=copy(m.edge_l)

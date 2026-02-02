@@ -20,7 +20,48 @@
     # Returns:
     - `monomial``: The converted pcword as monomial.
 """
-function words_to_monomial(monoid::GraphProductMonoid, words::Vector{AW};edge_l=Set{AW}(),edge_r=Set{AW}()) where AW<:AbstractMonomial
+# Specialized version for GraphProductMonoid{Variable} - returns PCMonomial
+function words_to_monomial(monoid::GraphProductMonoid{Variable}, words::Vector{Variable}; edge_l=Set{UInt32}(), edge_r=Set{UInt32}())
+    
+    monomial = one(monoid)  # Returns PCMonomial
+    words = filter(i -> !is_identity(i), words)
+    isempty(words) && return monomial
+    
+    # For single variable
+    if length(words) == 1
+        word = words[1]
+        idx = var_to_index( word)
+        for clique_index in word.clique_indices
+            push!(monomial.clique_words[clique_index], idx)
+        end
+        push!(monomial.edge_l, idx)
+        push!(monomial.edge_r, idx)
+        return monomial
+    end
+    
+    # Multiple words
+    for (clique_index, clique) in enumerate(monoid.cliques)
+        projected = clique_projector(words, clique)
+        for var in projected
+            push!(monomial.clique_words[clique_index], var_to_index(var))
+        end
+    end
+
+    if isempty(edge_l)
+        union!(monomial.edge_l, get_edge_indices(monomial.clique_words, :first, collect(1:length(monoid.cliques)), monoid))
+    else
+        union!(monomial.edge_l, edge_l)
+    end
+    if isempty(edge_r)
+        union!(monomial.edge_r, get_edge_indices(monomial.clique_words, :last, collect(1:length(monoid.cliques)), monoid))
+    else
+        union!(monomial.edge_r, edge_r)
+    end
+    return monomial
+end
+
+# Generic version for nested structures (e.g., GraphProductMonoid{NCMonoid})
+function words_to_monomial(monoid::GraphProductMonoid{T}, words::Vector{AW}; edge_l=Set{AW}(), edge_r=Set{AW}()) where {T<:AbstractMonoid, AW<:AbstractMonomial}
     
     monomial = one(monoid)
     words=filter(i->!is_identity(i),words)
@@ -221,6 +262,11 @@ end
     # Notes
     The function first converts the monomial into a graph and a dictionary of nodes, and then converts the clique words in the monomial to a labelled word based on the dictionary of nodes. Then, it corrects the labelled word to the correct word by commuting variables in the word which can commute or are in the wrong order. Finally, it converts the labels in the corrected word back to variables using the reversed dictionary of nodes.
 """
+function monomial_to_word(monomial::PCMonomial)
+    # Convert to GraphProductWord and use existing implementation
+    return monomial_to_word(GraphProductWord(monomial))
+end
+
 function monomial_to_word(monomial::GraphProductWord)
     
     graph, node_dict,exponents = monomial_to_graph(monomial)
@@ -289,3 +335,50 @@ end
 
 
 monomial_to_foata(m::GraphProductWord)=graph_to_foata(monomial_to_graph(m)[1:2]...)
+
+# ============================================================================
+# PCMonomial support functions
+# ============================================================================
+
+"""
+    monomial_to_graph(monomial::PCMonomial)
+
+Convert a PCMonomial to its graph representation.
+Delegates to GraphProductWord version and converts return values to UInt32-based format.
+Returns (graph, node_dict, exponents) where:
+- node_dict: Dict{Tuple{UInt32, Int}, Int} mapping (var_idx, occurrence) => node_label
+- exponents: Dict{UInt32, Int} mapping var_idx => count
+"""
+function monomial_to_graph(monomial::PCMonomial)
+    gpw = GraphProductWord(monomial)
+    result = monomial_to_graph(gpw)
+    result == false && return false
+    
+    graph, node_dict_var, exponents_var = result
+    
+    # Convert node_dict: {(Variable, occ) => label} to {(UInt32, occ) => label}
+    node_dict = Dict((var_to_index(var), occ) => label for ((var, occ), label) in node_dict_var)
+    
+    # Convert exponents: {Variable => [vars...]} to {UInt32 => count}
+    exponents = Dict(var_to_index(var) => length(vars) for (var, vars) in exponents_var)
+    
+    return graph, node_dict, exponents
+end
+
+"""
+    is_reconstructible(monomial::PCMonomial)
+
+Check if a PCMonomial is reconstructible by converting to GraphProductWord
+and checking if the dependency graph is acyclic.
+"""
+function is_reconstructible(monomial::PCMonomial)
+    return is_reconstructible(GraphProductWord(monomial))
+end
+
+"""
+    monomial_to_foata(m::PCMonomial)
+
+Convert a PCMonomial to its Foata normal form.
+"""
+monomial_to_foata(m::PCMonomial) = monomial_to_foata(GraphProductWord(m))
+

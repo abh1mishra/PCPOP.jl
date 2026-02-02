@@ -35,7 +35,7 @@ function check_exponents_consistency(w::GraphProductWord{T}) where {T<:AbstractM
     return exponents
 end
 
-function get_clique_indices(monoid::m,cliques::Vector{Vector{m}}) where m<:Union{AbstractMonoid,Variable}
+function get_clique_indices(monoid::m,cliques::Vector{<:Vector}) where {m<:Union{AbstractMonoid,Variable}}
     return [clique_index for (clique_index,clique) in enumerate(cliques) if monoid in clique]
 end
 

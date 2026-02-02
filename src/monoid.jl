@@ -33,13 +33,22 @@ struct GraphProductMonoid{T<: Union{AbstractMonoid,Variable}} <: AbstractMonoid
     commutes_with::Vector{AbstractMonoid}
     clique_indices::Vector{Int}
 
+    has_relations::Base.RefValue{Bool}
+    
+    # Cached index mappings for GraphProductMonoid{Variable} (PCMonomial optimization)
+    # For non-Variable monoids, these remain empty/nothing
+    var_index_dict::Base.RefValue{Union{Nothing, Dict{Variable, UInt32}}}
+    conj_indices::Base.RefValue{Union{Nothing, Vector{UInt32}}}
+    
     function GraphProductMonoid{T}(name::String,vertices::Vector{T};
         parent_monoid::Base.RefValue{AbstractMonoid}=Base.RefValue{AbstractMonoid}(),
         commutations::Vector{Tuple{T,T}}=Vector{Tuple{T,T}}([]),
         empty_cliques=Vector{Vector{T}}([]),
         commutes_with=Vector{T}([]),
         clique_indices=Vector{Int}([])) where T <: Union{AbstractMonoid,Variable}
-        res=new{T}(name,parent_monoid,Base.RefValue(false),Base.RefValue(false),vertices,commutations,empty_cliques,commutes_with,clique_indices)
+        res=new{T}(name,parent_monoid,Base.RefValue(false),Base.RefValue(false),vertices,commutations,empty_cliques,commutes_with,clique_indices,Base.RefValue(false),
+                   Base.RefValue{Union{Nothing, Dict{Variable, UInt32}}}(nothing),
+                   Base.RefValue{Union{Nothing, Vector{UInt32}}}(nothing))
         for i in vertices
             i.parent_monoid[]=res
         end
@@ -93,7 +102,7 @@ macro comms(monoids...)
     return :($add_comms!($(Expr(:tuple, esc.(monoids)...))))
 end
 
-function add_comms!(comms::Vector{Tuple{m,m}}) where m<: Union{Variable,AbstractMonoid}
+function add_comms!(comms::Vector{Tuple{m,n}}) where {m<:Union{Variable,AbstractMonoid}, n<:Union{Variable,AbstractMonoid}}
 
     M=isempty(comms) ? throw("Provide commutations") : first(first(comms)).parent_monoid[]
     M.is_built[] && throw("Operators already built")
@@ -221,10 +230,32 @@ function build(parent_monoid::GraphProductMonoid)
     push!(parent_monoid.cliques,cliques...)
 
     if isa(parent_monoid.vertices[1],Variable)
+        # Build the var_index_dict for O(1) variable lookup (PCMonomial optimization)
+        parent_monoid.var_index_dict[] = Dict{Variable, UInt32}(v => UInt32(i) for (i, v) in enumerate(parent_monoid.vertices))
+        
         for child_monoid in parent_monoid.vertices
-            child_monoid.monomial[]=monomial(child_monoid)
+            child_monoid.monomial[]=words_to_monomial(parent_monoid,[child_monoid])
+            if child_monoid.mult_type[] != :Free || !isempty(child_monoid.ortho_conj)
+                parent_monoid.has_relations[]=true
+            end
         end
         all(i -> (Set(i.commutes_with)==Set(conj(i).commutes_with) && !(i in conj(i).commutes_with) ) , parent_monoid.vertices) && (parent_monoid.conj_type[]=true)
+        
+        # Build the conj_indices mapping for O(1) conjugate lookup (PCMonomial optimization)
+        n = length(parent_monoid.vertices)
+        conj_indices = Vector{UInt32}(undef, n)
+        var_index_dict = parent_monoid.var_index_dict[]
+        @inbounds for i in 1:n
+            v = parent_monoid.vertices[i]
+            cv = conj(v)
+            if cv === v || cv == v
+                conj_indices[i] = UInt32(i)
+            else
+                # Use dictionary for O(1) lookup
+                conj_indices[i] = var_index_dict[cv]
+            end
+        end
+        parent_monoid.conj_indices[] = conj_indices
     end
     if isa(parent_monoid.vertices[1],AbstractMonoid)
         build.(parent_monoid.vertices)
@@ -250,7 +281,11 @@ function reset(monoid::GraphProductMonoid)
     monoid.is_built[]=false
 end
 
-function one(M::GraphProductMonoid{T}) where T<: Union{AbstractMonoid,Variable} 
-    t=package_types[T]
-    return GraphProductWord(M,Base.RefValue{AbstractMonomial}(),Vector{Vector{t}}([[] for i in 1:length(M.cliques)]),Set{t}(),Set{t}())
+# one() for GraphProductMonoid{Variable} returns PCMonomial (fast path)
+# Defined in PCMonomial.jl
+
+# one() for nested GraphProductMonoid (e.g., GraphProductMonoid{NCMonoid}) returns GraphProductWord
+function one(M::GraphProductMonoid{T}) where T<:AbstractMonoid
+    t = package_types[T]
+    return GraphProductWord(M, Base.RefValue{AbstractMonomial}(), Vector{Vector{t}}([[] for i in 1:length(M.cliques)]), Set{t}(), Set{t}())
 end

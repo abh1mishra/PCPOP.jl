@@ -262,6 +262,7 @@ function npa(obj, level;
     optimizer=Mosek.Optimizer,
     model_flags=[],
     rm=false)
+    println("PCPOP FAST AT YOUR SERVICE")
     if lvl_lm==0
         ops, ops_principal = get_monomials(obj,level; op_eq = op_eq, op_ge = op_ge, tr_eq = tr_eq, tr_ge = tr_ge,list_vars=list_vars)
     else

@@ -3,8 +3,8 @@ import MutableArithmetics as MA
 include("src/GM.jl")
 include("src/var.jl")
 include("src/monoid.jl")
-include("src/PCMonoid.jl")
 include("src/monomial.jl")
+include("src/PCMonomial.jl")  # PCMonomial - fast implementation for GraphProductMonoid{Variable}
 include("src/polynomial.jl")
 include("src/NCMonoid.jl")
 include("src/utils.jl")
@@ -17,5 +17,6 @@ include("src/tpop.jl")
 
 const package_types=Dict([NCMonoid=>NCWord,
 GraphProductMonoid=>GraphProductWord,
-Variable=>Variable,
+Variable=>PCMonomial,
+AbstractMonoid=>AbstractMonomial,
 TraceMonoid=>TraceWord])

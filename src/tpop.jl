@@ -25,11 +25,11 @@ end
 
 # Display cyclic words
 function Base.show(io::IO, w::CyclicWord)
-    print(io, "[$(w.ref_word[])]")
+    print(io, "[$(GraphProductWord(w.ref_word))]")
 end
 
 function Base.show(io::IO, ::MIME"text/plain", w::CyclicWord)
-    print(io, "[$(w.ref_word[])]")
+    print(io, "[$(GraphProductWord(w.ref_word))]")
 end
 
 # Coefficient CyclicWord
