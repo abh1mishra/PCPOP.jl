@@ -1,0 +1,4 @@
+SymbolicWedderburn 0.3.7
+AbstractPermutations 0.2.1
+PermutationGroups 0.4.3
+GroupsCore 0.4.2
