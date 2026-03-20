@@ -1,5 +1,5 @@
 % $ biblatex auxiliary file $
-% $ biblatex bbl format version 3.2 $
+% $ biblatex bbl format version 3.3 $
 % Do not modify the above lines!
 %
 % This is an auxiliary file used by the 'biblatex' package.
@@ -18,8 +18,25 @@
 
 
 \refsection{0}
-  \datalist[entry]{anyt/global//global/global}
-    \entry{PhysRevA.110.L010401}{article}{}
+  \datalist[entry]{anyt/global//global/global/global}
+    \entry{OSCAR}{misc}{}{}
+      \list{organization}{1}{%
+        {The OSCAR Team}%
+      }
+      \field{labelalpha}{25}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labeltitlesource}{title}
+      \field{title}{O{SCAR} -- {O}pen {S}ource {C}omputer {A}lgebra {R}esearch system, {V}ersion 1.6.0}
+      \field{year}{2025}
+      \verb{urlraw}
+      \verb https://www.oscar-system.org
+      \endverb
+      \verb{url}
+      \verb https://www.oscar-system.org
+      \endverb
+    \endentry
+    \entry{PhysRevA.110.L010401}{article}{}{}
       \name{author}{3}{}{%
         {{hash=1821f803a140b0a1abfc339b0fda1ef9}{%
            family={Adhikary},
@@ -42,10 +59,12 @@
       }
       \strng{namehash}{6f2e3f1dfffb6c2eddc42e326757c648}
       \strng{fullhash}{6f2e3f1dfffb6c2eddc42e326757c648}
+      \strng{fullhashraw}{6f2e3f1dfffb6c2eddc42e326757c648}
       \strng{bibnamehash}{6f2e3f1dfffb6c2eddc42e326757c648}
       \strng{authorbibnamehash}{6f2e3f1dfffb6c2eddc42e326757c648}
       \strng{authornamehash}{6f2e3f1dfffb6c2eddc42e326757c648}
       \strng{authorfullhash}{6f2e3f1dfffb6c2eddc42e326757c648}
+      \strng{authorfullhashraw}{6f2e3f1dfffb6c2eddc42e326757c648}
       \field{labelalpha}{AMR24}
       \field{sortinit}{A}
       \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
@@ -69,7 +88,7 @@
       \verb https://link.aps.org/doi/10.1103/PhysRevA.110.L010401
       \endverb
     \endentry
-    \entry{Burgdorf2013}{article}{}
+    \entry{Burgdorf2013}{article}{}{}
       \name{author}{4}{}{%
         {{hash=0be20dceb5c90002851ff994caa61701}{%
            family={Burgdorf},
@@ -94,10 +113,12 @@
       }
       \strng{namehash}{699c84275002b585913aff56355519e8}
       \strng{fullhash}{60f66d1a2925390dc39c02a36dbc16f5}
+      \strng{fullhashraw}{60f66d1a2925390dc39c02a36dbc16f5}
       \strng{bibnamehash}{699c84275002b585913aff56355519e8}
       \strng{authorbibnamehash}{699c84275002b585913aff56355519e8}
       \strng{authornamehash}{699c84275002b585913aff56355519e8}
       \strng{authorfullhash}{60f66d1a2925390dc39c02a36dbc16f5}
+      \strng{authorfullhashraw}{60f66d1a2925390dc39c02a36dbc16f5}
       \field{labelalpha}{Bur+13}
       \field{sortinit}{B}
       \field{sortinithash}{d7095fff47cda75ca2589920aae98399}
@@ -123,7 +144,7 @@
       \verb https://doi.org/10.1007/s10107-011-0505-8
       \endverb
     \endentry
-    \entry{QuantumNPA.jl}{misc}{}
+    \entry{QuantumNPA.jl}{misc}{}{}
       \name{author}{1}{}{%
         {{hash=ccca5f9fad1b8f4860679fd457d5f7a5}{%
            family={ewoodhead},
@@ -131,10 +152,12 @@
       }
       \strng{namehash}{ccca5f9fad1b8f4860679fd457d5f7a5}
       \strng{fullhash}{ccca5f9fad1b8f4860679fd457d5f7a5}
+      \strng{fullhashraw}{ccca5f9fad1b8f4860679fd457d5f7a5}
       \strng{bibnamehash}{ccca5f9fad1b8f4860679fd457d5f7a5}
       \strng{authorbibnamehash}{ccca5f9fad1b8f4860679fd457d5f7a5}
       \strng{authornamehash}{ccca5f9fad1b8f4860679fd457d5f7a5}
       \strng{authorfullhash}{ccca5f9fad1b8f4860679fd457d5f7a5}
+      \strng{authorfullhashraw}{ccca5f9fad1b8f4860679fd457d5f7a5}
       \field{labelalpha}{ewo25}
       \field{sortinit}{e}
       \field{sortinithash}{8da8a182d344d5b9047633dfc0cc9131}
@@ -145,7 +168,7 @@
       \field{title}{QuantumNPA.jl}
       \field{year}{2025}
     \endentry
-    \entry{doi:10.1137/S1052623400366802}{article}{}
+    \entry{doi:10.1137/S1052623400366802}{article}{}{}
       \name{author}{1}{}{%
         {{hash=366d2edd6024dd4b81f160f712ad3069}{%
            family={Lasserre},
@@ -155,10 +178,12 @@
       }
       \strng{namehash}{366d2edd6024dd4b81f160f712ad3069}
       \strng{fullhash}{366d2edd6024dd4b81f160f712ad3069}
+      \strng{fullhashraw}{366d2edd6024dd4b81f160f712ad3069}
       \strng{bibnamehash}{366d2edd6024dd4b81f160f712ad3069}
       \strng{authorbibnamehash}{366d2edd6024dd4b81f160f712ad3069}
       \strng{authornamehash}{366d2edd6024dd4b81f160f712ad3069}
       \strng{authorfullhash}{366d2edd6024dd4b81f160f712ad3069}
+      \strng{authorfullhashraw}{366d2edd6024dd4b81f160f712ad3069}
       \field{labelalpha}{Las01}
       \field{sortinit}{L}
       \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
@@ -185,7 +210,7 @@
       \verb https://doi.org/10.1137/S1052623400366802
       \endverb
     \endentry
-    \entry{Navascués_2008}{article}{}
+    \entry{Navascués_2008}{article}{}{}
       \name{author}{3}{}{%
         {{hash=46e353afe806d9161313d0e3e777d2cb}{%
            family={Navascués},
@@ -205,10 +230,12 @@
       }
       \strng{namehash}{b588c2b9bbc457c25e2891f52fdb95bc}
       \strng{fullhash}{b588c2b9bbc457c25e2891f52fdb95bc}
+      \strng{fullhashraw}{b588c2b9bbc457c25e2891f52fdb95bc}
       \strng{bibnamehash}{b588c2b9bbc457c25e2891f52fdb95bc}
       \strng{authorbibnamehash}{b588c2b9bbc457c25e2891f52fdb95bc}
       \strng{authornamehash}{b588c2b9bbc457c25e2891f52fdb95bc}
       \strng{authorfullhash}{b588c2b9bbc457c25e2891f52fdb95bc}
+      \strng{authorfullhashraw}{b588c2b9bbc457c25e2891f52fdb95bc}
       \field{labelalpha}{NPA08}
       \field{sortinit}{N}
       \field{sortinithash}{22369a73d5f88983a108b63f07f37084}
@@ -233,7 +260,7 @@
       \verb https://doi.org/10.1088/1367-2630/10/7/073013
       \endverb
     \endentry
-    \entry{doi:10.1137/090760155}{article}{}
+    \entry{doi:10.1137/090760155}{article}{}{}
       \name{author}{3}{}{%
         {{hash=35f8251a4b6875518a43ad8e8942dac5}{%
            family={Pironio},
@@ -253,10 +280,12 @@
       }
       \strng{namehash}{537aa4a6772acd66388bd5c49ddf9f1c}
       \strng{fullhash}{537aa4a6772acd66388bd5c49ddf9f1c}
+      \strng{fullhashraw}{537aa4a6772acd66388bd5c49ddf9f1c}
       \strng{bibnamehash}{537aa4a6772acd66388bd5c49ddf9f1c}
       \strng{authorbibnamehash}{537aa4a6772acd66388bd5c49ddf9f1c}
       \strng{authornamehash}{537aa4a6772acd66388bd5c49ddf9f1c}
       \strng{authorfullhash}{537aa4a6772acd66388bd5c49ddf9f1c}
+      \strng{authorfullhashraw}{537aa4a6772acd66388bd5c49ddf9f1c}
       \field{labelalpha}{PNA10}
       \field{sortinit}{P}
       \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
@@ -283,7 +312,7 @@
       \verb https://doi.org/10.1137/090760155
       \endverb
     \endentry
-    \entry{Primaatmaja2023securityofdevice}{article}{}
+    \entry{Primaatmaja2023securityofdevice}{article}{}{}
       \name{author}{6}{}{%
         {{hash=88a12d5880a5ed6f6c2710bbfccc8fd7}{%
            family={Primaatmaja},
@@ -321,10 +350,12 @@
       }
       \strng{namehash}{7c478f010ddbed1a153df2fbb10e6d38}
       \strng{fullhash}{edc5a4845ee63de06596d87cd9973de3}
+      \strng{fullhashraw}{edc5a4845ee63de06596d87cd9973de3}
       \strng{bibnamehash}{7c478f010ddbed1a153df2fbb10e6d38}
       \strng{authorbibnamehash}{7c478f010ddbed1a153df2fbb10e6d38}
       \strng{authornamehash}{7c478f010ddbed1a153df2fbb10e6d38}
       \strng{authorfullhash}{edc5a4845ee63de06596d87cd9973de3}
+      \strng{authorfullhashraw}{edc5a4845ee63de06596d87cd9973de3}
       \field{labelalpha}{Pri+23}
       \field{sortinit}{P}
       \field{sortinithash}{ff3bcf24f47321b42cb156c2cc8a8422}
@@ -348,7 +379,7 @@
       \verb https://doi.org/10.22331/q-2023-03-02-932
       \endverb
     \endentry
-    \entry{rosset2018symdpolysymmetryadaptedmomentrelaxations}{misc}{}
+    \entry{rosset2018symdpolysymmetryadaptedmomentrelaxations}{misc}{}{}
       \name{author}{1}{}{%
         {{hash=0262d2e0ac3ef21b4f6b4ad7a95c324d}{%
            family={Rosset},
@@ -358,10 +389,12 @@
       }
       \strng{namehash}{0262d2e0ac3ef21b4f6b4ad7a95c324d}
       \strng{fullhash}{0262d2e0ac3ef21b4f6b4ad7a95c324d}
+      \strng{fullhashraw}{0262d2e0ac3ef21b4f6b4ad7a95c324d}
       \strng{bibnamehash}{0262d2e0ac3ef21b4f6b4ad7a95c324d}
       \strng{authorbibnamehash}{0262d2e0ac3ef21b4f6b4ad7a95c324d}
       \strng{authornamehash}{0262d2e0ac3ef21b4f6b4ad7a95c324d}
       \strng{authorfullhash}{0262d2e0ac3ef21b4f6b4ad7a95c324d}
+      \strng{authorfullhashraw}{0262d2e0ac3ef21b4f6b4ad7a95c324d}
       \field{labelalpha}{Ros18}
       \field{sortinit}{R}
       \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
@@ -381,7 +414,7 @@
       \verb https://arxiv.org/abs/1808.09598
       \endverb
     \endentry
-    \entry{russell2023synchronousnpahierarchyapplications}{misc}{}
+    \entry{russell2023synchronousnpahierarchyapplications}{misc}{}{}
       \name{author}{1}{}{%
         {{hash=982ffd8cad8bb409ce3710bd8b1ce7f2}{%
            family={Russell},
@@ -391,10 +424,12 @@
       }
       \strng{namehash}{982ffd8cad8bb409ce3710bd8b1ce7f2}
       \strng{fullhash}{982ffd8cad8bb409ce3710bd8b1ce7f2}
+      \strng{fullhashraw}{982ffd8cad8bb409ce3710bd8b1ce7f2}
       \strng{bibnamehash}{982ffd8cad8bb409ce3710bd8b1ce7f2}
       \strng{authorbibnamehash}{982ffd8cad8bb409ce3710bd8b1ce7f2}
       \strng{authornamehash}{982ffd8cad8bb409ce3710bd8b1ce7f2}
       \strng{authorfullhash}{982ffd8cad8bb409ce3710bd8b1ce7f2}
+      \strng{authorfullhashraw}{982ffd8cad8bb409ce3710bd8b1ce7f2}
       \field{labelalpha}{Rus23}
       \field{sortinit}{R}
       \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
@@ -414,7 +449,7 @@
       \verb https://arxiv.org/abs/2105.01555
       \endverb
     \endentry
-    \entry{Tavakoli_2022}{article}{}
+    \entry{Tavakoli_2022}{article}{}{}
       \name{author}{4}{}{%
         {{hash=d9674ba4a125ee10bfdef9ec2a3051e5}{%
            family={Tavakoli},
@@ -442,10 +477,12 @@
       }
       \strng{namehash}{ac82539dcb4adc056e2de3dd321d221f}
       \strng{fullhash}{d761df318b1ed5b505656d89a3489adb}
+      \strng{fullhashraw}{d761df318b1ed5b505656d89a3489adb}
       \strng{bibnamehash}{ac82539dcb4adc056e2de3dd321d221f}
       \strng{authorbibnamehash}{ac82539dcb4adc056e2de3dd321d221f}
       \strng{authornamehash}{ac82539dcb4adc056e2de3dd321d221f}
       \strng{authorfullhash}{d761df318b1ed5b505656d89a3489adb}
+      \strng{authorfullhashraw}{d761df318b1ed5b505656d89a3489adb}
       \field{extraname}{1}
       \field{labelalpha}{Tav+22}
       \field{sortinit}{T}
@@ -472,7 +509,7 @@
       \verb https://doi.org/10.1088/1361-6633/ac41bb
       \endverb
     \endentry
-    \entry{Tavakoli2022informationally}{article}{}
+    \entry{Tavakoli2022informationally}{article}{}{}
       \name{author}{4}{}{%
         {{hash=d9674ba4a125ee10bfdef9ec2a3051e5}{%
            family={Tavakoli},
@@ -500,10 +537,12 @@
       }
       \strng{namehash}{ac82539dcb4adc056e2de3dd321d221f}
       \strng{fullhash}{9e941602eb6ceb394de95aed6e7d5ea0}
+      \strng{fullhashraw}{9e941602eb6ceb394de95aed6e7d5ea0}
       \strng{bibnamehash}{ac82539dcb4adc056e2de3dd321d221f}
       \strng{authorbibnamehash}{ac82539dcb4adc056e2de3dd321d221f}
       \strng{authornamehash}{ac82539dcb4adc056e2de3dd321d221f}
       \strng{authorfullhash}{9e941602eb6ceb394de95aed6e7d5ea0}
+      \strng{authorfullhashraw}{9e941602eb6ceb394de95aed6e7d5ea0}
       \field{extraname}{2}
       \field{labelalpha}{Tav+22}
       \field{sortinit}{T}
@@ -529,7 +568,7 @@
       \verb https://doi.org/10.22331/q-2022-01-05-620
       \endverb
     \endentry
-    \entry{RevModPhys.96.045006}{article}{}
+    \entry{RevModPhys.96.045006}{article}{}{}
       \name{author}{4}{}{%
         {{hash=d9674ba4a125ee10bfdef9ec2a3051e5}{%
            family={Tavakoli},
@@ -557,10 +596,12 @@
       }
       \strng{namehash}{ac82539dcb4adc056e2de3dd321d221f}
       \strng{fullhash}{6ae22a27141f21c10b4993f051dc4cdb}
+      \strng{fullhashraw}{6ae22a27141f21c10b4993f051dc4cdb}
       \strng{bibnamehash}{ac82539dcb4adc056e2de3dd321d221f}
       \strng{authorbibnamehash}{ac82539dcb4adc056e2de3dd321d221f}
       \strng{authornamehash}{ac82539dcb4adc056e2de3dd321d221f}
       \strng{authorfullhash}{6ae22a27141f21c10b4993f051dc4cdb}
+      \strng{authorfullhashraw}{6ae22a27141f21c10b4993f051dc4cdb}
       \field{extraname}{3}
       \field{labelalpha}{Tav+24}
       \field{sortinit}{T}
@@ -585,7 +626,7 @@
       \verb https://link.aps.org/doi/10.1103/RevModPhys.96.045006
       \endverb
     \endentry
-    \entry{PhysRevX.14.031006}{article}{}
+    \entry{PhysRevX.14.031006}{article}{}{}
       \name{author}{7}{}{%
         {{hash=fcd6114a30fda9801eef65b9d374f56b}{%
            family={Wang},
@@ -602,10 +643,10 @@
            familyi={F\bibinitperiod},
            given={Irénée},
            giveni={I\bibinitperiod}}}%
-        {{hash=b2457c8250c4c09987eec825dc104c00}{%
+        {{hash=4a3fed9bb5e8a0ff247d4e362c0a0fb4}{%
            family={Legat},
            familyi={L\bibinitperiod},
-           given={Benoı̂t},
+           given={Benoit},
            giveni={B\bibinitperiod}}}%
         {{hash=c72641b74ecb8f5114fea2a7f7a526cb}{%
            family={Renou},
@@ -627,11 +668,13 @@
         {American Physical Society}%
       }
       \strng{namehash}{f94a4355da23aa07bd6eac7dffc0ca80}
-      \strng{fullhash}{dbec360a424c0d364b02a9f76befa911}
+      \strng{fullhash}{4f99f11b0a264c8a39d1591667386085}
+      \strng{fullhashraw}{4f99f11b0a264c8a39d1591667386085}
       \strng{bibnamehash}{f94a4355da23aa07bd6eac7dffc0ca80}
       \strng{authorbibnamehash}{f94a4355da23aa07bd6eac7dffc0ca80}
       \strng{authornamehash}{f94a4355da23aa07bd6eac7dffc0ca80}
-      \strng{authorfullhash}{dbec360a424c0d364b02a9f76befa911}
+      \strng{authorfullhash}{4f99f11b0a264c8a39d1591667386085}
+      \strng{authorfullhashraw}{4f99f11b0a264c8a39d1591667386085}
       \field{labelalpha}{Wan+24}
       \field{sortinit}{W}
       \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
@@ -655,7 +698,58 @@
       \verb https://link.aps.org/doi/10.1103/PhysRevX.14.031006
       \endverb
     \endentry
-    \entry{10.1145/2699464}{article}{}
+    \entry{weisser2019polynomial}{inproceedings}{}{}
+      \name{author}{5}{}{%
+        {{hash=b3468abeccf3e824b57ce99a2927aed7}{%
+           family={Weisser},
+           familyi={W\bibinitperiod},
+           given={Tillmann},
+           giveni={T\bibinitperiod}}}%
+        {{hash=4a3fed9bb5e8a0ff247d4e362c0a0fb4}{%
+           family={Legat},
+           familyi={L\bibinitperiod},
+           given={Benoit},
+           giveni={B\bibinitperiod}}}%
+        {{hash=c02a1b11b98062cd54509534a98a49ab}{%
+           family={Coey},
+           familyi={C\bibinitperiod},
+           given={Chris},
+           giveni={C\bibinitperiod}}}%
+        {{hash=8b856882308d5d1cad6bf28e6dc3cecc}{%
+           family={Kapelevich},
+           familyi={K\bibinitperiod},
+           given={Lea},
+           giveni={L\bibinitperiod}}}%
+        {{hash=7d17a5f1d39e49c4e154daa7e469b420}{%
+           family={Vielma},
+           familyi={V\bibinitperiod},
+           given={Juan\bibnamedelima Pablo},
+           giveni={J\bibinitperiod\bibinitdelim P\bibinitperiod}}}%
+      }
+      \strng{namehash}{0607b61bbdfdc3d5b09986006e51742a}
+      \strng{fullhash}{457e38ef486ff281aa46509c554ba516}
+      \strng{fullhashraw}{457e38ef486ff281aa46509c554ba516}
+      \strng{bibnamehash}{0607b61bbdfdc3d5b09986006e51742a}
+      \strng{authorbibnamehash}{0607b61bbdfdc3d5b09986006e51742a}
+      \strng{authornamehash}{0607b61bbdfdc3d5b09986006e51742a}
+      \strng{authorfullhash}{457e38ef486ff281aa46509c554ba516}
+      \strng{authorfullhashraw}{457e38ef486ff281aa46509c554ba516}
+      \field{labelalpha}{Wei+19}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{booktitle}{JuliaCon}
+      \field{title}{Polynomial and Moment Optimization in Julia and JuMP}
+      \field{year}{2019}
+      \verb{urlraw}
+      \verb https://pretalx.com/juliacon2019/talk/QZBKAU/
+      \endverb
+      \verb{url}
+      \verb https://pretalx.com/juliacon2019/talk/QZBKAU/
+      \endverb
+    \endentry
+    \entry{10.1145/2699464}{article}{}{}
       \name{author}{1}{}{%
         {{hash=f5a146c5713dd2c5d0bae5d5b944d722}{%
            family={Wittek},
@@ -671,10 +765,12 @@
       }
       \strng{namehash}{f5a146c5713dd2c5d0bae5d5b944d722}
       \strng{fullhash}{f5a146c5713dd2c5d0bae5d5b944d722}
+      \strng{fullhashraw}{f5a146c5713dd2c5d0bae5d5b944d722}
       \strng{bibnamehash}{f5a146c5713dd2c5d0bae5d5b944d722}
       \strng{authorbibnamehash}{f5a146c5713dd2c5d0bae5d5b944d722}
       \strng{authornamehash}{f5a146c5713dd2c5d0bae5d5b944d722}
       \strng{authorfullhash}{f5a146c5713dd2c5d0bae5d5b944d722}
+      \strng{authorfullhashraw}{f5a146c5713dd2c5d0bae5d5b944d722}
       \field{labelalpha}{Wit15}
       \field{sortinit}{W}
       \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
@@ -699,7 +795,7 @@
       \endverb
       \keyw{Semidefinite programming,ground state energy,noncommuting variables,quantum correlations}
     \endentry
-    \entry{doi:10.1137/19M1307871}{article}{}
+    \entry{doi:10.1137/19M1307871}{article}{}{}
       \name{author}{3}{}{%
         {{hash=fcd6114a30fda9801eef65b9d374f56b}{%
            family={Wang},
@@ -719,10 +815,12 @@
       }
       \strng{namehash}{903cd8bea17ff0a6d172a0ffc9481f19}
       \strng{fullhash}{903cd8bea17ff0a6d172a0ffc9481f19}
+      \strng{fullhashraw}{903cd8bea17ff0a6d172a0ffc9481f19}
       \strng{bibnamehash}{903cd8bea17ff0a6d172a0ffc9481f19}
       \strng{authorbibnamehash}{903cd8bea17ff0a6d172a0ffc9481f19}
       \strng{authornamehash}{903cd8bea17ff0a6d172a0ffc9481f19}
       \strng{authorfullhash}{903cd8bea17ff0a6d172a0ffc9481f19}
+      \strng{authorfullhashraw}{903cd8bea17ff0a6d172a0ffc9481f19}
       \field{labelalpha}{WML21}
       \field{sortinit}{W}
       \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
