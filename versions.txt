@@ -1,3 +1,5 @@
+essential version check
+
 SymbolicWedderburn 0.3.7
 AbstractPermutations 0.2.1
 PermutationGroups 0.4.3
@@ -5,6 +7,8 @@ GroupsCore 0.4.2
 MutableArithmetics 1.6.4
 AbstractAlgebra 0.44.11
 RowEchelon 0.2.1
+
+non-essential 
 
 JuMP 1.25.0
 Mosek 11.0.1
