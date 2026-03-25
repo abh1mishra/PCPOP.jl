@@ -124,19 +124,18 @@
 
 \input{commands.tex}
 
-\usepackage[backend=biber,style=alphabetic]{biblatex}
-\addbibresource{refs.bib}
+%\usepackage[backend=biber,style=alphabetic]{biblatex}
+%\addbibresource{refs.bib}
 
 \title{\Large PCPOP: A Julia library for polynomial optimization with partially commutative variables}
 
 \usepackage{authblk} 
 
-\author[2]{Moisés Bermejo Morán}
 \author[1]{Abhishek Mishra}
-
+\author[2]{Mois\'es Bermejo Mor\'an}
 
 \affil[1]{\large Laboratoire d'Information Quantique, Université libre de Bruxelles, Belgium}
-\affil[2]{\large Bilkent University, Türkiye}
+\affil[2]{\large Quantum Information and Computation Initiative, Hong Kong University}
 
 \date{\today}
 
@@ -160,5 +159,10 @@ PCPOP implements mathematical structures and new algorithms to represent and man
 \input{benchmark.tex}
 \input{conclusion.tex}
 \input{acknowledgement.tex}
-\printbibliography
+
+%\printbibliography
+
+\bibliographystyle{apalike}
+\bibliography{refs.bib}
+
 \end{document}

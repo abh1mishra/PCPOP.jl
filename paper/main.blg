@@ -1,24 +1,52 @@
-[0] Config.pm:307> INFO - This is Biber 2.19
-[0] Config.pm:310> INFO - Logfile is 'main.blg'
-[37] biber:340> INFO - === Mon Sep 29, 2025, 17:51:40
-[45] Biber.pm:419> INFO - Reading 'main.bcf'
-[75] Biber.pm:979> INFO - Found 16 citekeys in bib section 0
-[81] Biber.pm:4419> INFO - Processing section 0
-[87] Biber.pm:4610> INFO - Looking for bibtex file 'refs.bib' for section 0
-[88] bibtex.pm:1713> INFO - LaTeX decoding ...
-[100] bibtex.pm:1519> INFO - Found BibTeX data source 'refs.bib'
-[173] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
-[173] UCollate.pm:68> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
-[173] Biber.pm:4239> INFO - Sorting list 'anyt/global//global/global' of type 'entry' with template 'anyt' and locale 'en-US'
-[173] Biber.pm:4245> INFO - No sort tailoring available for locale 'en-US'
-[183] bbl.pm:660> INFO - Writing 'main.bbl' with encoding 'UTF-8'
-[187] bbl.pm:763> INFO - Output to main.bbl
-[187] Biber.pm:131> WARN - Duplicate entry key: 'Tavakoli2022informationally' in file 'refs.bib', skipping ...
-[187] Biber.pm:131> WARN - legacy month field 'jul' in entry 'Navascués_2008' is not an integer - this will probably not sort properly.
-[187] Biber.pm:131> WARN - legacy month field 'Dec' in entry 'RevModPhys.96.045006' is not an integer - this will probably not sort properly.
-[187] Biber.pm:131> WARN - legacy month field 'Jul' in entry 'PhysRevX.14.031006' is not an integer - this will probably not sort properly.
-[187] Biber.pm:131> WARN - legacy month field 'Feb' in entry 'Burgdorf2013' is not an integer - this will probably not sort properly.
-[187] Biber.pm:131> WARN - legacy month field 'mar' in entry 'Tavakoli_2022' is not an integer - this will probably not sort properly.
-[187] Biber.pm:131> WARN - legacy month field 'Jul' in entry 'PhysRevA.110.L010401' is not an integer - this will probably not sort properly.
-[187] Biber.pm:131> WARN - BibTeX subsystem: /tmp/biber_tmp_J7ed/8fe4c9854184545302f21ebf0d47516c_1292542.utf8, line 224, warning: 3 characters of junk seen at toplevel
-[187] Biber.pm:133> INFO - WARNINGS: 8
+This is BibTeX, Version 0.99d (TeX Live 2025)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+The style file: apalike.bst
+Database file #1: refs.bib
+Repeated entry---line 244 of file refs.bib
+ : @article{Tavakoli2022informationally
+ :                                     ,
+I'm skipping whatever remains of this entry
+Warning--I didn't find a database entry for ""
+You've used 16 entries,
+            1935 wiz_defined-function locations,
+            582 strings with 6934 characters,
+and the built_in function-call counts, 6194 in all, are:
+= -- 578
+> -- 298
+< -- 5
++ -- 109
+- -- 102
+* -- 549
+:= -- 1127
+add.period$ -- 47
+call.type$ -- 16
+change.case$ -- 131
+chr.to.int$ -- 15
+cite$ -- 16
+duplicate$ -- 215
+empty$ -- 409
+format.name$ -- 118
+if$ -- 1173
+int.to.chr$ -- 2
+int.to.str$ -- 0
+missing$ -- 13
+newline$ -- 82
+num.names$ -- 48
+pop$ -- 102
+preamble$ -- 1
+purify$ -- 131
+quote$ -- 0
+skip$ -- 158
+stack$ -- 0
+substring$ -- 393
+swap$ -- 13
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 96
+warning$ -- 0
+while$ -- 43
+width$ -- 0
+write$ -- 204
+(There was 1 error message)

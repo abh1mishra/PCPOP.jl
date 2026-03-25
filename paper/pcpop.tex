@@ -13,7 +13,7 @@ Consider the problem of certifying genuine multipartite nonlocality in a Bell sc
     & \qquad \quad \braket{\psi , \psi} = 1. \\ 
 \end{split}
 \end{equation} 
-This can be solved with PCPOP as follows.
+This can be solved with \texttt{PCPOP} as follows.
 \begin{code}
     @pcmonoid M A[2,0] B[2,0]
     Projector.([A;B])
@@ -61,7 +61,7 @@ false
 \end{lstlisting}
 To enforce the orthogonality constraint $a*b=0$, we can use the built-in macro \texttt{@ortho} as $\texttt{@ortho a b}$. The \texttt{@ortho} macro works similarly as \texttt{@comms} macro with the exception that it doesn't assume $b*a=0$ when $a*b=0$.
 
-For certain equality constraints, the full Gr\"obner basis is infinite; even reductions using finite truncations (at a fixed degree) remain costly, and the substitution method in the Ncpol2sdpa package~\cite{10.1145/2699464} is ineffective in that case. We illustrate this with examples of partial commutations whose independence graph have non-transitive orientation[see \cite{} for details] and in which some variables are projectors.  
+For certain equality constraints, the full Gr\"obner basis is infinite; even reductions using finite truncations (at a fixed degree) remain costly, and the substitution method in the \texttt{Ncpol2sdpa} package~\cite{10.1145/2699464} is ineffective in that case. We illustrate this with examples of partial commutations whose independence graph have non-transitive orientation[see \cite{} for details] and in which some variables are projectors.  
 
 \begin{example}
   \label{ex:3comms}
@@ -94,7 +94,7 @@ For certain equality constraints, the full Gr\"obner basis is infinite; even red
     & \qquad \quad \braket{\psi | \psi} = 1. \\ 
 \end{split}
 \end{equation} 
-With PCPOP, the above problem can be solved as follows.
+With \texttt{PCPOP}, the above problem can be solved as follows.
 \begin{code}
     @pcmonoid M a b c
     Projector.([a,b])
@@ -142,7 +142,7 @@ With PCPOP, the above problem can be solved as follows.
     & \qquad \quad \braket{\psi | \psi} = 1. \\ 
 \end{split}
 \end{equation} 
-With PCPOP, the above problem can be solved as follows.
+With \texttt{PCPOP}, the above problem can be solved as follows.
 \begin{code}
     @pcmonoid M a b c d
     Projector.([a,b])
@@ -193,7 +193,7 @@ With PCPOP, the above problem can be solved as follows.
     & \qquad \quad \braket{\psi | \psi} = 1. \\ 
 \end{split}
 \end{equation} 
-With PCPOP, the above problem can be solved as follows.
+With \texttt{PCPOP}, the above problem can be solved as follows.
 \begin{code}
     @pcmonoid M a b c d e
     Projector.([a,b])

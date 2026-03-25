@@ -1,0 +1,91 @@
+\begin{thebibliography}{}
+
+\bibitem[Adhikary et~al., 2024]{PhysRevA.110.L010401}
+Adhikary, R., Mishra, A., and Rahaman, R. (2024).
+\newblock Self-testing of genuine multipartite entangled states without network
+  assistance.
+\newblock {\em Phys. Rev. A}, 110:L010401.
+
+\bibitem[Burgdorf et~al., 2013]{Burgdorf2013}
+Burgdorf, S., Cafuta, K., Klep, I., and Povh, J. (2013).
+\newblock The tracial moment problem and trace-optimization of polynomials.
+\newblock {\em Mathematical Programming}, 137(1):557--578.
+
+\bibitem[Lasserre, 2001]{doi:10.1137/S1052623400366802}
+Lasserre, J.~B. (2001).
+\newblock Global optimization with polynomials and the problem of moments.
+\newblock {\em SIAM Journal on Optimization}, 11(3):796--817.
+
+\bibitem[Navascués et~al., 2008]{Navascués_2008}
+Navascués, M., Pironio, S., and Acín, A. (2008).
+\newblock A convergent hierarchy of semidefinite programs characterizing the
+  set of quantum correlations.
+\newblock {\em New Journal of Physics}, 10(7):073013.
+
+\bibitem[Pironio et~al., 2010]{doi:10.1137/090760155}
+Pironio, S., Navascu\'{e}s, M., and Ac\'{\i}n, A. (2010).
+\newblock Convergent relaxations of polynomial optimization problems with
+  noncommuting variables.
+\newblock {\em SIAM Journal on Optimization}, 20(5):2157--2180.
+
+\bibitem[Primaatmaja et~al., 2023]{Primaatmaja2023securityofdevice}
+Primaatmaja, I.~W., Goh, K.~T., Tan, E. Y.-Z., Khoo, J. T.-F., Ghorai, S., and
+  Lim, C. C.-W. (2023).
+\newblock Security of device-independent quantum key distribution protocols: a
+  review.
+\newblock {\em {Quantum}}, 7:932.
+
+\bibitem[Rosset, 2018]{rosset2018symdpolysymmetryadaptedmomentrelaxations}
+Rosset, D. (2018).
+\newblock Symdpoly: symmetry-adapted moment relaxations for noncommutative
+  polynomial optimization.
+
+\bibitem[Russell, 2023]{russell2023synchronousnpahierarchyapplications}
+Russell, T.~B. (2023).
+\newblock A synchronous npa hierarchy with applications.
+
+\bibitem[Tavakoli et~al., 2024]{RevModPhys.96.045006}
+Tavakoli, A., Pozas-Kerstjens, A., Brown, P., and Ara\'ujo, M. (2024).
+\newblock Semidefinite programming relaxations for quantum correlations.
+\newblock {\em Rev. Mod. Phys.}, 96:045006.
+
+\bibitem[Tavakoli et~al., 2022a]{Tavakoli_2022}
+Tavakoli, A., Pozas-Kerstjens, A., Luo, M.-X., and Renou, M.-O. (2022a).
+\newblock Bell nonlocality in networks.
+\newblock {\em Reports on Progress in Physics}, 85(5):056001.
+
+\bibitem[Tavakoli et~al., 2022b]{Tavakoli2022informationally}
+Tavakoli, A., Zambrini~Cruzeiro, E., Woodhead, E., and Pironio, S. (2022b).
+\newblock Informationally restricted correlations: a general framework for
+  classical and quantum systems.
+\newblock {\em {Quantum}}, 6:620.
+
+\bibitem[Wang et~al., 2021]{doi:10.1137/19M1307871}
+Wang, J., Magron, V., and Lasserre, J.-B. (2021).
+\newblock Tssos: A moment-sos hierarchy that exploits term sparsity.
+\newblock {\em SIAM Journal on Optimization}, 31(1):30--58.
+
+\bibitem[Wang et~al., 2024]{PhysRevX.14.031006}
+Wang, J., Surace, J., Fr\'erot, I., Legat, B., Renou, M.-O., Magron, V., and
+  Ac\'{\i}n, A. (2024).
+\newblock Certifying ground-state properties of many-body systems.
+\newblock {\em Phys. Rev. X}, 14:031006.
+
+\bibitem[Weisser et~al., 2019]{weisser2019polynomial}
+Weisser, T., Legat, B., Coey, C., Kapelevich, L., and Vielma, J.~P. (2019).
+\newblock Polynomial and moment optimization in julia and jump.
+\newblock In {\em JuliaCon}.
+
+\bibitem[Wittek, 2015]{10.1145/2699464}
+Wittek, P. (2015).
+\newblock Algorithm 950: Ncpol2sdpa—sparse semidefinite programming
+  relaxations for polynomial optimization problems of noncommuting variables.
+\newblock {\em ACM Trans. Math. Softw.}, 41(3).
+
+\bibitem[Woodhead, 2024]{woodhead2024QuantumNPA}
+Woodhead, E. (2024).
+\newblock Quantumnpa.jl: Npa in julia.
+\newblock \url{https://github.com/ewoodhead/QuantumNPA.jl}.
+\newblock Accessed: 2026-02-06.
+
+\end{thebibliography}
