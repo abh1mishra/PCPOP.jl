@@ -116,12 +116,22 @@ end
 function reduce_grobner(f::Polynomial, g::Polynomial)
     leading_monomial = g.monomials[1]
     leading_coefficient = g.coeffs[1]
-    for term in terms(f)
-        factor = divide(leading_monomial, term.monomials[1])
-        if !isempty(factor)
-            f = f - leading_coefficient/term.coeffs[1]*factor[1]*g*factor[2]
+    monomial_pointer=1
+    while monomial_pointer <= length(f.monomials)
+        m = f.monomials[monomial_pointer]
+        ok, (l, r) = divide(m, leading_monomial)
+        if ok
+            f = f - (f.coeffs[monomial_pointer]/leading_coefficient)*l*g*r
+        else
+            monomial_pointer += 1
         end
     end
+    # for (m,c) in f
+    #     ok,factor = divide(m,leading_monomial)
+    #     if ok
+    #         f = f - (c/leading_coefficient)*factor[1]*g*factor[2]
+    #     end
+    # end
     return f
 end
 
@@ -133,13 +143,13 @@ function reduce_grobner(f::Polynomial, G)
 end
 
 function reduce_grobner(F::Vector, G)
-    F_reduced = deepcopy(F)
+    F_reduced = copy(F)
     return filter(x-> !(x==0), unique([reduce_grobner(f, G) for f in F_reduced]))
 end
     
 function self_reduce(G)
     G_reduced = []
-    G_remains = deepcopy(G)
+    G_remains = copy(G)
     while !isempty(G_remains)
         g = pop!(G_remains)
         G_remains = reduce_grobner(G_remains, g)

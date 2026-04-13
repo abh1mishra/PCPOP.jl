@@ -1,5 +1,8 @@
 using JuMP,Mosek,MosekTools
 function mons_at_levelint(list_vars::Vector{Variable},level::Int)
+    if isempty(list_vars)
+        @error "The list of variables is empty. Please provide a non-empty list of variables."
+    end
     Id=one(list_vars[1])
     if level==0
         return [Id]
@@ -17,6 +20,9 @@ function mons_at_levelint(list_vars::Vector{Variable},level::Int)
     return mons
 end
 function mons_at_level(list_vars::Vector{Variable},level::String)
+    if isempty(list_vars)
+        @error "The list of variables is empty. Please provide a non-empty list of variables."
+    end
     Id=one(list_vars[1])
     list_vars=unique(list_vars)
     lvl_array=[]
@@ -129,10 +135,16 @@ function mons_at_level(list_vars::Vector{Variable},level::Int)
 end
 
 function mons_at_level(p::Polynomial,level::String)
+    if isempty(variables(p))
+        return [one(p.monoid)]
+    end
     return mons_at_level(variables(p),level)
 end
 
 function mons_at_level(p::Polynomial,level::Int)
+    if isempty(variables(p))
+        return [one(p.monoid)]
+    end
     return mons_at_level(variables(p),level)
 end
 
@@ -262,7 +274,20 @@ function npa(obj, level;
     optimizer=Mosek.Optimizer,
     model_flags=[],
     rm=false)
-    println("PCPOP FAST AT YOUR SERVICE")
+
+    # Check if objective is trivial (if it is a number)
+    if is_number(obj) 
+        if obj isa Number
+            return obj, nothing, nothing, nothing, nothing
+        elseif obj isa Polynomial
+            return coefficient(obj, one(obj.monoid)), nothing, nothing, nothing, nothing
+        elseif obj isa AbstractMonomial
+            return is_identity(obj) ? 1 : 0, nothing, nothing, nothing, nothing
+        else
+            throw(ArgumentError("The objective function is a number but not a valid type."))
+        end
+    end
+
     if lvl_lm==0
         ops, ops_principal = get_monomials(obj,level; op_eq = op_eq, op_ge = op_ge, tr_eq = tr_eq, tr_ge = tr_ge,list_vars=list_vars)
     else
@@ -386,6 +411,6 @@ function npa(obj, level;
     end
     # Return the optimal value and the dictionary of optimal variables
     # return optimal_value, optimal_vars, model
-    return optimal_value, model,Dict(zip(unique_mons,unique_vars)),principal_moments_matrix
+    return optimal_value, model,ops_principal,Dict(zip(unique_mons,unique_vars)),principal_moments_matrix
 
 end

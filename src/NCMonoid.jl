@@ -119,8 +119,20 @@ Base.:*(m::NCWord,x::Number)=x*m
 
 Base.:/(w::NCWord,n::Number)=NCWord(w.monoid,w.word/n)
 Base.:/(n::Number,w::NCWord)=divide_ncword(n*one(w.monoid),w)
-Base.:/(w1::NCWord,w2::NCWord) = (w1.monoid==w2.monoid) ? divide_ncword(w1,w2) : general_div(w1,w2)
-
+Base.:/(w1::NCWord,w2::NCWord) = (w1.monoid==w2.monoid) ? divide_ncword(w1,w2) : general_divide(w1,w2)
+# function Base.:/(w1::NCWord,w2::NCWord) 
+#     if w1.monoid != w2.monoid
+#         println(w1.monoid == w2.monoid)
+#         println("******************************************")
+#         println(typeof(w1))
+#         println("******************************************")
+#         println(typeof(w2))
+#     end
+#     (w1.monoid==w2.monoid) ? divide_ncword(w1,w2) : general_divide(w1,w2)
+# end
+divide(w1::NCWord,w2::NCWord) = w1/w2
+divide(w::NCWord,n::Number) = w/n
+divide(n::Number,w::NCWord) = n/w
 
 
 
@@ -184,9 +196,14 @@ function multiply_ncword(w1::NCWord,w2::NCWord)
     return transform_ncword(NCWord(monoid,res))
 end
 function divide_ncword(w1::NCWord,w2::NCWord)
-    # (length(w1.word)==length(w2.word)==1) || return Error("Provide monomials")
-    res=normal_form(w1.word,w2.word-1)
-    return res==w1.word ? false : NCWord(w1.monoid,res)
+    ok, l,r = Generic.word_divides_leftmost(w1.word.exps[1],w2.word.exps[1])
+    if !ok
+        return false,(nothing,nothing)
+    else
+        isempty(l) ? (l=one(w1.monoid)) : l=one(w1.monoid)*prod([w1.monoid.vertices[i] for i in l])
+        isempty(r) ? (r=one(w1.monoid)) : r=one(w1.monoid)*prod([w1.monoid.vertices[i] for i in r])
+        return true, (l,r)
+    end
 end
 function add_ncword(w1::NCWord,w2::NCWord)
     res=w1.word+w2.word

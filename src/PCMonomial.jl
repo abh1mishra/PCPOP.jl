@@ -565,21 +565,22 @@ Division: find (l, r) such that l * m * r = n.
 Delegates to GraphProductWord division for correctness.
 """
 function divide(m::PCMonomial, n::PCMonomial; all=false)
-    m == n && return (one(m.monoid), one(n.monoid))
+    m == n && return true, (one(m.monoid), one(n.monoid))
     
     # Convert to GraphProductWord, use existing division, convert back
     m_gpw = GraphProductWord(m)
     n_gpw = GraphProductWord(n)
     
-    result_gpw = divide(m_gpw, n_gpw; all=all)
-    
+    ok,result_gpw = divide(m_gpw, n_gpw; all=all)
+    if !ok
+        return false, (nothing, nothing)
+    end
     # Convert results back to PCMonomial
     if all
-        return [(PCMonomial(l), PCMonomial(r)) for (l, r) in result_gpw]
+        return true,[(PCMonomial(l), PCMonomial(r)) for (l, r) in result_gpw]
     else
-        isempty(result_gpw) && return []
         (l, r) = result_gpw
-        return (PCMonomial(l), PCMonomial(r))
+        return true,(PCMonomial(l), PCMonomial(r))
     end
 end
 

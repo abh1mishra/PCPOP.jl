@@ -90,6 +90,13 @@ end
 
 monomials(p::Polynomial)=p.monomials
 
+function is_number(p::Polynomial)
+    return iszero(p) || (length(p.monomials) == 1 && is_identity(p.monomials[1]))
+end
+
+is_number(x::Number) = true
+is_number(x) = false
+is_number(m::AbstractMonomial) = is_identity(m)
 
 function coefficient(p::Polynomial, t::AbstractMonomial)
     coeff_index = findfirst(==(t), p.monomials)
@@ -104,9 +111,9 @@ function coefficient(p::Polynomial, T)
     return [coefficient(p, t) for t in T]
 end
 
-function terms(p::Polynomial)
-    return p.coeffs.*p.monomials
-end
+# function terms(p::Polynomial)
+#     return zip(p.coeffs,p.monomials)
+# end
 
 function Base.:(==)(p::Polynomial,q::Polynomial)
     if (p.monoid!=q.monoid)
@@ -117,7 +124,7 @@ function Base.:(==)(p::Polynomial,q::Polynomial)
 end
 Base.:(==)(p::Polynomial,m::AbstractMonomial)= ==(p,Polynomial(m))
 Base.:(==)(m::AbstractMonomial,p::Polynomial)= ==(Polynomial(m),p)
-Base.:(==)(p::Polynomial,q::Number)=((q==0) && (zero(p)==p)) || (length(p.coeffs)==length(p.monomials)==1 && p.coeffs[1]==q)
+Base.:(==)(p::Polynomial,q::Number)=((q==0) && iszero(p)) || (!iszero(p) && is_number(p) && p.coeffs[1]==q)
 Base.:(==)(q::Number,p::Polynomial)= p==q
 
 
@@ -280,7 +287,7 @@ Base.:-(x::AbstractMonomial,p::Polynomial)=add_poly(Polynomial(x),-p)
 Base.:+(p::Polynomial,x::Number)=add_poly(p,Polynomial(one(p.monoid),x))
 Base.:+(x::Number,p::Polynomial)=add_poly(Polynomial(one(p.monoid),x),p)
 Base.:-(p::Polynomial,x::Number)=add_poly(p,Polynomial(one(p.monoid),-x))
-Base.:-(x::Number,p::Polynomial)=add_poly(Polynomial(one(p.monoid),-x),p)
+Base.:-(x::Number,p::Polynomial)=add_poly(Polynomial(one(p.monoid),x),-p)
 Base.:-(p::Polynomial)=-1*p
 
 
@@ -288,7 +295,7 @@ MA.promote_operation(::F,::Type{Number},::Type{N}) where {F<:Function,N<:Number}
 MA.promote_operation(::F,::Type{N},::Type{Number}) where {F<:Function,N<:Number} =Number
 MA.promote_operation(::F, ::Type{Number}, ::Type{Number}) where F<:Function = Number
 
-variables(p::Polynomial)=Vector{Variable}(union([variables(i) for i in p.monomials]...))
+variables(p::Polynomial)=Vector{Variable}(reduce(union, [variables(i) for i in p.monomials];init=Variable[]))
 
 function real_rep(p::Polynomial{C_T}) where C_T
     result = Polynomial{C_T}(p.monoid)

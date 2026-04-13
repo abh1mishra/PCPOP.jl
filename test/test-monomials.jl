@@ -115,8 +115,8 @@ end
     Id=one(a)
     @test a/a ==true
     @test (a*c)/a ==true
-    @test sort(divide(monomial(a),a*c,all=true))==sort([(Id,monomial(c)),(monomial(c),Id)])
-    @test sort(divide(monomial(a),a*b,all=true))==sort([(Id,monomial(b))])
+    @test sort(divide(a*c,monomial(a),all=true)[2])==sort([(Id,monomial(c)),(monomial(c),Id)])
+    @test sort(divide(a*b,monomial(a),all=true)[2])==sort([(Id,monomial(b))])
 
 end
 

@@ -37,7 +37,7 @@ Base.getindex(m::GraphProductWord, i::Int64) = m.clique_words[i]
 
 Base.copy(m::GraphProductWord)=GraphProductWord(m.monoid,m.monomial,copy(m.clique_words),copy(edge_l),copy(edge_r))
 # Arithmetic
-Base.:/(m::GraphProductWord,n::GraphProductWord)=divides(n,m)
+Base.:/(m::GraphProductWord,n::GraphProductWord)=divides(m,n)
 Base.:*(m::GraphProductWord,n::GraphProductWord)=multiply(m,n)
 
 # General Arithmetic
@@ -423,37 +423,37 @@ end
     - If `m` is not divisible by `n`, returns an empty array.
 
     # Notes
-    - This function checks if `n` is divisible by `m` by checking if each clique word of `m` is a subsequence of the corresponding clique word of `n`.
-    - If `m` is divisible by `n`, it generates all potential factors of `n` by `m` and checks if each potential factor is reconstructible.
+    - This function checks if `m` is divisible by `n` by checking if each clique word of `n` is a subsequence of the corresponding clique word of `m`.
+    - If `m` is divisible by `n`, it generates all potential factors of `m` by `n` and checks if each potential factor is reconstructible.
     - If a potential factor is reconstructible, it updates the edge variables of the factor and adds it to the result.
-    - The time complexity is O(n^2), where n is the number of clique words in `n`.
-    - The space complexity is O(n), due to the creation of `potential_factors` and `left_and_right_potential_monomial_factors`.
+    - The time complexity is O(N^2), where N is the number of clique words in `m`.
+    - The space complexity is O(N), due to the creation of `potential_factors` and `left_and_right_potential_monomial_factors`.
 """
 function divide(m::GraphProductWord,n::GraphProductWord;all=false)
 
-    m==n && return (one(m),one(n))
+    m==n && return true, (one(m),one(n))
 
-    # clique_potential_factors ith element contains all potential tuples of left_and_right_word_factors for ith clique of n
+    # clique_potential_factors ith element contains all potential tuples of left_and_right_word_factors for ith clique of m
     clique_potential_factors=[]
-    for (index,clique_word) in enumerate(n.clique_words)
-        ith_left_and_right_word_factors=subsequence(m.clique_words[index],clique_word)
-        ith_left_and_right_word_factors!=false ? push!(clique_potential_factors,ith_left_and_right_word_factors) : return []
+    for (index,clique_word) in enumerate(m.clique_words)
+        ith_left_and_right_word_factors=subsequence(n.clique_words[index],clique_word)
+        ith_left_and_right_word_factors!=false ? push!(clique_potential_factors,ith_left_and_right_word_factors) : return false,(nothing,nothing)
     end
 
     #= potential_factors is a vector of tuples of tuples, 
     where ith element/tuple represents a potential factor containing tuples where
-    each tuple j is a left_and_right_factor for jth clique of n
+    each tuple j is a left_and_right_factor for jth clique of m
     =#
     potential_factors=collect(Base.Iterators.product(clique_potential_factors...))
 
     dummy_edge_set=(eltype(m.monoid.vertices)<:AbstractMonoid) ? Set{AbstractMonomial}() : Set{Variable}()
     left_and_right_potential_monomial_factors=[]
     for i in potential_factors
-        left_monomial=GraphProductWord(n.monoid,Base.RefValue{AbstractMonomial}(),[j[1] for j in i ],copy(dummy_edge_set),copy(dummy_edge_set))
-        right_monomial=GraphProductWord(n.monoid,Base.RefValue{AbstractMonomial}(),[j[2] for j in i ],copy(dummy_edge_set),copy(dummy_edge_set))
+        left_monomial=GraphProductWord(m.monoid,Base.RefValue{AbstractMonomial}(),[j[1] for j in i ],copy(dummy_edge_set),copy(dummy_edge_set))
+        right_monomial=GraphProductWord(m.monoid,Base.RefValue{AbstractMonomial}(),[j[2] for j in i ],copy(dummy_edge_set),copy(dummy_edge_set))
         left_and_right_potential_monomial_factors=push!(left_and_right_potential_monomial_factors,(left_monomial,right_monomial))
     end
-    # left_and_right_potential_monomial_factors=[(GraphProductWord(n.monoid,n.monomial,[j[1] for j in i ],dummy_edge_set,dummy_edge_set),GraphProductWord(n.monoid,n.monomial,[j[2] for j in i ],dummy_edge_set,dummy_edge_set)) for i in potential_factors]
+    # left_and_right_potential_monomial_factors=[(GraphProductWord(m.monoid,m.monomial,[j[1] for j in i ],dummy_edge_set,dummy_edge_set),GraphProductWord(m.monoid,m.monomial,[j[2] for j in i ],dummy_edge_set,dummy_edge_set)) for i in potential_factors]
     result=[]
     for (left_potential_monomial_factor,right_potential_monomial_factor) in left_and_right_potential_monomial_factors
         if is_reconstructible(left_potential_monomial_factor) & is_reconstructible(right_potential_monomial_factor)
@@ -464,10 +464,14 @@ function divide(m::GraphProductWord,n::GraphProductWord;all=false)
             union!(right_factor.edge_r,get_edge_variables(right_factor.clique_words,:last,clique_indices))
             union!(left_factor.edge_r,get_edge_variables(left_factor.clique_words,:last,clique_indices))
             union!(right_factor.edge_l,get_edge_variables(right_factor.clique_words,:first,clique_indices))
-            all ? push!(result,(left_factor,right_factor)) : return (left_factor,right_factor)
+            all ? push!(result,(left_factor,right_factor)) : return true,(left_factor,right_factor)
         end
     end
-    return result
+    if isempty(result)
+        return false, (nothing, nothing)
+    else
+        return true, result
+    end
 end
-divides(a::GraphProductWord,b::GraphProductWord) =!isempty(divide(a,b))
+divides(a::GraphProductWord,b::GraphProductWord) = divide(a,b)[1]
 Base.zero(m::GraphProductWord)=0
