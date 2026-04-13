@@ -89,11 +89,13 @@ end
     Min t
     s.t. t - p in SOS(k)    
 """
-function pcpop(poly::Polynomial, k::Int; equalities = [], truncate = "degree", tracial=false)
+function pcpop(poly::Polynomial, k::Int; equalities = [], inequalities=[], truncate = "degree", tracial=false)
     M = poly.monoid
     basis_psd = mons_at_level(M, k)
+    cores_psd = union([Polynomial(one(M))], Polynomial.(inequalities))
+    cores = union(monomials.(cores_psd)...)
     if isempty(equalities)  
-        matrix_psd = [tracial_reduce(x'*y, tracial=tracial) for x in basis_psd, y in basis_psd]
+        matrix_psd = Dict(s=>[tracial_reduce(x'*s*y, tracial=tracial) for x in basis_psd, y in basis_psd] for s in cores)
     else
         max_degree = maximum([degree(g) for g in equalities])
         if truncate == "degree"  
@@ -102,30 +104,29 @@ function pcpop(poly::Polynomial, k::Int; equalities = [], truncate = "degree", t
             throw(ArgumentError("Truncation degree $(truncate) expected at least constraints degree $(max_degree)"))
         end
         grobner_truncated = macaulay_grobner(equalities, truncate)
-        matrix_psd = [reduce_grobner(Polynomial(x'*y), grobner_truncated) for x in basis_psd, y in basis_psd]
-        matrix_psd = tracial_reduce.(reduce_duplicates(matrix_psd), tracial=tracial)
+        matrix_psd = Dict(s=>tracial_reduce.(reduce_duplicates([reduce_grobner(Polynomial(x'*s*y), grobner_truncated) for x in basis_psd, y in basis_psd], tracial=tracial)) for s in cores)
     end   
     basis_constraints = StarAlgebras.Basis{UInt16}(
-              unique(matrix_psd),
+              unique(union([collect(values(matrix_psd[s])) for s in cores]...)),
             )
-    Γ = [basis_constraints[m] for m in matrix_psd]
+    Γ = Dict(s=> [(basis_constraints[m]) for m in matrix_psd[s]] for s in cores)
 
     sos_model = JuMP.Model()
     JuMP.@variable sos_model t
     JuMP.@objective sos_model Min t
     n = length(basis_psd)
-    P = JuMP.@variable sos_model P[1:n, 1:n] Symmetric
-    JuMP.@constraint sos_model P in PSDCone()
+    P = Dict(s=> JuMP.@variable sos_model [1:n, 1:n] in PSDCone() for (i,s) in enumerate(cores_psd))
 
+    #  base_name=Symbol("P$i")
     objective = t*one(M)-poly
     for (idx, b) in enumerate(basis_constraints)
         if typeof(b) <: AbstractMonomial
             c = coefficient(objective, b)
-            JuMP.@constraint sos_model LinearAlgebra.dot(P, Γ .== idx) == c
+            JuMP.@constraint sos_model sum(cs*LinearAlgebra.dot(P[s], Γ[ms] .== idx) for s in cores_psd for (ms, cs) in s) == c
         elseif typeof(b) <: Polynomial
             for (b_coeff, b_monomial) in zip(b.coeffs, b.monomials)
                 c = b_coeff*coefficient(objective, b_monomial)
-                JuMP.@constraint sos_model LinearAlgebra.dot(P, Γ .== idx) == c
+                JuMP.@constraint sos_model sum(cs*LinearAlgebra.dot(P[s], Γ[ms] .== idx) for s in cores_psd for (ms, cs) in s) == c
             end
         end
     end
@@ -133,8 +134,8 @@ function pcpop(poly::Polynomial, k::Int; equalities = [], truncate = "degree", t
     return sos_model
 end
 
-function pcpop(poly::Polynomial; equalities=[], truncate="degree", tracial=false)
-    pcpop(poly, Int(ceil(degree(poly)/2)), equalities=equalities, truncate=truncate, tracial=tracial)
+function pcpop(poly::Polynomial; equalities=[], inequalities=[], truncate="degree", tracial=false)
+    pcpop(poly, Int(ceil(degree(poly)/2)), equalities=equalities, inequalities=inequalities, truncate=truncate, tracial=tracial)
 end
 
 function pcpop(poly::Polynomial, k::Int, G::GroupsCore.Group, action::SymbolicWedderburn.Action; diagonalize=false)
