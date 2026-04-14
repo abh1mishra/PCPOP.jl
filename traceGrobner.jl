@@ -1,4 +1,4 @@
-using Graphs,Combinatorics,Base.Iterators,AbstractAlgebra , JuMP, Mosek,MosekTools, StatsBase
+using Graphs,Combinatorics,Base.Iterators,AbstractAlgebra , JuMP, Mosek,MosekTools, StatsBase,NautyGraphs
 import MutableArithmetics as MA
 include("src/GM.jl")
 include("src/var.jl")

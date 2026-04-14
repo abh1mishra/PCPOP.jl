@@ -1,6 +1,6 @@
 struct CyclicWord <: AbstractMonomial
     monoid::AbstractMonoid
-    graph::SimpleDiGraph
+    graph::NautyDiGraph{UInt64}
     exponents::Dict
     node_dict::Dict
     ref_word::PCMonomial
@@ -65,10 +65,19 @@ function cyclic_reduce(m::PCMonomial)
     end
     
     # Convert to Variable-based format for CyclicWord
-    node_dict = Dict(label => (monoid.vertices[var_idx], occ) for ((var_idx, occ), label) in node_dict_idx)
+    # node_dict = Dict(label => (monoid.vertices[var_idx], occ) for ((var_idx, occ), label) in node_dict_idx)
+    node_dict = Dict(label => var_idx for ((var_idx, occ), label) in node_dict_idx)
+
+    label_n = Vector{UInt32}(undef, length(node_dict))
+    for (k, v) in node_dict
+        label_n[k] = v
+    end
+
     exponents = Dict(monoid.vertices[var_idx] => count for (var_idx, count) in exponents_idx)
-    
-    return CyclicWord(monoid, graph, exponents, node_dict, reduced_word)
+
+
+    graph_nauty = DenseNautyGraph(graph; vertex_labels=label_n)
+    return CyclicWord(monoid, graph_nauty, exponents, node_dict, reduced_word)
 end
 
 # Legacy version for GraphProductWord{Variable} - delegates to PCMonomial version
@@ -145,9 +154,10 @@ function Base.:(==)(c1::CyclicWord,c2::CyclicWord)
     (c1.exponents!=c2.exponents || c1.monoid!=c2.monoid) && return false
     #edges_1=Set([(c1.node_dict[e.src],c1.node_dict[e.dst]) for e in edges(c1.graph)])
     #edges_2=Set([(c2.node_dict[e.src],c2.node_dict[e.dst]) for e in edges(c2.graph)])
-    edges_1=[(c1.node_dict[e.src][1],c1.node_dict[e.dst][1]) for e in edges(c1.graph)]
-    edges_2=[(c2.node_dict[e.src][1],c2.node_dict[e.dst][1]) for e in edges(c2.graph)]
-    return length(edges_1)==length(edges_2) && countmap(edges_1)==countmap(edges_2)
+    # edges_1=[(c1.node_dict[e.src][1],c1.node_dict[e.dst][1]) for e in edges(c1.graph)]
+    # edges_2=[(c2.node_dict[e.src][1],c2.node_dict[e.dst][1]) for e in edges(c2.graph)]
+    # (length(edges_1)!=length(edges_2) || countmap(edges_1)!=countmap(edges_2)) && return false
+    return NautyGraphs.is_isomorphic(c1.graph,c2.graph)
 end
 
 Base.:(==)(c1::CyclicWord,c2::GraphProductWord{Variable}) = c1==cyclic_reduce(c2)

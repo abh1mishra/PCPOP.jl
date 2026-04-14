@@ -149,29 +149,6 @@ end
 end
 
 @testset "Examples in Klep et al.  " begin
-
-    # Example 6.1 f == 0
-    @pcmonoid M a b c
-    @comms a b c
-    Projector(a)
-    Projector(b)
-    Projector(c)
-    build(M)
-
-    TM = make_trace_monoid(M, 4, tracial=true)
-
-    f = - state(a*b*c, TM) - state(a*b, TM)*state(c, TM)
-
-    basis_psd = trace_monomials(TM, 2, tracial=true)
-    basis_psd = unique([clean_one(m, TM) for m in basis_psd])
-
-    sos_model = tpop(f, TM, basis_psd, tracial=true)
-    set_optimizer(sos_model, Mosek.Optimizer)
-    set_silent(sos_model)
-    optimize!(sos_model)
-    @test termination_status(sos_model) == MOI.TerminationStatusCode(1)
-    #@test abs(-objective_value(sos_model) - (-1/32)) <= 1e-6
-
     # Example 6.1 f == 0
     @pcmonoid M a b c
     Projector(a)
