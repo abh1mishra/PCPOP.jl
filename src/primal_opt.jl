@@ -3,6 +3,9 @@ function mons_at_levelint(list_vars::Vector{Variable},level::Int)
     if isempty(list_vars)
         @error "The list of variables is empty. Please provide a non-empty list of variables."
     end
+    if level==0
+        return [one(prod(list_vars))]
+    end
     Id=one(list_vars[1])
     if level==0
         return [Id]
@@ -22,6 +25,9 @@ end
 function mons_at_level(list_vars::Vector{Variable},level::String)
     if isempty(list_vars)
         @error "The list of variables is empty. Please provide a non-empty list of variables."
+    end
+    if level=="0"
+        return [one(prod(list_vars))]
     end
     Id=one(list_vars[1])
     list_vars=unique(list_vars)
@@ -128,9 +134,6 @@ end
 
 
 function mons_at_level(list_vars::Vector{Variable},level::Int)
-    if level==0
-        return [one(prod(list_vars))]
-    end
     return mons_at_level(list_vars, string(level))
 end
 
