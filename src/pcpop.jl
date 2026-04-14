@@ -91,7 +91,7 @@ end
 """
 function pcpop(poly::Polynomial, k::Int; equalities = [], inequalities=[], truncate = "degree", tracial=false)
     M = poly.monoid
-    basis_psd = mons_at_level(M, k)
+    basis_psd = mons_at_level(M.vertices, k)
     cores_psd = union([Polynomial(one(M))], Polynomial.(inequalities))
     cores = union(monomials.(cores_psd)...)
     if isempty(equalities)  
@@ -104,7 +104,7 @@ function pcpop(poly::Polynomial, k::Int; equalities = [], inequalities=[], trunc
             throw(ArgumentError("Truncation degree $(truncate) expected at least constraints degree $(max_degree)"))
         end
         grobner_truncated = macaulay_grobner(equalities, truncate)
-        matrix_psd = Dict(s=>tracial_reduce.(reduce_duplicates([reduce_grobner(Polynomial(x'*s*y), grobner_truncated) for x in basis_psd, y in basis_psd], tracial=tracial)) for s in cores)
+        matrix_psd = Dict(s=>tracial_reduce.(reduce_duplicates([reduce_grobner(Polynomial(x'*s*y), grobner_truncated) for x in basis_psd, y in basis_psd]), tracial=tracial) for s in cores)
     end   
     basis_constraints = StarAlgebras.Basis{UInt16}(
               unique(union([collect(values(matrix_psd[s])) for s in cores]...)),
