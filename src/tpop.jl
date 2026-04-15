@@ -191,6 +191,63 @@ function trace_monomials(TM::TraceMonoid, k::Int, t::Int; tracial=false)
     return vcat(mons_at_level(TM.vertices_free, k), mons_at_level(TM.vertices_states, t))
 end
 
+degree(m::CyclicWord) = degree(m.ref_word)
+monomial_to_word(m::CyclicWord) = monomial_to_word(m.ref_word)
+
+using Combinatorics: partitions
+function pure_trace_monomials(TM::TraceMonoid, k::Int; tracial=false)
+    all_monomials = []
+    base_monomials = mons_at_level(TM.base_monoid.vertices, k)
+    if tracial
+        base_monomials = cyclic_reduce.(base_monomials)
+    end
+    dict_monomials = Dict(n => [m for m in base_monomials if (degree(m) == n)] for n in 0:k)
+    # ρ(w1) ... ρ(wl) where |w1| + ... + |wl| = k
+    for n in 1:k
+        for part in partitions(k, n)
+            for w_I in Iterators.product([dict_monomials[i] for i in part]...)
+                if pure
+                    append!(all_monomials, [prod([state(w, TM) for w in w_I])])
+                elseif length(w_I) > 1
+                    append!(all_monomials, [state_embedding(w_I[1], TM)*prod([state(w, TM) for w in w_I[2:end]])])
+                else
+                    append!(all_monomials, [state_embedding(w_I[1], TM)])
+                append!(all_monomials, [state_embedding(w_I[1], TM)])
+                end
+            end
+        end
+    end
+
+    append!(all_monomials, [state_embedding(w, TM) for w in dict_monomials[k]])
+    all_monomials = unique([clean_one(m, TM) for m in all_monomials])
+    return all_monomials
+end
+
+function trace_monomials(TM::TraceMonoid, k::UnitRange{Int64}; tracial=false, pure=false)
+    union([trace_monomials(TM, n, tracial=tracial, pure=pure) for n in k]...)
+end
+
+function trace_monomials(TM::TraceMonoid, k::Int64; tracial=false, pure=false)
+    if pure
+        return pure_trace_monomials(TM, k, tracial=tracial)   
+    else
+        base_monomials = mons_at_level(TM.base_monoid.vertices, k)
+        if tracial
+            base_monomials = cyclic_reduce.(base_monomials)
+        end
+        dict_monomials = Dict(n => [m for m in base_monomials if (degree(m) == n)] for n in 0:k)
+        dict_states = Dict(n => pure_trace_monomials(TM, n, tracial=tracial) for n in 0:k)
+    end
+    
+    all_monomials = []
+    for n in 0:k
+        append!(all_monomials, [state_embedding(w0, TM)*w1 for w0 in dict_monomials[n] for w1 in dict_states[k-n]])
+    end
+
+    all_monomials = unique([clean_one(m, TM) for m in all_monomials])
+    return all_monomials
+end
+
 # Transform TraceWord to AbstractWord
 function state_to_word(word::TraceWord)
     return word.free*word.states
