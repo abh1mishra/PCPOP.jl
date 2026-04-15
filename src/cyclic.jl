@@ -15,8 +15,7 @@ function cyclic_reduce(m::PCMonomial)
     
     conj_indices = build_conj_indices(monoid)
     
-    prod = product(m_r, m_l)
-    for (i_idx, j_idx) in prod
+    for (i_idx, j_idx) in product(m_r, m_l)
         i_var = monoid.vertices[i_idx]
         j_var = monoid.vertices[j_idx]
         
@@ -76,7 +75,7 @@ function cyclic_reduce(m::PCMonomial)
     exponents = Dict(monoid.vertices[var_idx] => count for (var_idx, count) in exponents_idx)
 
 
-    graph_nauty = DenseNautyGraph(graph; vertex_labels=label_n)
+    graph_nauty = DenseNautyGraph{true}(collect(edges(graph)); vertex_labels=label_n)
     return CyclicWord(monoid, graph_nauty, exponents, node_dict, reduced_word)
 end
 
