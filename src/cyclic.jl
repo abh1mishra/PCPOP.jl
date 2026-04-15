@@ -75,7 +75,7 @@ function cyclic_reduce(m::PCMonomial)
     exponents = Dict(monoid.vertices[var_idx] => count for (var_idx, count) in exponents_idx)
 
 
-    graph_nauty = DenseNautyGraph{true}(collect(edges(graph)); vertex_labels=label_n)
+    graph_nauty = DenseNautyGraph{true}(graph; vertex_labels=label_n)
     return CyclicWord(monoid, graph_nauty, exponents, node_dict, reduced_word)
 end
 
