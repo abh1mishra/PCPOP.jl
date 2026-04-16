@@ -1,18 +1,22 @@
 # Initialize local monoids
 @ncmonoid A a1 a2
 @ncmonoid B b1 b2
-@ncmonoid AB x1 x2
-vars = [a1,a2,b1,b2,x1,x2]
-Projector.(vars)
+@ncmonoid C c1 c2
+@ncmonoid BC x1 x2
+Unipotent.([a1, a2, b1, b2, c1, c2, x1, x2])
 # Build global monoid
-M = GraphProductMonoid("M",[A, B, AB])
-@comms A B
+M = GraphProductMonoid("M",[A, B, C, BC])
+@comms A B C
+@comms A BC
 build(M)
 # Objective function.
-obj  = a1*a2 + a2*a1 + b1*b2 + b1*b1 + x1*x2 + x2*x1 
-obj += a1*b2 + a1*x2 + b1*a2 + b1*x2 + x1*a2 + x1*b2 
-# Inequality constraints
-op_ge=[v-v^2+0.5 for v in vars]
+p  = a1*(b1 + b2) + a2*(b1 - b2)
+p += a1*(c1 + c2) + a2*(c1 - c2)
+p += a1*(x1 + x2) + a2*(x1 - x2) 
 # Optimize semidefinite relaxation
-val,_ = npa(obj,1;op_ge=op_ge) 
-println("Optimal value is ", val)
+val,model,_ = npa(p,2, min=false) 
+println("Termination status ", termination_status(model))
+println("Optimal value is   ", val)
+sos_model= pcpop(p, 2)
+println("Termination status ", termination_status(sos_model))
+println("Optimal value is   ", objective_value(sos_model))
