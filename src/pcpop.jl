@@ -11,7 +11,6 @@ dot_vars(C, iv::SparseVector{<:Number}) =
     sum(iv[i] * C[i] for i in iv.nzind)
 
 
-
 # Remove unidentified duplicates
 function reduce_duplicates(matrix::Matrix{T}) where T
     seen = T[]
@@ -91,7 +90,7 @@ end
 """
 function pcpop(poly::Polynomial, k::Int; equalities = [], inequalities=[], truncate = "degree", tracial=false)
     M = poly.monoid
-    basis_psd = mons_at_level(M.vertices, k)
+    basis_psd = mons_at_level(M, k)
     cores_psd = union([Polynomial(one(M))], Polynomial.(inequalities))
     cores = union(monomials.(cores_psd)...)
     if isempty(equalities)  
@@ -107,7 +106,7 @@ function pcpop(poly::Polynomial, k::Int; equalities = [], inequalities=[], trunc
         matrix_psd = Dict(s=>tracial_reduce.(reduce_duplicates([reduce_grobner(Polynomial(x'*s*y), grobner_truncated) for x in basis_psd, y in basis_psd]), tracial=tracial) for s in cores)
     end   
     basis_constraints = StarAlgebras.Basis{UInt16}(
-              unique(union([collect(values(matrix_psd[s])) for s in cores]...)),
+              unique(union([union(matrix_psd[s]) for s in cores]...)),
             )
     Γ = Dict(s=> [(basis_constraints[m]) for m in matrix_psd[s]] for s in cores)
 
