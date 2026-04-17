@@ -31,7 +31,7 @@ end
 
 f(z, t) = (1/t)*(one(z) + (z + z') + (1-t)*(z'*z) + t*(z*z'))
 
-function bff(w, t, α, γ, k::Int)
+function bff(t, α, γ, k::Int)
     # Build monoid
     @pcmonoid M Z[0, 2] a0 a1 b0 b1
     z = M.vertices[1:2]
@@ -40,7 +40,7 @@ function bff(w, t, α, γ, k::Int)
     build(M)
 
     # Objective function
-    obj = w*a0*f(z[1], t) + w*(1-a0)*f(z[2], t)
+    obj = a0*f(z[1], t) + (1-a0)*f(z[2], t)
 
     # Constraints CHSH violation B(p) ≥ γ
     B  = (1-2*a0)*(1-2*b0) + (1-2*a0)*(1-2*b1)
@@ -54,14 +54,13 @@ function bff(w, t, α, γ, k::Int)
             α - z[2]'*z[2]]
 
     return npa(obj, k; tr_ge=tr_ge, op_ge=op_ge)
-
 end
 
 function entropy_bound(m::Int, γ, k::Int)
     t, w = gauss_radau(m)
     α = [3/2*max(1/t[i], 1/(1-t[i])) for i in 1:m] 
 
-    H = sum(w[i]/(t[i]*log(2))*(1 + bff(w[i], t[i], α[i], γ, k)[1]) for i in 1:m)
+    H = sum(w[i]/(t[i]*log(2))*(1 + bff(t[i], α[i], γ, k)[1]) for i in 1:m)
 end
 
 # Parameters
@@ -73,7 +72,7 @@ k = 2
 
 t, w = gauss_radau(m)
 α = [3/2*max(1/t[i], 1/(1-t[i])) for i in 1:m] 
-val, model, _, _ = bff(w[2], t[2], α[2], γ, 2)
+val, model, _, _ = bff(t[2], α[2], γ, 2)
 
 println("Termination Status :", termination_status(model))
 println("Objective Value    :", objective_value(model))
