@@ -31,7 +31,7 @@ end
 
 f(z, t) = (1/t)*(one(z) + (z + z') + (1-t)*(z'*z) + t*(z*z'))
 
-function bff(t, α, γ, k::Int)
+function bff(t, α, γ, k::Int; primal=true)
     # Build monoid
     @pcmonoid M Z[0, 2] a0 a1 b0 b1
     z = M.vertices[1:2]
@@ -53,7 +53,11 @@ function bff(t, α, γ, k::Int)
             α - z[1]'*z[1],
             α - z[2]'*z[2]]
 
-    return npa(obj, k; tr_ge=tr_ge, op_ge=op_ge)
+    if primal
+        return npa(obj, k; tr_ge=tr_ge, op_ge=op_ge)
+    else
+        return pcpop(-obj, k, inequalities=op_ge, moments=tr_ge)
+    end
 end
 
 function entropy_bound(m::Int, γ, k::Int)
@@ -63,16 +67,55 @@ function entropy_bound(m::Int, γ, k::Int)
     H = sum(w[i]/(t[i]*log(2))*(1 + bff(t[i], α[i], γ, k)[1]) for i in 1:m)
 end
 
+
 # Parameters
 m = 5
 γ = 2*sqrt(2)
-k = 2
+k = 1
 
 #H = entropy_bund(m, γ, k)
 
 t, w = gauss_radau(m)
 α = [3/2*max(1/t[i], 1/(1-t[i])) for i in 1:m] 
-val, model, _, _ = bff(t[2], α[2], γ, 2)
 
+model = bff(t[2], α[2], γ, 1, primal=true)[2]
 println("Termination Status :", termination_status(model))
 println("Objective Value    :", objective_value(model))
+
+sos_model = bff(t[2], α[2], γ, 1, primal=false)
+set_optimizer(sos_model, Mosek.Optimizer)
+optimize!(sos_model)
+println("Termination Status :", termination_status(sos_model))
+println("Objective Value    :", objective_value(sos_model))
+
+
+""""
+Primal SDP level 2:
+
+Optimizer terminated. Time: 209.97 
+OPTIMAL -15.172788542276617, 
+A JuMP Model
+├ solver: Mosek
+├ objective_sense: MIN_SENSE
+│ └ objective_function_type: AffExpr
+├ num_variables: 7659
+├ num_constraints: 7
+│ ├ AffExpr in MOI.EqualTo{Float64}: 1
+│ ├ AffExpr in MOI.GreaterThan{Float64}: 1
+│ └ Vector{AffExpr} in MOI.PositiveSemidefiniteConeSquare: 5
+
+Dual SDP level 2:
+
+Optimizer terminated. Time: 4.72 
+OPTIMAL 15.172788544618173
+A JuMP Model
+├ solver: Mosek
+├ objective_sense: MIN_SENSE
+│ └ objective_function_type: AffExpr
+├ num_variables: 6127
+├ num_constraints: 6642
+│ ├ AffExpr in MOI.EqualTo{Float64}: 6637
+│ └ Vector{VariableRef} in MOI.PositiveSemidefiniteConeTriangle: 5
+
+(!) Primal is bigger, dual is faster
+"""
