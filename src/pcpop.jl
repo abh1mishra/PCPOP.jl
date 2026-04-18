@@ -63,13 +63,25 @@ end
     - `poly` : polynomial `p` in monoid `Μ` with degree d.
     - `k` : level of relaxation
             when not specified set to smallest size d÷2.
+        Alternatively, accept basis for PSD relaxation
+
+    Additional keyword arguments
     - `equalities` : list with polynomial constraints.
+    - `equalities` : list of operator equality constraints.
+    - `inequalities` : list of operator inequality constraints.
+    - `moments` : list of moment equality constraints.
+    - `normalize` : Boolean value for normalization L(1) = 1.
+    - `tracial` : Boolean value for tracial condition L(ab) = L(ba).
+    - `localize` : Boolean value to implement equalities
+        true: pairs of inequalities r = 0  adds  r ≥ 0  &&  -r ≥ 0
+        false: substitution rules r1 - r2 = 0  adds  r1 -> r2
+    - `truncate` : Int degree truncation Gröbner bases for substitution rules.
     
     Additionally, for symmetry reduction:
     - `G` : Group of symmetries on monoid `Μ`.
     - `action` : of the group `G` on monomials in `Μ`.
     - `diagonalize` : block diagonal SDP with symmetries.
-    
+
     Alternatively, wedderburn decomposition:
     - `wedderburn` : SymbolicWedderburn.WedderburnDecomposition.
     - `basis_psd`  : spanning subspace for SDP relaxation. 
@@ -88,12 +100,24 @@ end
     Min t
     s.t. t - p in SOS(k)    
 """
-function pcpop(poly::Polynomial, k::Int; equalities = [], inequalities=[], truncate = "degree", tracial=false)
-    M = poly.monoid
-    basis_psd = mons_at_level(M, k)
-    cores_psd = union([Polynomial(one(M))], Polynomial.(inequalities))
+function pcpop(p::Polynomial, k::Int; equalities=[], inequalities=[], moments=[], normalize=true, tracial=false, localize=false)
+    basis = mons_at_level(p.monoid, k)
+    return pcpop(p, basis, equalities=equalities, 
+                            inequalities=inequalities, 
+                            moments=moments, 
+                            normalize=normalize, 
+                            tracial=tracial, 
+                            localize=localize)
+end
+function pcpop(p::Polynomial, basis_psd; equalities=[], inequalities=[], moments=[], normalize=true, tracial=false, localize=false)
+    if localize
+        inequalities = union(inequalities, equalities, (-1).*equalities)
+        equalities = []
+    end
+
+    cores_psd = union([Polynomial(one(p.monoid))], Polynomial.(inequalities))
     cores = union(monomials.(cores_psd)...)
-    if isempty(equalities)  
+    if isempty(equalities)
         matrix_psd = Dict(s=>[tracial_reduce(x'*s*y, tracial=tracial) for x in basis_psd, y in basis_psd] for s in cores)
     else
         max_degree = maximum([degree(g) for g in equalities])
@@ -111,13 +135,18 @@ function pcpop(poly::Polynomial, k::Int; equalities = [], inequalities=[], trunc
     Γ = Dict(s=> [(basis_constraints[m]) for m in matrix_psd[s]] for s in cores)
 
     sos_model = JuMP.Model()
-    JuMP.@variable sos_model t
-    JuMP.@objective sos_model Min t
+
+    if normalize
+        moments = union([(one(p.monoid), 1)], moments)
+    end
+    nm = length(moments)
+    JuMP.@variable sos_model t[1:nm]
+    JuMP.@objective sos_model Min sum([moments[i][2]*t[i] for i in 1:nm])
     n = length(basis_psd)
     P = Dict(s=> JuMP.@variable sos_model [1:n, 1:n] in PSDCone() for (i,s) in enumerate(cores_psd))
 
-    #  base_name=Symbol("P$i")
-    objective = t*one(M)-poly
+
+    objective = sum([moments[i][1]*t[i] for i in 1:nm])-p
     for (idx, b) in enumerate(basis_constraints)
         if typeof(b) <: AbstractMonomial
             c = coefficient(objective, b)
