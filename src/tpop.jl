@@ -213,6 +213,10 @@ monomial_to_word(m::CyclicWord) = monomial_to_word(m.ref_word)
 
 using Combinatorics: partitions
 function pure_trace_monomials(TM::TraceMonoid, k::Int; tracial=false)
+    if k == 0
+        return [one(TM)]
+    end
+
     all_monomials = []
     base_monomials = mons_at_level(TM.base_monoid.vertices, k)
     if tracial
@@ -247,7 +251,7 @@ function trace_monomials(TM::TraceMonoid, k::Int64; tracial=false, pure=false)
         dict_states = Dict(n => pure_trace_monomials(TM, n, tracial=tracial) for n in 0:k)
     end
     
-    all_monomials = []
+    all_monomials = [one(TM)]
     for n in 0:k
         append!(all_monomials, [state_embedding(w0, TM)*w1 for w0 in dict_monomials[n] for w1 in dict_states[k-n]])
     end
