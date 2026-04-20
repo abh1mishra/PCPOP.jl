@@ -162,7 +162,7 @@ end
 
     basis_psd = trace_monomials(TM, 0:3, tracial=true)
 
-    sos_model = tpop_primal(f, TM, basis_psd, tracial=true)
+    sos_model = tpop(f, TM, basis_psd, tracial=true)
     set_optimizer(sos_model, Mosek.Optimizer)
     set_silent(sos_model)
     optimize!(sos_model)
@@ -172,13 +172,13 @@ end
 end
 
 
-@testset "State POP Klep et al.    " begin
+@testset "Statepop Klep et al.     " begin
 
     #Example 7.2.1 quadratic Bell inequality
     @pcmonoid M a[2,0] b[2,0]
     Unipotent.(a)
     Unipotent.(b)
-    @comms a b
+    @comms a b 
     build(M)
 
     TM = make_trace_monoid(M, 6, tracial=false)
