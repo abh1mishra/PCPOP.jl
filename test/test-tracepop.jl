@@ -119,7 +119,7 @@ end
     
     @pcmonoid M a b c d
     @comms [a, b] [c, d]
-    Projector.([a,b,c,d])
+    Unipotent.([a,b,c,d])
     build(M)
 
     f = a*c + a*d + b*c - b*d
@@ -160,8 +160,7 @@ end
 
     f = - state(a*b*c, TM) - state(a*b, TM)*state(c, TM)
 
-    basis_psd = trace_monomials(TM, 2, tracial=true)
-    basis_psd = unique([clean_one(m, TM) for m in basis_psd])
+    basis_psd = trace_monomials(TM, 0:2, tracial=false)
 
     sos_model = tpop(f, TM, basis_psd, tracial=true)
     set_optimizer(sos_model, Mosek.Optimizer)
