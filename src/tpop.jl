@@ -147,11 +147,11 @@ function make_trace_monoid(M::AbstractMonoid, k::Int; statesymbol="ρ", monomial
     # ρ[w]' = ρ[w']
     # μ[a]' = μ[a']
     for a in M.vertices
-        μ[dict_monomials[a]].conj = dict_monomials[a']
+        dict_monomials[a].conj = dict_monomials[a']
     end
 
     for t in traces
-        ρ[dict_traces[t]].conj = dict_traces[t']
+        dict_traces[t].conj = dict_traces[t']
     end
 
     build(TM)
