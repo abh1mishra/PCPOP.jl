@@ -160,7 +160,7 @@ end
 
     f = - state(a*b*c, TM) - state(a*b, TM)*state(c, TM)
 
-    basis_psd = trace_monomials(TM, 0:2, tracial=false)
+    basis_psd = trace_monomials(TM, 0:2, tracial=true)
 
     sos_model = tpop(f, TM, basis_psd, tracial=true)
     set_optimizer(sos_model, Mosek.Optimizer)
