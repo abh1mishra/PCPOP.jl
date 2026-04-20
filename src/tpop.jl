@@ -23,6 +23,9 @@ function Base.show(io::IO, ::MIME"text/plain", tm::TraceMonoid)
     println(io, "  Tracial: ", tm.tracial)
 end
 
+# Identity element in TraceMonoid
+one(TM::TraceMonoid) = one(TM.state_monoid)
+
 # Display cyclic words
 function Base.show(io::IO, w::CyclicWord)
     print(io, "[$(GraphProductWord(w.ref_word))]")
@@ -123,12 +126,15 @@ end
 """
 function make_trace_monoid(M::AbstractMonoid, k::Int; statesymbol="ρ", monomialsymbol="μ", tracial=false)
     traces = mons_at_level(M, k)
+    filter!(x -> !(x==one(M)), traces)
     if tracial
         traces = unique([cyclic_reduce(t) for t in traces])
+        filter!(x -> !(x==one(M)), traces)
     end
+
     num_m = length(M.vertices)
     num_t = length(traces)
-    @eval @pcmonoid TM $(Symbol.(monomialsymbol, M.vertices)...) $(Symbol.(statesymbol, traces)...)
+    @eval @pcmonoid TM $(Symbol.(monomialsymbol, M.vertices)...) $(Symbol.(statesymbol, "[", traces, "]")...)
     μ = TM.vertices[1:num_m]
     ρ = TM.vertices[num_m+1:end]
     dict_monomials = Dict{AbstractMonomial, Variable}(M.vertices[i] => μ[i] for i in 1:num_m)
@@ -155,7 +161,7 @@ function make_trace_monoid(M::AbstractMonoid, k::Int; statesymbol="ρ", monomial
     for t in traces
         dict_traces[t].conj[] = dict_traces[t']
     end
-    
+
     return TraceMonoid(
         state_monoid = TM,
         base_monoid = M,
