@@ -137,7 +137,7 @@ function Base.conj(p::Polynomial{C_T}) where C_T
     end
     return q
 end
-
+Base.adjoint(p::Polynomial{C_T}) where C_T = Base.conj(p)
 Base.:*(x,m::AbstractMonomial)=x==0 ? zero(Polynomial(m,x)) : Polynomial(m,x)
 Base.:*(m::AbstractMonomial,x)=x*m
 

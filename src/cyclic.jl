@@ -164,6 +164,10 @@ Base.:(==)(c1::GraphProductWord{Variable},c2::CyclicWord) = cyclic_reduce(c1)==c
 Base.:(==)(c1::CyclicWord,c2::PCMonomial) = c1==cyclic_reduce(c2)
 Base.:(==)(c1::PCMonomial,c2::CyclicWord) = cyclic_reduce(c1)==c2
 
+conjugate(m::CyclicWord) = cyclic_reduce(m.ref_word')
+Base.conj(m::CyclicWord) = conjugate(m)
+Base.adjoint(m::CyclicWord)=Base.conj(m)
+
 function Base.hash(t::CyclicWord, h::UInt)
     edges_t=Set([(t.node_dict[e.src],t.node_dict[e.dst]) for e in edges(t.graph)])
     return hash(t.exponents,hash(edges_t,hash(t.monoid,hash(0x23269960ff982ff6, h))))
