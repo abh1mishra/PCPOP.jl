@@ -156,38 +156,17 @@ end
     Projector(c)
     build(M)
 
-    TM = make_trace_monoid(M, 4, tracial=true)
+    TM = make_trace_monoid(M, 6, tracial=true)
 
     f = - state(a*b*c, TM) - state(a*b, TM)*state(c, TM)
 
-    basis_psd = trace_monomials(TM, 0:2, tracial=true)
+    basis_psd = trace_monomials(TM, 0:3, tracial=true)
 
-    sos_model = tpop(f, TM, basis_psd, tracial=true)
+    sos_model = tpop_primal(f, TM, basis_psd, tracial=true)
     set_optimizer(sos_model, Mosek.Optimizer)
     set_silent(sos_model)
     optimize!(sos_model)
     @test termination_status(sos_model) == MOI.TerminationStatusCode(1)
-    #@test abs(-objective_value(sos_model) - (-1/32)) <= 1e-6
+    @test abs(-objective_value(sos_model) - (-1/32)) <= 1e-6
 
 end
-
-@pcmonoid M a[2,0] b[2,0]
-# Set variables to projectors
-Unipotent.(a)
-Unipotent.(b)
-# Build the monoid
-build(M)
-# Build new monoid with state monomials up to degree 4
-TM = make_trace_monoid(M, 4, tracial=false)
-# Objective function
-p = (state(a[1]*b[2], TM) + state(a[2]*b[1], TM))^2
-p += (state(a[1]*b[1], TM) - state(a[2]*b[2], TM))^2
-# Basis for the semidefinite relaxation
-basis = trace_monomials(TM, 2, tracial=false)
-basis = unique([clean_one(m, TM) for m in basis])
-# Build sum of squares relaxation
-sos_model = tpop(p, TM, basis, tracial=false)
-# Optimization of the semidefinite relaxation
-set_optimizer(sos_model, Mosek.Optimizer)
-optimize!(sos_model)
-println("Optimal value is ", objective_value(sos_model))
