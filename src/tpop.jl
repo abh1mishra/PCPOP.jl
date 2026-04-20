@@ -206,30 +206,21 @@ degree(m::CyclicWord) = degree(m.ref_word)
 monomial_to_word(m::CyclicWord) = monomial_to_word(m.ref_word)
 
 using Combinatorics: partitions
-function pure_trace_monomials(TM::TraceMonoid, k::Int; tracial=false, pure=false)
+function pure_trace_monomials(TM::TraceMonoid, k::Int; tracial=false)
     all_monomials = []
     base_monomials = mons_at_level(TM.base_monoid.vertices, k)
     if tracial
-        base_monomials = cyclic_reduce.(base_monomials)
+        base_monomials = unique(cyclic_reduce.(base_monomials))
     end
     dict_monomials = Dict(n => [m for m in base_monomials if (degree(m) == n)] for n in 0:k)
     # ρ(w1) ... ρ(wl) where |w1| + ... + |wl| = k
     for n in 1:k
         for part in partitions(k, n)
             for w_I in Iterators.product([dict_monomials[i] for i in part]...)
-                if pure
-                    append!(all_monomials, [prod([state(w, TM) for w in w_I])])
-                elseif length(w_I) > 1
-                    append!(all_monomials, [state_embedding(w_I[1], TM)*prod([state(w, TM) for w in w_I[2:end]])])
-                else
-                    append!(all_monomials, [state_embedding(w_I[1], TM)])
-                append!(all_monomials, [state_embedding(w_I[1], TM)])
-                end
+                append!(all_monomials, [prod([state(w, TM) for w in w_I])])
             end
         end
     end
-
-    append!(all_monomials, [state_embedding(w, TM) for w in dict_monomials[k]])
     all_monomials = unique([clean_one(m, TM) for m in all_monomials])
     return all_monomials
 end
