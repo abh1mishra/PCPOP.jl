@@ -402,7 +402,7 @@ end
     Min t
     s.t. [t - p] in [TSOS(k)]    
 """
-function tpop(poly::Polynomial, TM::TraceMonoid, basis_psd; equalities = [], truncate = "degree", tracial=false)
+function tpop_sos(poly::Polynomial, TM::TraceMonoid, basis_psd; equalities = [], truncate = "degree", tracial=false)
     if isempty(equalities)  
         matrix_psd = [clean_one(state_projection(x'*y, TM), TM) for x in basis_psd, y in basis_psd]
     else
@@ -444,6 +444,47 @@ function tpop(poly::Polynomial, TM::TraceMonoid, basis_psd; equalities = [], tru
     end
 
     return sos_model
+end
+
+"""
+
+    Moment relaxations (tracial) state polynomial optimization
+
+"""
+function tpop(poly::Polynomial, TM::TraceMonoid, basis_psd; equalities = [], truncate = "degree", tracial=false)
+    if isempty(equalities)  
+        matrix_psd = [clean_one(state_projection(x'*y, TM), TM) for x in basis_psd, y in basis_psd]
+    else
+        max_degree = maximum([degree(g) for g in equalities])
+        if truncate == "degree"  
+            truncate = max_degree
+        elseif truncate < max_degree
+            throw(ArgumentError("Truncation degree $(truncate) expected at least constraints degree $(max_degree)"))
+        end
+        # Extend equalities to state polynomials
+        append!(equalities, [state_projection(r, TM) for r in equalities])
+        grobner_truncated = macaulay_grobner(equalities, truncate)
+        matrix_psd = [state_projection(reduce_grobner(Polynomial(x'*y), grobner_truncated), TM) for x in basis_psd, y in basis_psd]
+        matrix_psd = reduce_duplicates(matrix_psd)
+    end   
+    basis_constraints = StarAlgebras.Basis{UInt16}(unique(matrix_psd), )
+    Γ = [basis_constraints[m] for m in matrix_psd]
+
+    model = JuMP.Model()
+    JuMP.@variable model y[1:length(basis_constraints)]
+    
+    # Objective function
+    objective = sum(c*y[basis_constraints[m]] for (m,c) in poly)
+    JuMP.@objective model Max objective
+
+    # Normalization y(1) = 1
+    JuMP.@constraint model y[basis_constraints[one(TM)]] == 1
+
+    # Positivity Γ(y) ≥ 0
+    P = [y[i] for i in Γ]
+    JuMP.@constraint model P in PSDCone()
+
+    return model
 end
 
 # TODO: ρ() == 1
