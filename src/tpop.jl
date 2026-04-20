@@ -195,7 +195,7 @@ degree(m::CyclicWord) = degree(m.ref_word)
 monomial_to_word(m::CyclicWord) = monomial_to_word(m.ref_word)
 
 using Combinatorics: partitions
-function pure_trace_monomials(TM::TraceMonoid, k::Int; tracial=false)
+function pure_trace_monomials(TM::TraceMonoid, k::Int; tracial=false, pure=false)
     all_monomials = []
     base_monomials = mons_at_level(TM.base_monoid.vertices, k)
     if tracial
@@ -400,6 +400,8 @@ function tpop(poly::Polynomial, TM::TraceMonoid, basis_psd; equalities = [], tru
         elseif truncate < max_degree
             throw(ArgumentError("Truncation degree $(truncate) expected at least constraints degree $(max_degree)"))
         end
+        # Extend equalities to state polynomials
+        append!(equalities, [state_projection(r, TM) for r in equalities])
         grobner_truncated = macaulay_grobner(equalities, truncate)
         matrix_psd = [state_projection(reduce_grobner(Polynomial(x'*y), grobner_truncated), TM) for x in basis_psd, y in basis_psd]
         matrix_psd = reduce_duplicates(matrix_psd)
@@ -416,7 +418,7 @@ function tpop(poly::Polynomial, TM::TraceMonoid, basis_psd; equalities = [], tru
     P = JuMP.@variable sos_model P[1:n, 1:n] Symmetric
     JuMP.@constraint sos_model P in PSDCone()
 
-    objective = state_embedding(t*one(TM.state_monoid)-poly, TM)
+    objective = state_projection(t*one(TM.state_monoid)-poly, TM)
     for (idx, b) in enumerate(basis_constraints)
         if typeof(b) <: AbstractMonomial
             c = coefficient(objective, b)
@@ -434,7 +436,10 @@ end
 
 # TODO: ρ() == 1
 function clean_one(m::AbstractMonomial, TM::TraceMonoid)
-    m_word = monomial_to_word(m)
-    filter!(x -> x !== TM.vertices_states[1], m_word)
-    return words_to_monomial(TM.state_monoid, m_word)
+    #id = state_projection
+    #m_word = monomial_to_word(m)
+    #filter!(x -> x !== TM.vertices_states[1], m_word)
+    #return words_to_monomial(TM.state_monoid, m_word)
+    return m
 end
+
