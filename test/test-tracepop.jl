@@ -190,6 +190,7 @@ end
 
     model = tpop(p, TM, basis, tracial=false)
     set_optimizer(model, Mosek.Optimizer)
+    set_silent(sos_model)
     optimize!(model)
     @test termination_status(model) == MOI.TerminationStatusCode(1)
     @test abs(objective_value(sos_model) - (1/32)) <= 1e-4
