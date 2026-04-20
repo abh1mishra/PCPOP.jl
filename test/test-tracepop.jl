@@ -193,6 +193,6 @@ end
     set_silent(sos_model)
     optimize!(model)
     @test termination_status(model) == MOI.TerminationStatusCode(1)
-    @test abs(objective_value(sos_model) - (1/32)) <= 1e-4
+    @test abs(objective_value(sos_model) - 4) <= 1e-6
 
 end
