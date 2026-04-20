@@ -170,3 +170,28 @@ end
     @test abs(-objective_value(sos_model) - (-1/32)) <= 1e-6
 
 end
+
+
+@testset "State POP Klep et al.    " begin
+
+    #Example 7.2.1 quadratic Bell inequality
+    @pcmonoid M a[2,0] b[2,0]
+    Unipotent.(a)
+    Unipotent.(b)
+    @comms a b
+    build(M)
+
+    TM = make_trace_monoid(M, 6, tracial=false)
+
+    p  = (state(a[1]*b[2], TM) + state(a[2]*b[1], TM))^2 
+    p += (state(a[1]*b[1], TM) - state(a[2]*b[2], TM))^2
+
+    basis = trace_monomials(TM, 0:3, tracial=false)
+
+    model = tpop(p, TM, basis, tracial=false)
+    set_optimizer(model, Mosek.Optimizer)
+    optimize!(model)
+    @test termination_status(model) == MOI.TerminationStatusCode(1)
+    @test abs(objective_value(sos_model) - (1/32)) <= 1e-4
+
+end
