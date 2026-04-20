@@ -143,6 +143,17 @@ function make_trace_monoid(M::AbstractMonoid, k::Int; statesymbol="ρ", monomial
     Unipotent.([dict_monomials[m] for m in list_unipotents(M)])
     Unitary.([dict_monomials[m] for m in list_unitaries(M)])
 
+    # add conjugation relations 
+    # ρ[w]' = ρ[w']
+    # μ[a]' = μ[a']
+    for a in M.vertices
+        μ[dict_monomials[a]].conj = μ[dict_monomials[a']]
+    end
+
+    for t in traces
+        ρ[dict_traces[t]].conj = ρ[dict_traces[t']]
+    end
+
     build(TM)
 
     return TraceMonoid(
