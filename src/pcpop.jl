@@ -170,7 +170,7 @@ function pcpop(poly::Polynomial, k::Int, G::GroupsCore.Group, action::SymbolicWe
     M = poly.monoid
     basis_psd = mons_at_level(M,k)
     basis_constraints = StarAlgebras.Basis{UInt16}(
-              unique_array([x'*y for x in basis_psd, y in basis_psd]),
+              unique([x'*y for x in basis_psd, y in basis_psd]),
     )
     if diagonalize
         wedderburn = SymbolicWedderburn.WedderburnDecomposition(
@@ -341,118 +341,4 @@ function pcpop(
         ) == c
     end
     return model
-end
-
-"""
-    Trace polynomial optimization problem in partially commutative monoid `Μ`.
-    
-    #Arguments:
-    - `poly` : polynomial `p` in monoid `Μ` with degree d.
-    - `k` : level of relaxation
-            when not specified set to smallest size d÷2.
-    - `equalities` : list with polynomial constraints.
-    
-    # Output:
-    - JuMP model (unsolved) with SDP relaxation POP.
-    
-    Moment relaxation Γ(u,v) = [u*v] cyclic class
-    [w] = [σ(w)] for any cycle σ ∈ Sn 
-    
-    Max sum_i p(i) Γ(i)
-    s.t. Γ(1) = 1
-         Γ in PSD(k)
-    
-    Dual of sum of square decomposition:
-    
-    Min t
-    s.t. [t - p] in [TSOS(k)]    
-"""
-function tpop(poly::Polynomial, k::Int; equalities = [], truncate = "degree", tracial=false)
-    M = poly.monoid
-    TM = make_trace_monoid(M, 2*k, tracial=tracial)
-    basis_psd = trace_monomials(TM, k, tracial=tracial)
-    if isempty(equalities)  
-        matrix_psd = [state_projection(x'*y, TM) for x in basis_psd, y in basis_psd]
-    else
-        max_degree = maximum([degree(g) for g in equalities])
-        if truncate == "degree"  
-            truncate = max_degree
-        elseif truncate < max_degree
-            throw(ArgumentError("Truncation degree $(truncate) expected at least constraints degree $(max_degree)"))
-        end
-        grobner_truncated = macaulay_grobner(equalities, truncate)
-        matrix_psd = [state_projection(reduce_grobner(Polynomial(x'*y), grobner_truncated), TM) for x in basis_psd, y in basis_psd]
-        matrix_psd = reduce_duplicates(matrix_psd)
-    end   
-    basis_constraints = StarAlgebras.Basis{UInt16}(
-              unique(matrix_psd),
-            )
-    Γ = [basis_constraints[m] for m in matrix_psd]
-
-    sos_model = JuMP.Model()
-    JuMP.@variable sos_model t
-    JuMP.@objective sos_model Min t
-    n = length(basis_psd)
-    P = JuMP.@variable sos_model P[1:n, 1:n] Symmetric
-    JuMP.@constraint sos_model P in PSDCone()
-
-    objective = state_embedding(t*one(M)-poly, TM)
-    for (idx, b) in enumerate(basis_constraints)
-        if typeof(b) <: AbstractMonomial
-            c = coefficient(objective, b)
-            JuMP.@constraint sos_model LinearAlgebra.dot(P, Γ .== idx) == c
-        elseif typeof(b) <: Polynomial
-            for (b_coeff, b_monomial) in zip(b.coeffs, b.monomials)
-                c = b_coeff*coefficient(objective, b_monomial)
-                JuMP.@constraint sos_model LinearAlgebra.dot(P, Γ .== idx) == c
-            end
-        end
-    end
-
-    return sos_model
-end
-
-function tpop(poly::Polynomial, k::Int, t::Int; equalities = [], truncate = "degree", tracial=false)
-    M = poly.monoid
-    TM = make_trace_monoid(M, 2*k, tracial=tracial)
-    basis_psd = trace_monomials(TM, k, t, tracial=tracial)
-    if isempty(equalities)  
-        matrix_psd = [state_projection(x'*y, TM) for x in basis_psd, y in basis_psd]
-    else
-        max_degree = maximum([degree(g) for g in equalities])
-        if truncate == "degree"  
-            truncate = max_degree
-        elseif truncate < max_degree
-            throw(ArgumentError("Truncation degree $(truncate) expected at least constraints degree $(max_degree)"))
-        end
-        grobner_truncated = macaulay_grobner(equalities, truncate)
-        matrix_psd = [state_projection(reduce_grobner(Polynomial(x'*y), grobner_truncated), TM) for x in basis_psd, y in basis_psd]
-        matrix_psd = reduce_duplicates(matrix_psd)
-    end   
-    basis_constraints = StarAlgebras.Basis{UInt16}(
-              unique(matrix_psd),
-            )
-    Γ = [basis_constraints[m] for m in matrix_psd]
-
-    sos_model = JuMP.Model()
-    JuMP.@variable sos_model t
-    JuMP.@objective sos_model Min t
-    n = length(basis_psd)
-    P = JuMP.@variable sos_model P[1:n, 1:n] Symmetric
-    JuMP.@constraint sos_model P in PSDCone()
-
-    objective = state_embedding(t*one(M)-poly, TM)
-    for (idx, b) in enumerate(basis_constraints)
-        if typeof(b) <: AbstractMonomial
-            c = coefficient(objective, b)
-            JuMP.@constraint sos_model LinearAlgebra.dot(P, Γ .== idx) == c
-        elseif typeof(b) <: Polynomial
-            for (b_coeff, b_monomial) in zip(b.coeffs, b.monomials)
-                c = b_coeff*coefficient(objective, b_monomial)
-                JuMP.@constraint sos_model LinearAlgebra.dot(P, Γ .== idx) == c
-            end
-        end
-    end
-
-    return sos_model
 end
