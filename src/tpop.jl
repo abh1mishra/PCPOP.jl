@@ -487,6 +487,21 @@ function tpop(poly::Polynomial, TM::TraceMonoid, basis_psd; equalities = [], tru
     return model
 end
 
+function tpop(p::Polynomial, k::Int; equalities=[], truncate = "degree", tracial=false)
+    TM = make_trace_monoid(p.monoid, 2*k, tracial=tracial)
+    basis_psd = trace_monomials(TM, 0:k, tracial=tracial)
+
+    return tpop(state_embedding(p, TM), TM, basis_psd, equalities=equalities, tracial=tracial)
+end
+
+function tpop(poly::Polynomial, k::Int, t::Int; equalities = [], truncate = "degree", tracial=false)
+    TM = make_trace_monoid(p.monoid, 2*t, tracial=tracial)
+    basis_psd = mons_at_level()
+    append!(basis_psd, pure_trace_monomials(TM, 0:t, tracial=tracial))
+
+    return tpop(state_embedding(p, TM), TM, basis_psd, equalities=equalities, tracial=tracial)
+end
+
 function tpop_constraints(p::Polynomial, TM::TraceMonoid, basis_psd; inequalities=[], equalities = [], truncate = "degree", tracial=false, localize=false)
     if localize
         inequalities = union(inequalities, equalities, (-1).*equalities)
