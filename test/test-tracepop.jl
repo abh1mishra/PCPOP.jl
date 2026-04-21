@@ -160,7 +160,7 @@ end
 
     f = - state(a*b*c, TM) - state(a*b, TM)*state(c, TM)
 
-    basis_psd = trace_monomials(TM, 0:3, tracial=true)
+    basis_psd = trace_monomials(TM, 0:6, tracial=true)
 
     sos_model = tpop(f, TM, basis_psd, tracial=true)
     set_optimizer(sos_model, Mosek.Optimizer)
@@ -190,9 +190,9 @@ end
 
     model = tpop(p, TM, basis, tracial=false)
     set_optimizer(model, Mosek.Optimizer)
-    set_silent(sos_model)
+    set_silent(model)
     optimize!(model)
     @test termination_status(model) == MOI.TerminationStatusCode(1)
-    @test abs(objective_value(sos_model) - 4) <= 1e-6
+    @test abs(objective_value(model) - 4) <= 1e-6
 
 end

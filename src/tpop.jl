@@ -487,6 +487,51 @@ function tpop(poly::Polynomial, TM::TraceMonoid, basis_psd; equalities = [], tru
     return model
 end
 
+function tpop_constraints(p::Polynomial, TM::TraceMonoid, basis_psd; inequalities=[], equalities = [], truncate = "degree", tracial=false, localize=false)
+    if localize
+        inequalities = union(inequalities, equalities, (-1).*equalities)
+        equalities = []
+    end
+    
+    cores_psd = union([Polynomial(one(p.monoid))], Polynomial.(inequalities))
+    cores = union(monomials.(cores_psd)...)
+    if isempty(equalities)
+        matrix_psd = Dict(s=>[clean_one(state_projection(x'*s*y, TM), TM) for x in basis_psd, y in basis_psd] for s in cores)
+    else
+        max_degree = maximum([degree(g) for g in equalities])
+        if truncate == "degree"  
+            truncate = max_degree
+        elseif truncate < max_degree
+            throw(ArgumentError("Truncation degree $(truncate) expected at least constraints degree $(max_degree)"))
+        end
+        append!(equalities, [state_projection(r, TM) for r in equalities])
+        grobner_truncated = macaulay_grobner(equalities, truncate)
+        matrix_psd = Dict(s=>tracial_reduce.(reduce_duplicates([state_projection(reduce_grobner(Polynomial(x'*s*y), grobner_truncated), TM) for x in basis_psd, y in basis_psd]), tracial=tracial) for s in cores)
+    end   
+    basis_constraints = StarAlgebras.Basis{UInt16}(
+              unique(union([union(matrix_psd[s]) for s in cores]...)),
+            )
+    Γ = Dict(s=> [(basis_constraints[m]) for m in matrix_psd[s]] for s in cores)
+
+    model = JuMP.Model()
+    JuMP.@variable model y[1:length(basis_constraints)]
+    
+    # Objective function
+    objective = sum(c*y[basis_constraints[m]] for (m,c) in p)
+    JuMP.@objective model Max objective
+
+    # Normalization y(1) = 1
+    JuMP.@constraint model y[basis_constraints[one(TM)]] == 1
+
+    # Positivity Γ(y) ≥ 0
+    for s in cores_psd
+        P = sum(c*[y[i] for i in Γ[m]] for (m,c) in s)
+        JuMP.@constraint model P in PSDCone()
+    end
+
+    return model
+end
+
 # TODO: ρ() == 1
 function clean_one(m::AbstractMonomial, TM::TraceMonoid)
     #id = state_projection
