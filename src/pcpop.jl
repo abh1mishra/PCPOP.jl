@@ -100,16 +100,18 @@ end
     Min t
     s.t. t - p in SOS(k)    
 """
-function pcpop(p::Polynomial, k::Int; equalities=[], inequalities=[], moments=[], normalize=true, tracial=false, localize=false)
+function pcpop(p::Polynomial, k::Int; equalities=[], inequalities=[], moments=[], normalize=true, tracial=false, localize=false, truncate="degree")
     basis = mons_at_level(p.monoid, k)
     return pcpop(p, basis, equalities=equalities, 
                             inequalities=inequalities, 
                             moments=moments, 
                             normalize=normalize, 
                             tracial=tracial, 
-                            localize=localize)
+                            localize=localize,
+                            truncate=truncate)
 end
-function pcpop(p::Polynomial, basis_psd; equalities=[], inequalities=[], moments=[], normalize=true, tracial=false, localize=false)
+
+function pcpop(p::Polynomial, basis_psd; equalities=[], inequalities=[], moments=[], normalize=true, tracial=false, localize=false, truncate="degree")
     if localize
         inequalities = union(inequalities, equalities, (-1).*equalities)
         equalities = []
@@ -165,6 +167,10 @@ end
 function pcpop(poly::Polynomial; equalities=[], inequalities=[], truncate="degree", tracial=false)
     pcpop(poly, Int(ceil(degree(poly)/2)), equalities=equalities, inequalities=inequalities, truncate=truncate, tracial=tracial)
 end
+
+##########################
+##  SYMMETRY REDUCTION  ##
+##########################
 
 function pcpop(poly::Polynomial, k::Int, G::GroupsCore.Group, action::SymbolicWedderburn.Action; diagonalize=false)
     M = poly.monoid
