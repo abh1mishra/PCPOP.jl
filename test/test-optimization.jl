@@ -95,7 +95,7 @@ end
     @test abs(2-objective_value(blk_model)) <= 1e-6
     dual_vars = all_constraints(blk_model, AffExpr, MOI.EqualTo{Float64})
     @test length(dual_vars) == 13
-    sdp_vars = all_constraints(blk_model, Vector{VariableRef}, MOI.PositiveSemidefiniteConeTriangle) == 4
+    sdp_vars = all_constraints(blk_model, Vector{VariableRef}, MOI.PositiveSemidefiniteConeTriangle)
     @test 1 + sum([s*(s+1)/2 for s in SU]) == length(all_variables(blk_model))
     
 end
