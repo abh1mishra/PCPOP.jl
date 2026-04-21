@@ -36,6 +36,13 @@
     m=ab2*ab1*bc*cd*ad
     n=bc*ab2*ab1*cd*ad
     @test cyclic_reduce(m)!==cyclic_reduce(n)
+
+    @pcmonoid M a b c d
+    @comms b d
+    build(M)
+    m=a*b*c
+    n=b*c*a
+    @test cyclic_reduce(m)==cyclic_reduce(n)
     
 end
 

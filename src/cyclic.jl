@@ -63,6 +63,17 @@ function cyclic_reduce(m::PCMonomial)
         end
     end
     
+    # remove redundant or transitive edges, iterate through clique words, then for a cliqueword path, remove the cycle and check if there is a path between the end of cliquewords path and the beginning, if not place back the edge, if there is a path, move on.
+    for word in m_words
+        if length(word) > 1
+            first_label = node_dict_idx[(word[1], 1)]
+            last_label = node_dict_idx[(word[end], exponents_idx[word[end]])]
+            rem_edge!(graph, last_label, first_label)
+            if !has_path(graph,last_label, first_label)
+                add_edge!(graph, last_label, first_label)
+            end
+        end
+    end
     # Convert to Variable-based format for CyclicWord
     # node_dict = Dict(label => (monoid.vertices[var_idx], occ) for ((var_idx, occ), label) in node_dict_idx)
     node_dict = Dict(label => var_idx for ((var_idx, occ), label) in node_dict_idx)
