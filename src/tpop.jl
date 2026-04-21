@@ -474,7 +474,7 @@ function tpop(poly::Polynomial, TM::TraceMonoid, basis_psd; equalities = [], tru
     JuMP.@variable model y[1:length(basis_constraints)]
     
     # Objective function
-    objective = sum(c*y[basis_constraints[m]] for (m,c) in poly)
+    objective = sum(c*y[basis_constraints[m]] for (m,c) in state_projection(poly, TM))
     JuMP.@objective model Max objective
 
     # Normalization y(1) = 1
@@ -491,14 +491,14 @@ function tpop(p::Polynomial, k::Int; equalities=[], truncate = "degree", tracial
     TM = make_trace_monoid(p.monoid, 2*k, tracial=tracial)
     basis_psd = trace_monomials(TM, 0:k, tracial=tracial)
 
-    return tpop_sos(state_embedding(p, TM), TM, basis_psd, equalities=equalities, truncate=truncate, tracial=tracial)
+    return tpop(state_embedding(p, TM), TM, basis_psd, equalities=equalities, truncate=truncate, tracial=tracial)
 end
 
 function tpop(p::Polynomial, k::Int, t::Int; equalities = [], truncate = "degree", tracial=false)
     TM = make_trace_monoid(p.monoid, 2*k, tracial=tracial)
     basis_psd = trace_monomials(TM, k, t, tracial=tracial)
 
-    return tpop_sos(state_embedding(p, TM), TM, basis_psd, equalities=equalities, truncate=truncate, tracial=tracial)
+    return tpop(state_embedding(p, TM), TM, basis_psd, equalities=equalities, truncate=truncate, tracial=tracial)
 end
 
 function tpop_constraints(p::Polynomial, TM::TraceMonoid, basis_psd; inequalities=[], equalities = [], truncate = "degree", tracial=false, localize=false)
