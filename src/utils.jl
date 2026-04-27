@@ -423,3 +423,36 @@ function conj_minmax(O::AbstractMonomial)
         return (Oc, -1, O)
     end
 end
+
+function sanity_check_op_ge(op_ge::Vector)
+    for (i,p) in enumerate(op_ge)
+        if is_number(p)
+            deleteat!(op_ge,i)
+            if coefficient(p,one(p.monoid)) < 0
+                throw(ArgumentError("Negative constant term in op_ge is not allowed"))
+            end
+        end
+    end
+        if isempty(op_ge)
+        return 0
+    else
+        return op_ge
+    end
+end
+
+function sanity_check_op_eq(op_ge::Vector)
+    for (i,p) in enumerate(op_ge)
+        if is_number(p)
+            deleteat!(op_ge,i)
+            if coefficient(p,one(p.monoid)) != 0
+                throw(ArgumentError("non-zero constant in op_eq is not allowed"))
+            end
+        end
+    end
+    if isempty(op_eq)
+        return 0
+    else
+        return op_eq
+    end
+end
+

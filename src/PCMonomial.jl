@@ -283,9 +283,15 @@ Base.:<(m::PCMonomial, n::PCMonomial) = less_or_not(m, n)
 # ============================================================================
 
 function Base.show(io::IO, m::PCMonomial)
+    if all(isempty.(m.clique_words))
+        print(io, "Id")
+        return
+    end
     for i in 1:length(m.clique_words)
         vars = get_clique_word(m, i)
-        print(io, "($(join(vars, ",")))")
+        if !isempty(vars)  
+            print(io, "($(join(vars, ",")))")
+        end
     end
 end
 
@@ -396,7 +402,10 @@ end
 Full multiplication with Projector/Unipotent/Unitary handling.
 """
 function multiply(m::PCMonomial, n::PCMonomial)
-    m.monoid != n.monoid && throw(ArgumentError("Cannot multiply monomials from different monoids"))
+    # m.monoid != n.monoid && throw(ArgumentError("Cannot multiply monomials from different monoids"))
+    if m.monoid!=n.monoid
+        return general_mult(m,n)
+    end
     monoid = m.monoid
     if !monoid.has_relations[]
         return simple_multiply(m, n)

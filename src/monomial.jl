@@ -163,9 +163,14 @@ degree(m::GraphProductWord)=sum(values(exponents(m));init=0)
 
 
 function show_monomial(io::IO, m::GraphProductWord)
-
+    if all(isempty.(m.clique_words))
+        print(io, "Id")
+        return
+    end
     for j in m
-        print(io,"($(join([k for k in j],",")))")
+        if !isempty(j)
+            print(io,"($(join([k for k in j],",")))")
+        end
     end
 end
 

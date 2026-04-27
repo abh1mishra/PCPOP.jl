@@ -278,19 +278,14 @@ function npa(obj, level;
     model_flags=[],
     rm=false)
 
-    # Check if objective is trivial (if it is a number)
-    if is_number(obj) 
-        if obj isa Number
-            return obj, nothing, nothing, nothing, nothing
-        elseif obj isa Polynomial
-            return coefficient(obj, one(obj.monoid)), nothing, nothing, nothing, nothing
-        elseif obj isa AbstractMonomial
-            return is_identity(obj) ? 1 : 0, nothing, nothing, nothing, nothing
-        else
-            throw(ArgumentError("The objective function is a number but not a valid type."))
-        end
+    # Delete redundant polynomials(polynomials which are numbers, so k*Id) from the op_ge and op_eq and warn for incompatible polynomials in op_ge and op_eq
+    op_ge!=0 && (op_ge=sanity_check_op_ge(op_ge))
+    op_eq!=0 && (op_eq=sanity_check_op_eq(op_eq))
+    if all(is_number.(vcat([obj, op_ge..., op_eq...],[tr_ge[i][1] for i in 1:length(tr_ge)], [tr_eq[i][1] for i in 1:length(tr_eq)])))
+        @warn "All the input polynomials are constants. The optimization will be trivial."
+        isempty(list_vars) && throw(ArgumentError("The list of variables is empty. Please provide a non-empty list of variables."))
     end
-
+    # at this pont, op_ge and op_eq constaints non-trivial polynomials or zero.
     if lvl_lm==0
         ops, ops_principal = get_monomials(obj,level; op_eq = op_eq, op_ge = op_ge, tr_eq = tr_eq, tr_ge = tr_ge,list_vars=list_vars)
     else
@@ -396,6 +391,7 @@ function npa(obj, level;
     end
     
     min ? @objective(model, Min, obj_p) : @objective(model, Max, obj_p)
+
     if rm
         return model,Dict(zip(unique_mons,unique_vars)),principal_moments_matrix
     end
@@ -414,6 +410,12 @@ function npa(obj, level;
     end
     # Return the optimal value and the dictionary of optimal variables
     # return optimal_value, optimal_vars, model
+
+    if is_number(obj)
+        @warn "The objective function is a constant, it is a feasibility check"
+        return termination_status(model),model,ops_principal,Dict(zip(unique_mons,unique_vars)),principal_moments_matrix
+    end
+
     return optimal_value, model,ops_principal,Dict(zip(unique_mons,unique_vars)),principal_moments_matrix
 
 end

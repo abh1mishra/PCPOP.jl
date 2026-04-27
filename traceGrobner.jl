@@ -19,4 +19,5 @@ const package_types=Dict([NCMonoid=>NCWord,
 GraphProductMonoid=>GraphProductWord,
 Variable=>PCMonomial,
 AbstractMonoid=>AbstractMonomial,
+GraphProductMonoid{Variable}=>PCMonomial,
 TraceMonoid=>TraceWord])
