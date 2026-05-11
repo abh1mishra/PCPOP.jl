@@ -13,7 +13,7 @@ TM = make_trace_monoid(M, 2*k, tracial=false)
 # Constraints
 S = []
 T = []
-R = [ρ[a*b*c] - ρ[a]*ρ[b]*ρ[c]]
+R = [state(a*b*c,TM) - state(a,TM)*state(b,TM)*state(c,TM)]
 
 basis = trace_monomials(TM, 0:k)
 
