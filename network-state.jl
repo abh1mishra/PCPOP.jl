@@ -1,0 +1,23 @@
+include("traceGrobner.jl")
+
+# Build the monoid
+@pcmonoid M a b c
+Projector.([a, b, c])
+@comms a b c
+build(M)
+# Objective function.
+p = (1-a)*b*c + a*(1-b)*c + a*b*(1-c) - (1-a)*(1-b)*(1-c)
+
+k = 2
+TM = make_trace_monoid(M, 2*k, tracial=false)
+# Constraints
+S = []
+T = []
+R = [ρ[a*b*c] - ρ[a]*ρ[b]*ρ[c]]
+
+basis = trace_monomials(TM, 0:k)
+
+# Optimize semidefinite relaxation
+model = tpop(p, TM, basis, equalities=R)
+set_optimizer(model, Mosek.Optimizer)
+optimize!(model)
