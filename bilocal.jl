@@ -5,7 +5,7 @@ include("traceGrobner.jl")
 Unipotent.(M.vertices)
 @comms a b c
 build(M)
-k = 2
+k = 3
 TM = make_trace_monoid(M, 2*k, tracial=false) 
 # Objective function.
 α = sum(state(a[i]*b[1]*c[j], TM) for i in 1:2 for j in 1:2)

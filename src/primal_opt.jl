@@ -77,40 +77,6 @@ function mons_at_level(list_vars::Vector{Variable},level::String)
     # mons always has Id
     mons=AbstractMonomial[Id]
 
-    # for l in lvl_array
-    #     if l isa Int
-    #         if l<1
-    #             continue
-    #         end
-    #         # level 1 done
-    #         union!(mons,list_vars)
-    #         if l==1
-    #             continue
-    #         end
-
-    #         temp_=copy(list_vars)
-    #         for _ in 2:l
-    #             temp_=union(monomials.(filter(res->(res!=Id && !(typeof(res)<:Number) ),kron(temp_,list_vars,1)))...)
-    #             union!(mons,temp_)
-    #         end
-
-    #     else
-    #         if length(l)==0
-    #             continue
-    #         end
-    #         if length(l)==1
-    #             union!(mons,type_var_dict[l[1]])
-    #             continue
-    #         end
-    #         temp_=copy(type_var_dict[l[1]])
-    #         for i in 2:length(l)
-    #             temp_=union(monomials.(filter(res->(res!=Id && !(typeof(res)<:Number) ),kron(temp_,type_var_dict[l[i]],1)))...)
-    #         end
-    #         union!(mons,temp_)
-
-    #     end
-    # end
-
     for l in lvl_array
         mons_l=[]
         for l_ in l
@@ -124,10 +90,10 @@ function mons_at_level(list_vars::Vector{Variable},level::String)
             continue
         end
         if length(mons_l)==1
-            union!(mons,mons_l[1])
+            union!(mons,monomials.(mons_l[1])...)
             continue
         end
-        union!(mons,kron(mons_l...))
+        union!(mons,monomials.(kron(mons_l...))...)
     end
     return monomials(sum(mons))
 end
@@ -369,29 +335,30 @@ function npa(obj, level;
             @constraint(model,unique_vars[findfirst(check->check==id_elem,unique_mons)]==1.0)
         end
     end
-    obj_p=0
-    if cyclic
-        for (m,c) in Polynomial(obj)
-            m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
-            m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
-            if m_i==nothing
-                throw(ArgumentError("level not enough"))
+    if !is_number(obj)
+        obj_p=0
+        if cyclic
+            for (m,c) in Polynomial(obj)
+                m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
+                m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
+                if m_i==nothing
+                    throw(ArgumentError("level not enough"))
+                end
+                obj_p+=c*unique_vars[m_i]
             end
-            obj_p+=c*unique_vars[m_i]
-        end
-    else
-        obj_poly=real_rep(Polynomial(reduce_grobner(Polynomial(obj),G)))
-        for (m,c) in obj_poly
-            m_i=findfirst(x->x==m,unique_mons)
-            if m_i==nothing
-                throw(ArgumentError("level not enough"))
+        else
+            obj_poly=real_rep(Polynomial(reduce_grobner(Polynomial(obj),G)))
+            for (m,c) in obj_poly
+                m_i=findfirst(x->x==m,unique_mons)
+                if m_i==nothing
+                    throw(ArgumentError("level not enough"))
+                end
+                obj_p+=c*unique_vars[m_i]
             end
-            obj_p+=c*unique_vars[m_i]
         end
+        
+        min ? @objective(model, Min, obj_p) : @objective(model, Max, obj_p)
     end
-    
-    min ? @objective(model, Min, obj_p) : @objective(model, Max, obj_p)
-
     if rm
         return model,Dict(zip(unique_mons,unique_vars)),principal_moments_matrix
     end

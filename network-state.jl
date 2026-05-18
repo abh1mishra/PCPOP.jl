@@ -8,7 +8,7 @@ build(M)
 # Objective function.
 p = (1-a)*b*c + a*(1-b)*c + a*b*(1-c) - (1-a)*(1-b)*(1-c)
 
-k = 2
+k = 3
 TM = make_trace_monoid(M, 2*k, tracial=false)
 # Constraints
 S = []
