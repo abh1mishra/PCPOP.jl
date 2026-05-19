@@ -141,6 +141,18 @@ Base.adjoint(p::Polynomial{C_T}) where C_T = Base.conj(p)
 Base.:*(x,m::AbstractMonomial)=x==0 ? zero(Polynomial(m,x)) : Polynomial(m,x)
 Base.:*(m::AbstractMonomial,x)=x*m
 
+function Base.:+(x::C_T_X, p::Polynomial{C_T_P}) where {C_T_X,C_T_P}
+    T=MA.promote_operation(*,C_T_X,C_T_P)
+    scaled_poly = Polynomial{T}(p.monoid)  # Create a new Polynomial with the same monoid
+    for index in 1:length(p.coeffs)
+        res_coeff = T(1) * p.coeffs[index]  # Scale the coefficient by x
+        res_coeff == 0 && continue  # Skip if the coefficient is zero
+        push!(scaled_poly.monomials, p.monomials[index])  # Copy the monomial
+        push!(scaled_poly.coeffs, res_coeff)  # Scale the coefficient by x
+    end
+    return scaled_poly + x*one(p.monoid)
+end
+
 function Base.:*(x::C_T_X, p::Polynomial{C_T_P}) where {C_T_X,C_T_P}
     T=MA.promote_operation(*,C_T_X,C_T_P)
     scaled_poly = Polynomial{T}(p.monoid)  # Create a new Polynomial with the same monoid
@@ -152,6 +164,8 @@ function Base.:*(x::C_T_X, p::Polynomial{C_T_P}) where {C_T_X,C_T_P}
     end
     return scaled_poly
 end
+
+Base.:+(p::Polynomial,x)=x+p
 
 Base.:*(p::Polynomial,x)=x*p
 
