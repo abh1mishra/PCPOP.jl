@@ -440,10 +440,10 @@ function sanity_check_op_ge(op_ge::Vector)
     end
 end
 
-function sanity_check_op_eq(op_ge::Vector)
-    for (i,p) in enumerate(op_ge)
+function sanity_check_op_eq(op_eq::Vector)
+    for (i,p) in enumerate(op_eq)
         if is_number(p)
-            deleteat!(op_ge,i)
+            deleteat!(op_eq,i)
             if coefficient(p,one(p.monoid)) != 0
                 throw(ArgumentError("non-zero constant in op_eq is not allowed"))
             end
