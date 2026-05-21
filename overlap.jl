@@ -1,3 +1,4 @@
+include("traceGrobner.jl")
 # Initialize local monoids
 @ncmonoid A a1 a2
 @ncmonoid B b1 b2
@@ -18,5 +19,7 @@ val,model,_ = npa(p,2, min=false)
 println("Termination status ", termination_status(model))
 println("Optimal value is   ", val)
 sos_model= pcpop(p, 2)
+set_optimizer(sos_model, Mosek.Optimizer)
+optimize!(sos_model)
 println("Termination status ", termination_status(sos_model))
 println("Optimal value is   ", objective_value(sos_model))

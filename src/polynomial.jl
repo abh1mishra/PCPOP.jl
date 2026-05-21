@@ -15,7 +15,7 @@ end
 
 function Polynomial(m::AbstractMonoid)
     monomial_type=typeof(one(m))
-    return Polynomial(Vector{monomial_type}(),Vector{Number}(),m)
+    return Polynomial(Vector{monomial_type}(),Vector{Int64}(),m)
 end
 function Polynomial{C_T}(m::AbstractMonoid) where C_T
     monomial_type=typeof(one(m))

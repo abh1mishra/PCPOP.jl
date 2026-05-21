@@ -147,7 +147,7 @@ function get_monomials(obj, level;
 end
 
 
-function cyclic_npa_moments_block(list_monomials::Vector{M},model;cPoly=1,unique_mons=[],unique_vars=[]) where M<:AbstractMonomial
+function cyclic_npa_moments_block(list_monomials::Vector{M},model;cPoly=1,unique_mons=[],unique_vars=[],eq=false) where M<:AbstractMonomial
 
     # Get the number of monomials
     num_monomials = length(list_monomials)
@@ -188,11 +188,16 @@ function cyclic_npa_moments_block(list_monomials::Vector{M},model;cPoly=1,unique
         end
     end
 
-    @constraint(model, moments_matrix >= 0,PSDCone())
+    if !eq
+        @constraint(model, moments_matrix >=0,PSDCone())
+    else
+        @constraint(model, moments_matrix .== 0)
+    end
+
     return moments_matrix, unique_mons, unique_vars
 end
 
-function npa_moments_block(list_monomials::Vector{M},model;cPoly=1,unique_mons=[],unique_vars=[],G=[]) where M<:AbstractMonomial
+function npa_moments_block(list_monomials::Vector{M},model;cPoly=1,unique_mons=[],unique_vars=[],eq=false) where M<:AbstractMonomial
 
     # Get the number of monomials
     num_monomials = length(list_monomials)
@@ -203,9 +208,8 @@ function npa_moments_block(list_monomials::Vector{M},model;cPoly=1,unique_mons=[
     # Iterate over the list of monomials to fill the matrix
     for i in 1:num_monomials
         for j in 1:num_monomials
-            
             # Compute the product of the monomials
-            monomial_product = real_rep(reduce_grobner(Polynomial(list_monomials[i]'* cPoly * list_monomials[j]),G))
+            monomial_product = real_rep(Polynomial(list_monomials[i]'* cPoly * list_monomials[j]))
             # Initialize the JuMP variable for the matrix entry
             moments_matrix[i, j] = 0.0
             for (m,c) in monomial_product
@@ -226,8 +230,11 @@ function npa_moments_block(list_monomials::Vector{M},model;cPoly=1,unique_mons=[
             end
         end
     end
-
-    @constraint(model, moments_matrix >= 0,PSDCone())
+    if !eq
+        @constraint(model, moments_matrix in PSDCone())
+    else
+        @constraint(model, moments_matrix .== 0)
+    end
     return moments_matrix, unique_mons, unique_vars
 end
 function npa(obj, level;
@@ -266,16 +273,11 @@ function npa(obj, level;
         end
     end
     println("Number of operators in the principal moment matrix: ", length(ops_principal))
-    G=[]
-    if op_eq!=0
-        max_degree = maximum([degree(g) for g in op_eq])
-        G=macaulay_grobner(Polynomial.(op_eq),max_degree)
-    end
     model=Model(optimizer)
     for (flag,val) in model_flags
         set_optimizer_attribute(model,flag,val)
     end
-    principal_moments_matrix, unique_mons, unique_vars = cyclic ? cyclic_npa_moments_block(ops_principal,model) : npa_moments_block(ops_principal,model;G=G)
+    principal_moments_matrix, unique_mons, unique_vars = cyclic ? cyclic_npa_moments_block(ops_principal,model) : npa_moments_block(ops_principal,model)
     # Add the constraints for the principal moment matrix
 
     if tr_eq!=0
@@ -288,7 +290,7 @@ function npa(obj, level;
                     tr_eq_p+=c*unique_vars[m_i]
                 end
             else
-                tr_eq_poly=real_rep(Polynomial(reduce_grobner(Polynomial(tr_eq[i][1]),G)))
+                tr_eq_poly=real_rep(Polynomial(Polynomial(tr_eq[i][1])))
                 for (m,c) in tr_eq_poly
                     m_i=findfirst(x->x==m,unique_mons)
                     tr_eq_p+=c*unique_vars[m_i]
@@ -307,7 +309,7 @@ function npa(obj, level;
                     tr_ge_p+=c*unique_vars[m_i]
                 end
             else
-                tr_ge_poly=real_rep(Polynomial(reduce_grobner(Polynomial(tr_ge[i][1]),G)))
+                tr_ge_poly=real_rep(Polynomial(Polynomial(tr_ge[i][1])))
                 for (m,c) in tr_ge_poly
                     m_i=findfirst(x->x==m,unique_mons)
                     tr_ge_p+=c*unique_vars[m_i]
@@ -321,11 +323,21 @@ function npa(obj, level;
             if cyclic
                 cyclic_npa_moments_block(ops,model; cPoly=op_ge[i],unique_mons=unique_mons, unique_vars=unique_vars) 
             else
-                npa_moments_block(ops,model; cPoly=op_ge[i], unique_mons=unique_mons, unique_vars=unique_vars,G=G) 
+                npa_moments_block(ops,model; cPoly=op_ge[i], unique_mons=unique_mons, unique_vars=unique_vars) 
             end
         end
     end
+    if op_eq!=0
+        for i in 1:length(op_eq)
+            if cyclic
+                cyclic_npa_moments_block(ops,model; cPoly=op_eq[i],unique_mons=unique_mons, unique_vars=unique_vars,eq=true) 
 
+            else
+                npa_moments_block(ops,model; cPoly=op_eq[i], unique_mons=unique_mons, unique_vars=unique_vars,eq=true) 
+
+            end
+        end
+    end
     if normalize
         id_elem=one(first(ops_principal))
         if cyclic
@@ -347,7 +359,7 @@ function npa(obj, level;
                 obj_p+=c*unique_vars[m_i]
             end
         else
-            obj_poly=real_rep(Polynomial(reduce_grobner(Polynomial(obj),G)))
+            obj_poly=real_rep(Polynomial(Polynomial(obj)))
             for (m,c) in obj_poly
                 m_i=findfirst(x->x==m,unique_mons)
                 if m_i==nothing

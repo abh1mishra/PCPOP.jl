@@ -304,9 +304,9 @@ end
 
 function ncword_to_poly(m::NCWord)
     if m==0
-        return Polynomial(m.monoid)
+        return Polynomial{Rational{BigInt}}(m.monoid)
     end
-    p=Polynomial(m.monoid)
+    p=Polynomial{Rational{BigInt}}(m.monoid)
     for i in 1:length(m.word)
         push!(p.monomials,NCWord(m.monoid,AbstractAlgebra.monomial(m.word,i)))
         push!(p.coeffs,m.word.coeffs[i])
@@ -426,9 +426,10 @@ end
 
 function sanity_check_op_ge(op_ge::Vector)
     for (i,p) in enumerate(op_ge)
-        if is_number(p)
+        if is_number(p) && p isa Polynomial
             deleteat!(op_ge,i)
-            if coefficient(p,one(p.monoid)) < 0
+
+            if p isa Polynomial && coefficient(p,one(p.monoid)) < 0
                 throw(ArgumentError("Negative constant term in op_ge is not allowed"))
             end
         end
@@ -444,7 +445,7 @@ function sanity_check_op_eq(op_eq::Vector)
     for (i,p) in enumerate(op_eq)
         if is_number(p)
             deleteat!(op_eq,i)
-            if coefficient(p,one(p.monoid)) != 0
+            if p isa Polynomial && coefficient(p,one(p.monoid)) != 0
                 throw(ArgumentError("non-zero constant in op_eq is not allowed"))
             end
         end
