@@ -1,7 +1,6 @@
 using LinearAlgebra
 using SDPA
 include("../traceGrobner.jl")
-include("/home/abhishek-mishra/Dropbox/repo/QCMaterial/SemiDIQKD/cgb_PnM/bb84_corr.jl")
 
 function bb84_correlations(a, b, x, y; obs=false)
     # Shared state |\phi^+> = (|00> + |11>) / sqrt(2)
@@ -141,29 +140,29 @@ function chsh_correlations(a, b, x, y; obs=false)
     return real(tr(rho * P_AB))
 end
 
-####### Example 1 fig 5 in https://arxiv.org/abs/2310.07484
-# @pcmonoid M UA[2,0] UBS[2,0] UBL[2,0]
-# Unipotent.(M.vertices)
-# @comms UA UBS
-# @comms UA UBL
+###### Example 1 fig 5 in https://arxiv.org/abs/2310.07484
+@pcmonoid M UA[2,0] UBS[2,0] UBL[2,0]
+Unipotent.(M.vertices)
+@comms UA UBS
+@comms UA UBL
 
-# # SRQ constraint, joint measuribility of BL
-# @comms UBL
+# SRQ constraint, joint measuribility of BL
+@comms UBL
 
-# build(M)
+build(M)
 
-# # C_s = 2\sqrt(2) constraint
+# C_s = 2\sqrt(2) constraint
 
-# Cs = UA[1]*UBS[1] + UA[1]*UBS[2] + UA[2]*UBS[1] - UA[2]*UBS[2]
-# tr_eq = [[Cs,2*sqrt(2)]]
+Cs = UA[1]*UBS[1] + UA[1]*UBS[2] + UA[2]*UBS[1] - UA[2]*UBS[2]
+tr_eq = [[Cs,2*sqrt(2)]]
 
-# θ = pi/4
-# level=1
+θ = 1/2
+level=2
 
-# obj = tan(θ)*UA[1]*UBL[1] + UA[1]*UBL[2] + UA[2]*UBL[1] - tan(θ)*UA[2]*UBL[2]
+obj = tan(θ)*UA[1]*UBL[1] + UA[1]*UBL[2] + UA[2]*UBL[1] - tan(θ)*UA[2]*UBL[2]
 
-# ov,model,ops_p,Γ,pm=npa(obj,level;tr_eq=tr_eq,min=false)
-# println("Optimal value is ", ov)
+ov,model,_=npa_dual(obj,level;tr_eq=tr_eq,min=false)
+println("Optimal value is ", ov)
 
 ##### Example 2 fig 10 in https://arxiv.org/abs/2310.07484, UB on \eta_l in CHSH with inefficient detectors
 @pcmonoid M A[4,0] BS[4,0] BL[4,0]
@@ -187,10 +186,11 @@ PA = [A[1] A[3]; A[2] A[4]; 1-A[1]-A[2] 1-A[3]-A[4]]
 level = "2+A*A*A+BS*BS*BS+BL*BL*BL+A*A*BL+A*A*BS+BS*BS*BL"
 # level=2
 
-model, Γ, pm = npa(0,level;min=false,rm=true,list_vars = M.vertices)
+model, Γ,Cmat, Amat,Xmat,Bvec = npa_dual(0,level;min=false,rm=true,list_vars = M.vertices)
 ηl = @variable(model)
 ηs = 0.98
 ηa=ηs
+Γ = Dict([k=>X[v...] for (k,v) in Γ])
 [@constraint(model,Γ[PA[a,x]*PBS[b,y]] == ηa*ηs*chsh_correlations(a,b,x,y)) for a in 1:2 for x in 1:2 for b in 1:2 for y in 1:2]
 id = one(A[1])
 [@constraint(model,Γ[PA[a,x]*id] == ηa*chsh_correlations(a,-1,x,1)) for a in 1:2 for x in 1:2]
@@ -204,6 +204,7 @@ id = one(A[1])
 @objective(model, Max, ηl)
 optimize!(model)
 println("Optimal value is ", value(ηl))
+
 
 # ##### Example 3 using trichotomic observables fig 10 in https://arxiv.org/abs/2310.07484, UB on \eta_l in CHSH with inefficient detectors
 # @subsystem M A[2,0] B[4,0]
@@ -261,6 +262,107 @@ println("Optimal value is ", value(ηl))
 # [@constraint(model,Γ[bl[y]*id] == ηl*chsh_correlations(-1,-1,-1,y;obs=true)) for y in 1:2]#2
 # #Bly^2
 # [@constraint(model,Γ[bl[y]^2*id] == ηl) for y in 1:2]#2
+
+# @objective(model, Max, ηl)
+# optimize!(model)
+# println("Optimal value is ", value(ηl))
+
+
+
+# ##### Example 3 using trichotomic observables fig 10 in https://arxiv.org/abs/2310.07484, UB on \eta_l in CHSH with inefficient detectors
+# @ncmonoid M a[2,0] b[4,0]
+# add_relations!([i^3-i for i in a])
+# add_relations!([i^3-i for i in b])
+# bs = b[1:2]
+# bl = b[3:4]
+# add_relations!([i*j-j*i for i in a for j in b] )
+# # SRQ constraint, joint measuribility of BL
+# add_relations!([bl[1]*bl[2]-bl[2]*bl[1]])
+
+# build(M)
+
+# level = "3+A*A*A*A+b[1:2]*b[1:2]*b[1:2]*b[1:2]+b[3:4]*b[3:4]*b[3:4]*b[3:4]+A*A*b[1:2]*b[1:2]+A*A*b[3:4]*b[3:4]+b[1:2]*b[1:2]*b[3:4]*b[3:4]"
+# level = 3
+# model, Γ, pm = npa(0,level;min=false,rm=true,list_vars = M.vertices)
+# # model, umons, pm = npa_dual(0,level;min=false,rm=true,list_vars = [a;b])
+
+# ηl = @variable(model)
+# ηs = 0.98
+# ηa=ηs
+# # AxBsy
+# [@constraint(model,Γ[a[x]*bs[y]] == ηa*ηs*chsh_correlations(1,1,x,y;obs=true)) for x in 1:2 for y in 1:2]#4
+
+# #Ax^2Bsy
+# [@constraint(model,Γ[a[x]^2*bs[y]] == ηa*ηs*chsh_correlations(1,1,-1,y;obs=true)) for x in 1:2 for y in 1:2]#4
+# #AxBsy^2
+# [@constraint(model,Γ[a[x]*bs[y]^2] == ηa*ηs*chsh_correlations(1,1,x,-1;obs=true)) for x in 1:2 for y in 1:2]#4
+# #Ax^2Bsy^2
+# [@constraint(model,Γ[a[x]^2*bs[y]^2] == ηa*ηs) for x in 1:2 for y in 1:2]#4
+
+# id = one(monomial(a[1]))
+
+# #Ax
+# [@constraint(model,Γ[a[x]*id] == ηa*chsh_correlations(1,-1,x,-1;obs=true)) for x in 1:2]#2
+# #Ax^2
+# [@constraint(model,Γ[a[x]^2*id] == ηa) for x in 1:2]#2
+
+# #Bsy
+# [@constraint(model,Γ[bs[y]*id] == ηs*chsh_correlations(-1,-1,-1,y;obs=true)) for y in 1:2]#2
+# #Bsy^2
+# [@constraint(model,Γ[bs[y]^2*id] == ηs) for y in 1:2]#2
+
+# #AxBly
+# [@constraint(model,Γ[a[x]*bl[y]] == ηa*ηl*chsh_correlations(1,1,x,y;obs=true)) for x in 1:2 for y in 1:2]#4
+
+# #Ax^2Bly
+# [@constraint(model,Γ[a[x]^2*bl[y]] == ηa*ηl*chsh_correlations(1,1,-1,y;obs=true)) for x in 1:2 for y in 1:2]#4
+# #AxBly^2
+# [@constraint(model,Γ[a[x]*bl[y]^2] == ηa*ηl*chsh_correlations(1,1,x,-1;obs=true)) for x in 1:2 for y in 1:2]#4
+# #Ax^2Bly^2
+# [@constraint(model,Γ[a[x]^2*bl[y]^2] == ηa*ηl) for x in 1:2 for y in 1:2]#4
+
+# #Bly
+# [@constraint(model,Γ[bl[y]*id] == ηl*chsh_correlations(-1,-1,-1,y;obs=true)) for y in 1:2]#2
+# #Bly^2
+# [@constraint(model,Γ[bl[y]^2*id] == ηl) for y in 1:2]#2
+
+
+# # AxBsy
+# [@constraint(model,pm[umons[a[x]*bs[y]]...] == ηa*ηs*chsh_correlations(1,1,x,y;obs=true)) for x in 1:2 for y in 1:2]#4
+
+# #Ax^2Bsy
+# [@constraint(model,pm[umons[a[x]^2*bs[y]]...] == ηa*ηs*chsh_correlations(1,1,-1,y;obs=true)) for x in 1:2 for y in 1:2]#4
+# #AxBsy^2
+# [@constraint(model,pm[umons[a[x]*bs[y]^2]...] == ηa*ηs*chsh_correlations(1,1,x,-1;obs=true)) for x in 1:2 for y in 1:2]#4
+# #Ax^2Bsy^2
+# [@constraint(model,pm[umons[a[x]^2*bs[y]^2]...] == ηa*ηs) for x in 1:2 for y in 1:2]#4
+
+# id = monomial(one(monomial(a[1])))
+
+# #Ax
+# [@constraint(model,pm[umons[a[x]*id]...] == ηa*chsh_correlations(1,-1,x,-1;obs=true)) for x in 1:2]#2
+# #Ax^2
+# [@constraint(model,pm[umons[a[x]^2*id]...] == ηa) for x in 1:2]#2
+
+# #Bsy
+# [@constraint(model,pm[umons[bs[y]*id]...] == ηs*chsh_correlations(-1,-1,-1,y;obs=true)) for y in 1:2]#2
+# #Bsy^2
+# [@constraint(model,pm[umons[bs[y]^2*id]...] == ηs) for y in 1:2]#2
+
+# #AxBly
+# [@constraint(model,pm[umons[a[x]*bl[y]]...] == ηa*ηl*chsh_correlations(1,1,x,y;obs=true)) for x in 1:2 for y in 1:2]#4
+
+# #Ax^2Bly
+# [@constraint(model,pm[umons[a[x]^2*bl[y]]...] == ηa*ηl*chsh_correlations(1,1,-1,y;obs=true)) for x in 1:2 for y in 1:2]#4
+# #AxBly^2
+# [@constraint(model,pm[umons[a[x]*bl[y]^2]...] == ηa*ηl*chsh_correlations(1,1,x,-1;obs=true)) for x in 1:2 for y in 1:2]#4
+# #Ax^2Bly^2
+# [@constraint(model,pm[umons[a[x]^2*bl[y]^2]...] == ηa*ηl) for x in 1:2 for y in 1:2]#4
+
+# #Bly
+# [@constraint(model,pm[umons[bl[y]*id]...] == ηl*chsh_correlations(-1,-1,-1,y;obs=true)) for y in 1:2]#2
+# #Bly^2
+# [@constraint(model,pm[umons[bl[y]^2*id]...] == ηl) for y in 1:2]#2
 
 # @objective(model, Max, ηl)
 # optimize!(model)

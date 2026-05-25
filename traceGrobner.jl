@@ -1,4 +1,4 @@
-using Graphs,Combinatorics,Base.Iterators,AbstractAlgebra , JuMP, Mosek,MosekTools, StatsBase,NautyGraphs
+using Graphs,Combinatorics,Base.Iterators,AbstractAlgebra ,LinearAlgebra, JuMP,SparseArrays, Mosek,MosekTools, StatsBase,NautyGraphs
 import MutableArithmetics as MA
 include("src/GM.jl")
 include("src/var.jl")
@@ -11,6 +11,7 @@ include("src/utils.jl")
 include("src/representations.jl")
 include("src/cyclic.jl")
 include("src/primal_opt.jl")
+include("src/dual_opt.jl")
 include("src/pcpop.jl")
 include("src/grobner.jl")
 include("src/tpop.jl")

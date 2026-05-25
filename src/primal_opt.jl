@@ -207,7 +207,7 @@ function npa_moments_block(list_monomials::Vector{M},model;cPoly=1,unique_mons=[
 
     # Iterate over the list of monomials to fill the matrix
     for i in 1:num_monomials
-        for j in 1:num_monomials
+        for j in i:num_monomials
             # Compute the product of the monomials
             monomial_product = real_rep(Polynomial(list_monomials[i]'* cPoly * list_monomials[j]))
             # Initialize the JuMP variable for the matrix entry
@@ -227,6 +227,9 @@ function npa_moments_block(list_monomials::Vector{M},model;cPoly=1,unique_mons=[
                     # Use the new variable in the matrix
                     moments_matrix[i, j] += c*new_var
                 end
+            end
+            if i != j
+                moments_matrix[j, i] = moments_matrix[i, j]
             end
         end
     end

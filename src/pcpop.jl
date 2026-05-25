@@ -1,5 +1,3 @@
-using LinearAlgebra
-using SparseArrays
 using MosekTools: Mosek
 using JuMP
 

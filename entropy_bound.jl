@@ -78,7 +78,7 @@ k = 1
 t, w = gauss_radau(m)
 α = [3/2*max(1/t[i], 1/(1-t[i])) for i in 1:m] 
 
-model = bff(t[2], α[2], γ, 1, primal=true)[2]
+model = bff(t[2], α[2], γ, 2, primal=true)[2]
 println("Termination Status :", termination_status(model))
 println("Objective Value    :", objective_value(model))
 

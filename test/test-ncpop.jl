@@ -11,6 +11,6 @@
     level=2
 
     # To solve the non-commutative polynomial optimization problem
-    ov=npa(obj,level;op_ge=op_ge)[1]
+    ov,model,_=npa(obj,level;op_ge=op_ge)
     @test abs(ov+0.7499999767923403) < 1e-6
 end

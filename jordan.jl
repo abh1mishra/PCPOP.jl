@@ -74,10 +74,11 @@ end
 
     Write a JuMP.Model in canonical form (C, A, b)
 
-    sup ⟨C, x⟩
-    s.t. Ax = b
-         Γ ≥ 0
-
+    sup ⟨C, X⟩
+    s.t. AX = b
+         X,X_i ≥ 0
+X=@variable(model, X[1:2,1:2], PSD)
+ --- IGNORE ---
     (!) For now only one PSD variable and EqualTo constraints.
     (!) Missing the constraints identifying equivalent moments.
 
@@ -85,6 +86,25 @@ end
     http://jump.dev/MathOptInterface.jl/stable/MathOptInterface.pdf
 
 """
+
+"""
+npa_dual exports model,D,C,A,X,B 
+
+where npa_dual accepts the same arguments as npa, use rm=true flag to get te desired return values, otherwise it will continue to optmize.
+
+model is the JuMP model, D is a dictionary of the unique monomials in the moment matrix and their positions,
+C is the matrix for the objective function(so call @objective @objective(model,Max,dot(C,X)) )
+X is the single largest PSD variable of form Blockdiagonal(Prinicpal_moment_matrix, localising_moment_matrix1, localising_moment_matrix2,...),
+A is vector of the sparse matrices for the linear constraints, so every element in A is the size of X
+B is the vector of the right hand side of the linear constraints, so length of B is the same as length of A.
+
+In order to get vectorized form, call vec(A),Vec(X)...
+
+Also, by default, the off diagonal terms are not set to zero. This shall include a lot of additional constraints, so use extra_zeros=true flag to set them to zero.
+extra_zeros=true will include additional rows in A. I didn't see any significant change in SDP solution by including these zeros but the setup time increased dramatically. 
+"""
+
+
 function write_canonical(model::Model)
     # Get the model data
     vars = all_variables(model)                     
