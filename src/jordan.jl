@@ -18,7 +18,31 @@ using StatsBase: sample
     or the Jordan algebra reduction method [Permenter & Parrilo 2016]
 
 """
-function jordan_reduce(C, A, b; verbose=false, complex=false, epsilon=Base.rtoldefault(Float64))
+function jordan_reduce(C, A, b; verbose=false, complex=false, epsilon=Base.rtoldefault(Float64), diagonalize=true)
+    if diagonalize
+        return jordan_reduce_diagonal(C, A, b; verbose=verbose, complex=complex, epsilon=epsilon)
+    else
+        P = admissible_subspace(SDPSymmetryReduction.Partition{UInt32}, C, A, b; verbose=verbose)
+        PMat = hcat([sparse(vec(P.matrix .== i)) for i = 1:P.nparts]...)
+        newA = A * PMat
+        newB = b
+        newC = C' * PMat
+        model = Model(optimizer_with_attributes(Mosek.Optimizer, "QUIET" => !verbose))
+        x = @variable(model, x[1:P.nparts])
+        @objective model Max newC*x
+        @constraint model newA*x .== newB
+        @constraint model sum((P.matrix .== i)*x[i] for i = 1:P.nparts) in PSDCone()
+        # Optimize
+        optimize!(model)  
+        if verbose
+            @show termination_status(model)
+            @show objective_value(model)
+        end    
+        return model, P, nothing
+    end
+end
+
+function jordan_reduce_diagonal(C, A, b; verbose=false, complex=false, epsilon=Base.rtoldefault(Float64))
     # Optimal invariant subspace
     P, blkD = block_diagonal(C, A, b, verbose=verbose, complex=complex, epsilon=epsilon)
     PMat = hcat([sparse(vec(P.matrix .== i)) for i = 1:P.nparts]...)
@@ -64,8 +88,8 @@ end
 
 # Block diagonalization through optimal admissible subspace
 function block_diagonal(C, A, b; verbose=false, complex=false, epsilon=Base.rtoldefault(Float64))
-    P = admissible_subspace(SDPSymmetryReduction.Partition{UInt32}, C, A, b; verbose=true)
-    blkD = blockDiagonalize(P, complex=complex, epsilon=epsilon)
+    P = admissible_subspace(SDPSymmetryReduction.Partition{UInt32}, C, A, b; verbose=verbose)
+    blkD = blockDiagonalize(P, verbose, complex=complex, epsilon=epsilon)
     return P, blkD
 end
 
