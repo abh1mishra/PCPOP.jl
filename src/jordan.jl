@@ -18,32 +18,32 @@ using StatsBase: sample
     or the Jordan algebra reduction method [Permenter & Parrilo 2016]
 
 """
-function jordan_reduce(C, A, b; verbose=false, complex=false)
+function jordan_reduce(C, A, b; verbose=false, complex=false, epsilon=Base.rtoldefault(Float64))
     # Optimal invariant subspace
-    P, blkD = block_diagonal(C, A, b, verbose=verbose, complex=complex)
-    PMat = hcat([sparse(vec(P.P .== i)) for i = 1:P.n]...)
+    P, blkD = block_diagonal(C, A, b, verbose=verbose, complex=complex, epsilon=epsilon)
+    PMat = hcat([sparse(vec(P.matrix .== i)) for i = 1:P.nparts]...)
     newA = A * PMat
     newB = b
     newC = C' * PMat
     # Reduced model
     model = Model(optimizer_with_attributes(Mosek.Optimizer, "QUIET" => !verbose))
-    x = @variable(model, x[1:P.n])
+    x = @variable(model, x[1:P.nparts])
     # Linear constraints
     for i in 1:size(newA, 1)
         constraint_i = AffExpr(0)
-            for j in 1:P.n
+            for j in 1:P.nparts
                 add_to_expression!(constraint_i, newA[i, j], x[j])
             end
         @constraint(model, constraint_i == newB[i])
     end
     # Objective
     obj = AffExpr(0)
-    for i in 1:P.n
+    for i in 1:P.nparts
         add_to_expression!(obj, newC[i], x[i])
     end
     @objective(model, Max, obj)
     # PSD constraints
-    psdBlocks = sum(blkD.blks[i] .* x[i] for i = 1:P.n)
+    psdBlocks = sum(blkD.blks[i] .* x[i] for i = 1:P.nparts)
     for blk in psdBlocks
         if size(blk, 1) > 1
             blk = realify(blk;complex=complex)
@@ -63,9 +63,9 @@ function jordan_reduce(C, A, b; verbose=false, complex=false)
 end
 
 # Block diagonalization through optimal admissible subspace
-function block_diagonal(C, A, b; verbose=false, complex=false)
-    P = admPartSubspace(C, A, b, verbose)
-    blkD = blockDiagonalize(P, complex=complex)
+function block_diagonal(C, A, b; verbose=false, complex=false, epsilon=Base.rtoldefault(Float64))
+    P = admissible_subspace(SDPSymmetryReduction.Partition{UInt32}, C, A, b; verbose=true)
+    blkD = blockDiagonalize(P, complex=complex, epsilon=epsilon)
     return P, blkD
 end
 
@@ -87,9 +87,8 @@ end
 
     sup ⟨C, X⟩
     s.t. AX = b
-         X,X_i ≥ 0
-X=@variable(model, X[1:2,1:2], PSD)
- --- IGNORE ---
+         X ≥ 0
+
     (!) For now only one PSD variable and EqualTo constraints.
     (!) Missing the constraints identifying equivalent moments.
 
@@ -149,33 +148,3 @@ function vec_sparse(M::SparseMatrixCSC)
     v = sparsevec(linear_indices, V, length(M))
     return v
 end
-
-# # Example statepop 7.2.1
-# @pcmonoid M a[2,0] b[2,0]
-# Unipotent.(a)
-# Unipotent.(b)
-# @comms a b
-# build(M)
-
-# TM = make_trace_monoid(M, 6, tracial=false)
-# p  = (state(a[1]*b[2], TM) + state(a[2]*b[1], TM))^2 
-# p += (state(a[1]*b[1], TM) - state(a[2]*b[2], TM))^2
-# basis = trace_monomials(TM, 0:3, tracial=false)
-# model = tpop(p, TM, basis, tracial=false)
-
-# # Jordan reduction
-# C, A, b = write_canonical(model)
-# model_red, P, blkD = jordan_reduce(C, A, b; verbose=true)
-
-# # Compare optimal solutions
-# set_optimizer(model, Mosek.Optimizer)
-# set_silent!(model)
-# optimize!(model)
-# println(termination_status(model))
-# println(objective_value(model))
-
-# set_optimizer(model_red, Mosek.Optimizer)
-# set_silent!(model_red)
-# optimize!(model_red)
-# println(termination_status(model_red))
-# println(objective_value(model_red))
