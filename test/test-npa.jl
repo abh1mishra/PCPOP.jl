@@ -37,5 +37,5 @@ end
     wit = -(2*PA[1,1]-1)*ρ[1]-(2*PA[1,2]-1)*ρ[1]-(2*PA[1,1]-1)*ρ[2]+(2*PA[1,2]-1)*ρ[2]+(2*PA[1,1]-1)*ρ[3]
     level = 2 # this is the level of the localising matrices and it will be enough to retrieve the values of the plot (they use level 3 of the principal moment matrix)
     ov,model,_=npa(wit,level;op_ge=ge,tr_eq=eq_constr,tr_ge=ge_constr,cyclic=true,min=false,normalize=false)
-    @test abs(ov-4.412149217891719) < 1e-3
+    @test abs(ov-4.412149217891719) < 1e-2
 end

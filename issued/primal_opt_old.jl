@@ -1,5 +1,4 @@
 using JuMP,Mosek,MosekTools
-
 function mons_at_levelint(list_vars::Vector{Variable},level::Int)
     if isempty(list_vars)
         @error "The list of variables is empty. Please provide a non-empty list of variables."
@@ -148,128 +147,98 @@ function get_monomials(obj, level;
 end
 
 
-function cyclic_npa_moments_block!(list_monomials::Vector{M},X,tsize,model;cPoly=1,mons_pos_D=Dict([]),offset=0,extra_zeros=false) where M<:AbstractMonomial
+function cyclic_npa_moments_block(list_monomials::Vector{M},model;cPoly=1,unique_mons=[],unique_vars=[],eq=false) where M<:AbstractMonomial
 
     # Get the number of monomials
     num_monomials = length(list_monomials)
 
     # Initialize the matrix of JuMP variables
+    moments_matrix = Matrix{JuMP.AffExpr}(undef, num_monomials, num_monomials)
 
     # Iterate over the list of monomials to fill the matrix
     for i in 1:num_monomials
-        for j in i:num_monomials
-                
-            if cPoly == 1
-                m = list_monomials[i]'* list_monomials[j]
-                m1,m2 = cyclic_reduce(m),cyclic_reduce(m')
+        for j in 1:num_monomials
+            
+            # Compute the product of the monomials
+            monomial_product = list_monomials[i]'* cPoly * list_monomials[j]
+            # println("1",typeof(monomial_product))
+            # Initialize the JuMP variable for the matrix entry
+            moments_matrix[i, j] = 0.0
+            # Check if the product already exists in the dictionary
+            for (m,c) in monomial_product
+                # println("2",typeof(m))
+                m1,m2 =  (cyclic_reduce(m),cyclic_reduce(m'))
                 if m1==0 || m2==0
-                    @constraint(model, X[i,j] == 0)
                     continue
                 end
-                if  haskey(mons_pos_D,m1) || haskey(mons_pos_D,m2)
+                m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
+                if m_i !== nothing
                     # Use the existing JuMP variable
-                    upi,upj = haskey(mons_pos_D,m1) ? mons_pos_D[m1] : mons_pos_D[m2]
-                    @constraint(model, X[i,j] - X[upi,upj] == 0)
-
+                    moments_matrix[i, j] += c*unique_vars[m_i]
                 else
-                    mons_pos_D[m1]= (i,j)
+                    # Create a new JuMP variable
+                    new_var = @variable(model)
+                    # Store the new variable in the dictionary
+                    push!(unique_mons, m1)
+                    push!(unique_vars, new_var)
+                    # Use the new variable in the matrix
+                    moments_matrix[i, j] += c*new_var
                 end
-            else
-                monomial_product = list_monomials[i]'* cPoly * list_monomials[j]
-                if monomial_product == 0
-                    @constraint(model, X[offset+i,offset+j] == 0)
-                    continue
-                end
-                PMpoly = 0
-                for (m,c) in monomial_product
-                    m1,m2 = cyclic_reduce(m),cyclic_reduce(m')
-                    if !haskey(mons_pos_D,m1) && !haskey(mons_pos_D,m2)
-                        throw(ArgumentError("level not enough"))
-                    end
-                    upi,upj = haskey(mons_pos_D,m1) ? mons_pos_D[m1] : mons_pos_D[m2]
-                    PMpoly += c*X[upi,upj]
-                end
-                @constraint(model, X[offset+i,offset+j] - PMpoly == 0)
             end
         end
     end
 
-    if extra_zeros
-        for i in 1:num_monomials
-            for j in 1:offset
-                @constraint(model, X[offset+i , j] == 0.0)
-            end
-        end
-
-        for i in 1:num_monomials
-            for j in offset+num_monomials+1:tsize
-                @constraint(model, X[offset+i , j] == 0.0)
-            end
-        end
+    if !eq
+        @constraint(model, moments_matrix >=0,PSDCone())
+    else
+        @constraint(model, moments_matrix .== 0)
     end
 
-    if cPoly == 1
-        return mons_pos_D
-    end
-
+    return moments_matrix, unique_mons, unique_vars
 end
 
-function npa_moments_block!(list_monomials::Vector{M},X,tsize,model;cPoly=1,mons_pos_D=Dict([]),offset=0,extra_zeros=false) where M<:AbstractMonomial
+function npa_moments_block(list_monomials::Vector{M},model;cPoly=1,unique_mons=[],unique_vars=[],eq=false) where M<:AbstractMonomial
 
     # Get the number of monomials
     num_monomials = length(list_monomials)
 
+    # Initialize the matrix of JuMP variables
+    moments_matrix = Matrix{JuMP.AffExpr}(undef, num_monomials, num_monomials)
+
     # Iterate over the list of monomials to fill the matrix
     for i in 1:num_monomials
         for j in i:num_monomials
-
-            if cPoly == 1
-                m = real_rep(list_monomials[i]'* list_monomials[j])
-                if m == 0
-                    @constraint(model, X[i,j] == 0)
-                    continue
-                end
-                if haskey(mons_pos_D,m)
+            # Compute the product of the monomials
+            monomial_product = real_rep(Polynomial(list_monomials[i]'* cPoly * list_monomials[j]))
+            # Initialize the JuMP variable for the matrix entry
+            moments_matrix[i, j] = 0.0
+            for (m,c) in monomial_product
+                # Check if the product already exists in the dictionary
+                m_i=findfirst(x->(x==m),unique_mons)
+                if m_i !== nothing
                     # Use the existing JuMP variable
-                    upi,upj = mons_pos_D[m]
-                    @constraint(model, X[i,j] - X[upi,upj] == 0)
+                    moments_matrix[i, j] += c*unique_vars[m_i]
                 else
-                    mons_pos_D[m] = (i,j)
+                    # Create a new JuMP variable
+                    new_var = @variable(model)
+                    # Store the new variable in the dictionary
+                    push!(unique_mons, m)
+                    push!(unique_vars, new_var)
+                    # Use the new variable in the matrix
+                    moments_matrix[i, j] += c*new_var
                 end
-            else
-                monomial_product = real_rep(Polynomial(list_monomials[i]'* cPoly * list_monomials[j]))
-                # assume the monomials PM exists and m and m' are in pm.
-                if monomial_product == 0
-                    @constraint(model, X[offset+i,offset+j] == 0)
-                    continue
-                end
-                PMpoly = 0
-                for (m,c) in monomial_product
-                    upi,upj = mons_pos_D[m]
-                    PMpoly += c*X[upi,upj]
-                end
-                @constraint(model, X[offset+i,offset+j] - PMpoly == 0)
+            end
+            if i != j
+                moments_matrix[j, i] = moments_matrix[i, j]
             end
         end
     end
-
-    if extra_zeros
-        for i in 1:num_monomials
-            for j in 1:offset
-                @constraint(model,X[offset+i , j] == 0.0)
-            end
-        end
-
-        for i in 1:num_monomials
-            for j in offset+num_monomials+1:tsize
-                @constraint(model,X[offset+i , j] == 0.0)
-            end
-        end
+    if !eq
+        @constraint(model, moments_matrix in PSDCone())
+    else
+        @constraint(model, moments_matrix .== 0)
     end
-
-    if cPoly == 1
-        return mons_pos_D
-    end
+    return moments_matrix, unique_mons, unique_vars
 end
 function npa(obj, level;
     min=true,
@@ -283,9 +252,7 @@ function npa(obj, level;
     normalize=true,
     optimizer=Mosek.Optimizer,
     model_flags=[],
-    rm=false,
-    extra_zeros=false
-    )
+    rm=false)
 
     # Delete redundant polynomials(polynomials which are numbers, so k*Id) from the op_ge and op_eq and warn for incompatible polynomials in op_ge and op_eq
     !isempty(op_ge) && (op_ge=sanity_check_op_ge(op_ge))
@@ -308,127 +275,107 @@ function npa(obj, level;
             ops = mons_at_level(vars, lvl_lm)
         end
     end
-    println("Number of operators in the principal moment matrix: ", length(ops_principal))
+    println("Number of operators in the principal moment matrix and LMI: ", length(ops_principal)," ",length(ops))
     model=Model(optimizer)
     for (flag,val) in model_flags
         set_optimizer_attribute(model,flag,val)
     end
-    tsize=sum([[length(ops_principal)];[length(ops) for i in 1:length(op_ge)];[2*length(ops) for i in 1:length(op_eq)]])
-
-    println("Size of the PSD variable: ", tsize, "x", tsize)
-    X = @variable(model, [1:tsize, 1:tsize], PSD)
-    mons_pos_D = cyclic ? cyclic_npa_moments_block!(ops_principal,X,tsize,model; extra_zeros=extra_zeros) : npa_moments_block!(ops_principal,X,tsize,model; extra_zeros=extra_zeros)
-    offset = length(ops_principal)
-    println("Done building PM")
-
-    for i in 1:length(op_ge)
-        if cyclic
-            cyclic_npa_moments_block!(ops,X,tsize,model; cPoly=op_ge[i], mons_pos_D=mons_pos_D, offset=offset, extra_zeros=extra_zeros) 
-        else
-            npa_moments_block!(ops,X,tsize,model; cPoly=op_ge[i], mons_pos_D=mons_pos_D, offset=offset, extra_zeros=extra_zeros) 
-        end
-        offset += length(ops)
-    end
-
-    println("Done building LMI")
-
-    for i in 1:length(op_eq)
-        if cyclic
-            cyclic_npa_moments_block!(ops,X,tsize,model; cPoly=op_eq[i], mons_pos_D=mons_pos_D, offset=offset, extra_zeros=extra_zeros) 
-            offset += length(ops)
-            cyclic_npa_moments_block!(ops,X,tsize,model; cPoly=-op_eq[i], mons_pos_D=mons_pos_D, offset=offset, extra_zeros=extra_zeros)
-            offset += length(ops) 
-
-        else
-            npa_moments_block!(ops,X,tsize,model; cPoly=op_eq[i], mons_pos_D=mons_pos_D, offset=offset, extra_zeros=extra_zeros) 
-            offset += length(ops)
-            npa_moments_block!(ops,X,tsize,model; cPoly=-op_eq[i], mons_pos_D=mons_pos_D, offset=offset, extra_zeros=extra_zeros)
-            offset += length(ops)
-        end
-    end
-
+    principal_moments_matrix, unique_mons, unique_vars = cyclic ? cyclic_npa_moments_block(ops_principal,model) : npa_moments_block(ops_principal,model)
     # Add the constraints for the principal moment matrix
 
-    for i in 1:length(tr_eq)
-        tr_eq_p = 0
-        if cyclic
-            for (m,c) in Polynomial(tr_eq[i][1])
-                m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
-                upi,upj = haskey(mons_pos_D,m1) ? mons_pos_D[m1] : mons_pos_D[m2]
-                tr_eq_p += c*X[upi,upj]
+    if !isempty(tr_eq)
+        for i in 1:length(tr_eq)
+            tr_eq_p=0
+            if cyclic
+                for (m,c) in Polynomial(tr_eq[i][1])
+                    m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
+                    m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
+                    tr_eq_p+=c*unique_vars[m_i]
+                end
+            else
+                tr_eq_poly=real_rep(Polynomial(Polynomial(tr_eq[i][1])))
+                for (m,c) in tr_eq_poly
+                    m_i=findfirst(x->x==m,unique_mons)
+                    tr_eq_p+=c*unique_vars[m_i]
+                end
             end
-
-        else
-            tr_eq_poly=real_rep(Polynomial(Polynomial(tr_eq[i][1])))
-            for (m,c) in tr_eq_poly
-                upi,upj = mons_pos_D[m]
-                tr_eq_p += c*X[upi,upj]
+            @constraint(model, tr_eq_p == tr_eq[i][2])
+        end
+    end
+    if !isempty(tr_ge)
+        for i in 1:length(tr_ge)
+            tr_ge_p=0
+            if cyclic
+                for (m,c) in Polynomial(tr_ge[i][1])
+                    m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
+                    m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
+                    tr_ge_p+=c*unique_vars[m_i]
+                end
+            else
+                tr_ge_poly=real_rep(Polynomial(Polynomial(tr_ge[i][1])))
+                for (m,c) in tr_ge_poly
+                    m_i=findfirst(x->x==m,unique_mons)
+                    tr_ge_p+=c*unique_vars[m_i]
+                end
+            end
+            @constraint(model, tr_ge_p >= tr_ge[i][2])
+        end
+    end
+    if !isempty(op_ge)
+        for i in 1:length(op_ge)
+            if cyclic
+                cyclic_npa_moments_block(ops,model; cPoly=op_ge[i],unique_mons=unique_mons, unique_vars=unique_vars) 
+            else
+                npa_moments_block(ops,model; cPoly=op_ge[i], unique_mons=unique_mons, unique_vars=unique_vars) 
             end
         end
-        @constraint(model, tr_eq_p - tr_eq[i][2] == 0)
     end
+    if !isempty(op_eq)
+        for i in 1:length(op_eq)
+            if cyclic
+                cyclic_npa_moments_block(ops,model; cPoly=op_eq[i],unique_mons=unique_mons, unique_vars=unique_vars,eq=true) 
 
-    for i in 1:length(tr_ge)
-        tr_ge_p=0
-        if cyclic
-            for (m,c) in Polynomial(tr_ge[i][1])
-                m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
-                upi,upj = haskey(mons_pos_D,m1) ? mons_pos_D[m1] : mons_pos_D[m2]
-                tr_ge_p+=c*X[upi,upj]
-            end
-        else
-            tr_ge_poly=real_rep(Polynomial(Polynomial(tr_ge[i][1])))
-            for (m,c) in tr_ge_poly
-                upi,upj = mons_pos_D[m]
-                tr_ge_p+=c*X[upi,upj]
+            else
+                npa_moments_block(ops,model; cPoly=op_eq[i], unique_mons=unique_mons, unique_vars=unique_vars,eq=true) 
+
             end
         end
-        @constraint(model, tr_ge_p >= tr_ge[i][2])
     end
-
-    println("Done building trace constraints")
-
     if normalize
         id_elem=one(first(ops_principal))
         if cyclic
             id_elem=cyclic_reduce(id_elem)
+            @constraint(model,unique_vars[findfirst(check->check==id_elem,unique_mons)]==1.0)
+        else
+            @constraint(model,unique_vars[findfirst(check->check==id_elem,unique_mons)]==1.0)
         end
-        upi,upj = mons_pos_D[id_elem]   
-        @constraint(model, X[upi,upj] == 1)
     end
-    println("Done building normalization constraint")
-    obj_p = 0
     if !is_number(obj)
+        obj_p=0
         if cyclic
             for (m,c) in Polynomial(obj)
                 m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
-                if !haskey(mons_pos_D,m1) && !haskey(mons_pos_D,m2)
+                m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
+                if m_i==nothing
                     throw(ArgumentError("level not enough"))
                 end
-                upi,upj = haskey(mons_pos_D,m1) ? mons_pos_D[m1] : mons_pos_D[m2]
-                obj_p += c*X[upi,upj]
+                obj_p+=c*unique_vars[m_i]
             end
         else
             obj_poly=real_rep(Polynomial(Polynomial(obj)))
             for (m,c) in obj_poly
-                if !haskey(mons_pos_D,m)
+                m_i=findfirst(x->x==m,unique_mons)
+                if m_i==nothing
                     throw(ArgumentError("level not enough"))
                 end
-                upi,upj = mons_pos_D[m]
-                obj_p += c*X[upi,upj]
+                obj_p+=c*unique_vars[m_i]
             end
         end
         
-    end
-    println("Done building objective")
-    if rm
-        return mons_pos_D,model,X,ops_principal
-    end
-
-
-    # Impose the objective
-    if !is_number(obj)
         min ? @objective(model, Min, obj_p) : @objective(model, Max, obj_p)
+    end
+    if rm
+        return model,Dict(zip(unique_mons,unique_vars)),principal_moments_matrix
     end
     # Solve the model
     optimize!(model)
@@ -438,15 +385,19 @@ function npa(obj, level;
     end
     # Extract the optimal value of the objective function
     optimal_value = objective_value(model)
-
+    # Extract the optimal values of the variables and store it as a dictionary
+    optimal_vars = Dict{AbstractMonomial, Float64}()
+    for i in 1:length(unique_mons)
+        optimal_vars[unique_mons[i]] = value(unique_vars[i])
+    end
     # Return the optimal value and the dictionary of optimal variables
     # return optimal_value, optimal_vars, model
 
     if is_number(obj)
         @warn "The objective function is a constant, it is a feasibility check"
-        return termination_status(model),model,ops_principal,mons_pos_D
+        return termination_status(model),model,ops_principal,Dict(zip(unique_mons,unique_vars)),principal_moments_matrix
     end
 
-    return optimal_value, model,ops_principal,mons_pos_D
+    return optimal_value, model,ops_principal,Dict(zip(unique_mons,unique_vars)),principal_moments_matrix
 
 end

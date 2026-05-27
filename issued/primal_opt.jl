@@ -148,7 +148,7 @@ function get_monomials(obj, level;
 end
 
 
-function cyclic_npa_moments_block!(list_monomials::Vector{M},X,tsize,model;cPoly=1,mons_pos_D=Dict([]),offset=0,extra_zeros=false) where M<:AbstractMonomial
+function cyclic_npa_moments_block!(list_monomials::Vector{M},X,tsize,model;cPoly=1,unique_mons=[],unique_pos=[],offset=0,extra_zeros=false) where M<:AbstractMonomial
 
     # Get the number of monomials
     num_monomials = length(list_monomials)
@@ -166,13 +166,15 @@ function cyclic_npa_moments_block!(list_monomials::Vector{M},X,tsize,model;cPoly
                     @constraint(model, X[i,j] == 0)
                     continue
                 end
-                if  haskey(mons_pos_D,m1) || haskey(mons_pos_D,m2)
+                m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
+                if m_i !== nothing
                     # Use the existing JuMP variable
-                    upi,upj = haskey(mons_pos_D,m1) ? mons_pos_D[m1] : mons_pos_D[m2]
+                    upi,upj = unique_pos[m_i]
                     @constraint(model, X[i,j] - X[upi,upj] == 0)
 
                 else
-                    mons_pos_D[m1]= (i,j)
+                    push!(unique_mons, m1)
+                    push!(unique_pos, (i,j))
                 end
             else
                 monomial_product = list_monomials[i]'* cPoly * list_monomials[j]
@@ -183,10 +185,11 @@ function cyclic_npa_moments_block!(list_monomials::Vector{M},X,tsize,model;cPoly
                 PMpoly = 0
                 for (m,c) in monomial_product
                     m1,m2 = cyclic_reduce(m),cyclic_reduce(m')
-                    if !haskey(mons_pos_D,m1) && !haskey(mons_pos_D,m2)
+                    mi = findfirst(x->(x==m1 || x==m2),unique_mons)
+                    if mi === nothing
                         throw(ArgumentError("level not enough"))
                     end
-                    upi,upj = haskey(mons_pos_D,m1) ? mons_pos_D[m1] : mons_pos_D[m2]
+                    upi,upj = unique_pos[mi]
                     PMpoly += c*X[upi,upj]
                 end
                 @constraint(model, X[offset+i,offset+j] - PMpoly == 0)
@@ -209,12 +212,12 @@ function cyclic_npa_moments_block!(list_monomials::Vector{M},X,tsize,model;cPoly
     end
 
     if cPoly == 1
-        return mons_pos_D
+        return unique_mons,unique_pos
     end
 
 end
 
-function npa_moments_block!(list_monomials::Vector{M},X,tsize,model;cPoly=1,mons_pos_D=Dict([]),offset=0,extra_zeros=false) where M<:AbstractMonomial
+function npa_moments_block!(list_monomials::Vector{M},X,tsize,model;cPoly=1,unique_mons=[],unique_pos=[],offset=0,extra_zeros=false) where M<:AbstractMonomial
 
     # Get the number of monomials
     num_monomials = length(list_monomials)
@@ -229,12 +232,14 @@ function npa_moments_block!(list_monomials::Vector{M},X,tsize,model;cPoly=1,mons
                     @constraint(model, X[i,j] == 0)
                     continue
                 end
-                if haskey(mons_pos_D,m)
+                m_i=findfirst(x->(x==m),unique_mons)
+                if m_i !== nothing
                     # Use the existing JuMP variable
-                    upi,upj = mons_pos_D[m]
+                    upi,upj = unique_pos[m_i]
                     @constraint(model, X[i,j] - X[upi,upj] == 0)
                 else
-                    mons_pos_D[m] = (i,j)
+                    push!(unique_mons, m)
+                    push!(unique_pos, (i,j))
                 end
             else
                 monomial_product = real_rep(Polynomial(list_monomials[i]'* cPoly * list_monomials[j]))
@@ -245,7 +250,8 @@ function npa_moments_block!(list_monomials::Vector{M},X,tsize,model;cPoly=1,mons
                 end
                 PMpoly = 0
                 for (m,c) in monomial_product
-                    upi,upj = mons_pos_D[m]
+                    m_i=findfirst(x->(x==m),unique_mons)
+                    upi,upj = unique_pos[m_i]
                     PMpoly += c*X[upi,upj]
                 end
                 @constraint(model, X[offset+i,offset+j] - PMpoly == 0)
@@ -256,6 +262,7 @@ function npa_moments_block!(list_monomials::Vector{M},X,tsize,model;cPoly=1,mons
     if extra_zeros
         for i in 1:num_monomials
             for j in 1:offset
+                Ai=spzeros(tsize*tsize)
                 @constraint(model,X[offset+i , j] == 0.0)
             end
         end
@@ -268,7 +275,7 @@ function npa_moments_block!(list_monomials::Vector{M},X,tsize,model;cPoly=1,mons
     end
 
     if cPoly == 1
-        return mons_pos_D
+        return unique_mons,unique_pos
     end
 end
 function npa(obj, level;
@@ -317,15 +324,15 @@ function npa(obj, level;
 
     println("Size of the PSD variable: ", tsize, "x", tsize)
     X = @variable(model, [1:tsize, 1:tsize], PSD)
-    mons_pos_D = cyclic ? cyclic_npa_moments_block!(ops_principal,X,tsize,model; extra_zeros=extra_zeros) : npa_moments_block!(ops_principal,X,tsize,model; extra_zeros=extra_zeros)
+    unique_mons,unique_pos = cyclic ? cyclic_npa_moments_block!(ops_principal,X,tsize,model; extra_zeros=extra_zeros) : npa_moments_block!(ops_principal,X,tsize,model; extra_zeros=extra_zeros)
     offset = length(ops_principal)
     println("Done building PM")
 
     for i in 1:length(op_ge)
         if cyclic
-            cyclic_npa_moments_block!(ops,X,tsize,model; cPoly=op_ge[i], mons_pos_D=mons_pos_D, offset=offset, extra_zeros=extra_zeros) 
+            cyclic_npa_moments_block!(ops,X,tsize,model; cPoly=op_ge[i], unique_mons=unique_mons, unique_pos=unique_pos, offset=offset, extra_zeros=extra_zeros) 
         else
-            npa_moments_block!(ops,X,tsize,model; cPoly=op_ge[i], mons_pos_D=mons_pos_D, offset=offset, extra_zeros=extra_zeros) 
+            npa_moments_block!(ops,X,tsize,model; cPoly=op_ge[i], unique_mons=unique_mons, unique_pos=unique_pos, offset=offset, extra_zeros=extra_zeros) 
         end
         offset += length(ops)
     end
@@ -334,15 +341,15 @@ function npa(obj, level;
 
     for i in 1:length(op_eq)
         if cyclic
-            cyclic_npa_moments_block!(ops,X,tsize,model; cPoly=op_eq[i], mons_pos_D=mons_pos_D, offset=offset, extra_zeros=extra_zeros) 
+            cyclic_npa_moments_block!(ops,X,tsize,model; cPoly=op_eq[i], unique_mons=unique_mons, unique_pos=unique_pos, offset=offset, extra_zeros=extra_zeros) 
             offset += length(ops)
-            cyclic_npa_moments_block!(ops,X,tsize,model; cPoly=-op_eq[i], mons_pos_D=mons_pos_D, offset=offset, extra_zeros=extra_zeros)
+            cyclic_npa_moments_block!(ops,X,tsize,model; cPoly=-op_eq[i], unique_mons=unique_mons, unique_pos=unique_pos, offset=offset, extra_zeros=extra_zeros)
             offset += length(ops) 
 
         else
-            npa_moments_block!(ops,X,tsize,model; cPoly=op_eq[i], mons_pos_D=mons_pos_D, offset=offset, extra_zeros=extra_zeros) 
+            npa_moments_block!(ops,X,tsize,model; cPoly=op_eq[i], unique_mons=unique_mons, unique_pos=unique_pos, offset=offset, extra_zeros=extra_zeros) 
             offset += length(ops)
-            npa_moments_block!(ops,X,tsize,model; cPoly=-op_eq[i], mons_pos_D=mons_pos_D, offset=offset, extra_zeros=extra_zeros)
+            npa_moments_block!(ops,X,tsize,model; cPoly=-op_eq[i], unique_mons=unique_mons, unique_pos=unique_pos, offset=offset, extra_zeros=extra_zeros)
             offset += length(ops)
         end
     end
@@ -354,14 +361,16 @@ function npa(obj, level;
         if cyclic
             for (m,c) in Polynomial(tr_eq[i][1])
                 m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
-                upi,upj = haskey(mons_pos_D,m1) ? mons_pos_D[m1] : mons_pos_D[m2]
+                m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
+                upi,upj = unique_pos[m_i]
                 tr_eq_p += c*X[upi,upj]
             end
 
         else
             tr_eq_poly=real_rep(Polynomial(Polynomial(tr_eq[i][1])))
             for (m,c) in tr_eq_poly
-                upi,upj = mons_pos_D[m]
+                mi = findfirst(x->x==m,unique_mons)
+                upi,upj = unique_pos[mi]
                 tr_eq_p += c*X[upi,upj]
             end
         end
@@ -373,14 +382,14 @@ function npa(obj, level;
         if cyclic
             for (m,c) in Polynomial(tr_ge[i][1])
                 m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
-                upi,upj = haskey(mons_pos_D,m1) ? mons_pos_D[m1] : mons_pos_D[m2]
-                tr_ge_p+=c*X[upi,upj]
+                m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
+                tr_ge_p+=c*X[unique_pos[m_i]...]
             end
         else
             tr_ge_poly=real_rep(Polynomial(Polynomial(tr_ge[i][1])))
             for (m,c) in tr_ge_poly
-                upi,upj = mons_pos_D[m]
-                tr_ge_p+=c*X[upi,upj]
+                m_i = findfirst(x->x==m,unique_mons)
+                tr_ge_p+=c*X[unique_pos[m_i]...]
             end
         end
         @constraint(model, tr_ge_p >= tr_ge[i][2])
@@ -392,8 +401,11 @@ function npa(obj, level;
         id_elem=one(first(ops_principal))
         if cyclic
             id_elem=cyclic_reduce(id_elem)
+            id_i=findfirst(x->x==id_elem,unique_mons)
+        else
+            id_i = findfirst(x->x==id_elem,unique_mons)
         end
-        upi,upj = mons_pos_D[id_elem]   
+        upi,upj= unique_pos[id_i]   
         @constraint(model, X[upi,upj] == 1)
     end
     println("Done building normalization constraint")
@@ -402,19 +414,21 @@ function npa(obj, level;
         if cyclic
             for (m,c) in Polynomial(obj)
                 m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
-                if !haskey(mons_pos_D,m1) && !haskey(mons_pos_D,m2)
+                m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
+                if m_i==nothing
                     throw(ArgumentError("level not enough"))
                 end
-                upi,upj = haskey(mons_pos_D,m1) ? mons_pos_D[m1] : mons_pos_D[m2]
+                upi,upj = unique_pos[m_i]
                 obj_p += c*X[upi,upj]
             end
         else
             obj_poly=real_rep(Polynomial(Polynomial(obj)))
             for (m,c) in obj_poly
-                if !haskey(mons_pos_D,m)
+                mi = findfirst(x->x==m,unique_mons)
+                if mi==nothing
                     throw(ArgumentError("level not enough"))
                 end
-                upi,upj = mons_pos_D[m]
+                upi,upj = unique_pos[mi]
                 obj_p += c*X[upi,upj]
             end
         end
@@ -422,7 +436,7 @@ function npa(obj, level;
     end
     println("Done building objective")
     if rm
-        return mons_pos_D,model,X,ops_principal
+        return Dict(zip(unique_mons, unique_pos)),model,ops_principal
     end
 
 
@@ -444,9 +458,9 @@ function npa(obj, level;
 
     if is_number(obj)
         @warn "The objective function is a constant, it is a feasibility check"
-        return termination_status(model),model,ops_principal,mons_pos_D
+        return termination_status(model),model,ops_principal,Dict(zip(unique_mons, unique_pos))
     end
 
-    return optimal_value, model,ops_principal,mons_pos_D
+    return optimal_value, model,ops_principal,Dict(zip(unique_mons, unique_pos))
 
 end
