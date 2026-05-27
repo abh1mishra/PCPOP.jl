@@ -22,7 +22,7 @@ function jordan_reduce(C, A, b; verbose=false, complex=false, epsilon=Base.rtold
     if diagonalize
         return jordan_reduce_diagonal(C, A, b; verbose=verbose, complex=complex, epsilon=epsilon)
     else
-        P = admissible_subspace(SDPSymmetryReduction.Partition{UInt32}, C, A, b; verbose=verbose)
+        P = admissible_subspace(SDPSymmetryReduction.Partition{UInt64}, C, A, b; verbose=verbose)
         PMat = hcat([sparse(vec(P.matrix .== i)) for i = 1:P.nparts]...)
         newA = A * PMat
         newB = b
