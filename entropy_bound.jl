@@ -130,16 +130,20 @@ za = adjoint.(z)
 # Objective function 
 t=0.1
 α = 3/2*max(1/t, 1/(1-t))
-f(z0,z1,t) = (1/t)*(one(M) + (z0+z1) + (1-t)*(z1*z0) + t*(z0*z1))
-obj = a0*f(z[1], za[1],t) + (1-a0)*f(z[2], za[2],t)
+F(z0,z1,t) = (1/t)*(one(M) + (z0+z1) + (1-t)*(z1*z0) + t*(z0*z1))
+obj = a0*F(z[1], za[1],t) + (1-a0)*F(z[2], za[2],t)
 # Constraints
 B  = (1-2*a0)*(1-2*b0) + (1-2*a0)*(1-2*b1)
 B += (1-2*a1)*(1-2*b0) - (1-2*a1)*(1-2*b1)
 tr_ge = [(B, 2*sqrt(2))]
 op_ge =[α - z[1]*za[1], α - za[1]*z[1],
         α - z[2]*za[2], α - za[2]*z[2]]
-# Γ,Cvec, Amat,Bvec=npa_dual(obj, 2; op_ge=op_ge, tr_eq=tr_ge,rm=true)
-ov,model,_=npa_dual(obj, 2; op_ge=op_ge, tr_eq=tr_ge)
-model_red, P, blkD = jordan_reduce(Cvec, Amat, Bvec; verbose=true,complex=true)
 
-# Optimize semidefinite relaxation
+# Full semidefinite program
+println("Solving SDP relaxation...")
+ov,model,_=npa_dual(obj, 1; op_ge=op_ge, tr_eq=tr_ge)
+
+# Jordan reduction semidefinite program
+println("Solving Jordan reduced SDP relaxation...")
+Γ,C, A, b = npa_dual(obj, 1; op_ge=op_ge, tr_eq=tr_ge,rm=true)
+model_red, P, blkD = jordan_reduce(C, A, b; verbose=true,complex=true, epsilon=1e-4)
