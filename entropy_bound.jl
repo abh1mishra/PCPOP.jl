@@ -141,9 +141,15 @@ op_ge =[α - z[1]*za[1], α - za[1]*z[1],
 
 # Full semidefinite program
 println("Solving SDP relaxation...")
-ov,model,_=npa_dual(obj, 1; op_ge=op_ge, tr_eq=tr_ge)
+ov,model,_=npa_dual(obj, 1; min=false, op_ge=op_ge, tr_eq=tr_ge)
+println("Termination status: ", termination_status(model))
+println("Objective value: ", objective_value(model))
 
 # Jordan reduction semidefinite program
 println("Solving Jordan reduced SDP relaxation...")
-Γ,C, A, b = npa_dual(obj, 1; op_ge=op_ge, tr_eq=tr_ge,rm=true)
-model_red, P, blkD = jordan_reduce(C, A, b; verbose=true,complex=true, epsilon=1e-4)
+k = 2
+diagonalize=false
+Γ,C, A, b = npa_dual(obj, k; op_ge=op_ge, tr_eq=tr_ge,rm=true)
+model, P, blkD = jordan_reduce(C, A, b; verbose=true,complex=true, diagonalize=diagonalize)
+println("Termination status: ", termination_status(model))
+println("Objective value: ", objective_value(model))

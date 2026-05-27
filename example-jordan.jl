@@ -9,9 +9,12 @@ build(M)
 f = a*c + a*d + b*c - b*d
 
 # Optimimzation
-k = 2 
+k = 1
+diagonalize=true
 Γ, C, A, b  = npa_dual(f, k, rm=true)
-model, P, blkD = jordan_reduce(C, A, b, verbose=true, complex=true)
+model, P, blkD = jordan_reduce(C, A, b, verbose=true, complex=true, diagonalize=diagonalize)
+println("Termination status: ", termination_status(model))
+println("Objective value: ", objective_value(model))
 
 # # Example statepop 7.2.1
 # @pcmonoid M a[2,0] b[2,0]
