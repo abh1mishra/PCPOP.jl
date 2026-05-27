@@ -28,7 +28,6 @@ append!(R, [one(M) - sum(A[3:4,3:4])])
 
 # Semidefinite relaxation
 println("Building model...")
-op_eq=R
 val,model,_,_ = npa(p, 1, min=false, op_eq=R)
 
 println("Termination status ", termination_status(model))

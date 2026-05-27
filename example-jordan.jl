@@ -10,7 +10,7 @@ f = a*c + a*d + b*c - b*d
 
 # Optimimzation
 k = 1
-diagonalize=true
+diagonalize=false
 Γ, C, A, b  = npa_dual(f, k, rm=true)
 model, P, blkD = jordan_reduce(C, A, b, verbose=true, complex=true, diagonalize=diagonalize)
 println("Termination status: ", termination_status(model))

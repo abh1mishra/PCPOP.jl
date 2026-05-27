@@ -148,7 +148,7 @@ println("Objective value: ", objective_value(model))
 # Jordan reduction semidefinite program
 println("Solving Jordan reduced SDP relaxation...")
 k = 2
-diagonalize=false
+diagonalize=true
 Γ,C, A, b = npa_dual(obj, k; op_ge=op_ge, tr_eq=tr_ge,rm=true)
 model, P, blkD = jordan_reduce(C, A, b; verbose=true,complex=true, diagonalize=diagonalize)
 println("Termination status: ", termination_status(model))

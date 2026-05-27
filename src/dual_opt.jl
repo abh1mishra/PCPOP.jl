@@ -144,6 +144,7 @@ function npa_moments_block_dual!(list_monomials::Vector{M},A,B,tsize;cPoly=1,uni
                 Ai[(offset+i-1)*tsize + (offset+j)] = 1.0
                 for (m,c) in monomial_product
                     m_i=findfirst(x->(x==m),unique_mons)
+                    m_i == nothing && println(m)
                     upi,upj = unique_pos[m_i]
                     Ai[(upi-1)*tsize + upj] = -c
                 end
@@ -179,10 +180,10 @@ function npa_moments_block_dual!(list_monomials::Vector{M},A,B,tsize;cPoly=1,uni
 end
 function npa_dual(obj, level;
     min=true,
-    op_eq = 0, 
-    op_ge = 0,
-    tr_eq = 0,
-    tr_ge = 0,
+    op_eq = [], 
+    op_ge = [],
+    tr_eq = [],
+    tr_ge = [],
     lvl_lm=-1,
     list_vars=[],
     cyclic=false,
@@ -194,8 +195,8 @@ function npa_dual(obj, level;
     )
 
     # Delete redundant polynomials(polynomials which are numbers, so k*Id) from the op_ge and op_eq and warn for incompatible polynomials in op_ge and op_eq
-    op_ge!=0 && (op_ge=sanity_check_op_ge(op_ge))
-    op_eq!=0 && (op_eq=sanity_check_op_eq(op_eq))
+    !isempty(op_ge) && (op_ge=sanity_check_op_ge(op_ge))
+    !isempty(op_eq) && (op_eq=sanity_check_op_eq(op_eq))
     if all(is_number.(vcat([obj, op_ge..., op_eq...],[tr_ge[i][1] for i in 1:length(tr_ge)], [tr_eq[i][1] for i in 1:length(tr_eq)])))
         @warn "All the input polynomials are constants. The optimization will be trivial."
         isempty(list_vars) && throw(ArgumentError("The list of variables is empty. Please provide a non-empty list of variables."))
@@ -222,93 +223,83 @@ function npa_dual(obj, level;
     A=Vector{SparseMatrixCSC{Float64, Int64}}([])
     B=Float64[]
     println("op_ge",length(op_ge))
-    tsize=length(ops_principal)
-    if op_ge!=0
-        for i in 1:length(op_ge)
-            tsize+=length(ops)
-        end
-    end
-    if op_eq!=0
-        for i in 1:length(op_eq)
-            tsize+=2*length(ops)
-        end
-    end
+    tsize=sum([[length(ops_principal)];[length(ops) for i in 1:length(op_ge)];[2*length(ops) for i in 1:length(op_eq)]])
+
     println("Size of the PSD variable: ", tsize, "x", tsize)
     X = @variable(model, [1:tsize, 1:tsize], PSD)
     unique_mons,unique_pos = cyclic ? cyclic_npa_moments_block_dual!(ops_principal,A,B,tsize; extra_zeros=extra_zeros) : npa_moments_block_dual!(ops_principal,A,B,tsize; extra_zeros=extra_zeros)
     offset = length(ops_principal)
     println("Done building PM")
-    if op_ge!=0
-        for i in 1:length(op_ge)
-            if cyclic
-                cyclic_npa_moments_block_dual!(ops,A,B,tsize; cPoly=op_ge[i], unique_mons=unique_mons, unique_pos=unique_pos, offset=offset, extra_zeros=extra_zeros) 
-            else
-                npa_moments_block_dual!(ops,A,B,tsize; cPoly=op_ge[i], unique_mons=unique_mons, unique_pos=unique_pos, offset=offset, extra_zeros=extra_zeros) 
-            end
+
+    for i in 1:length(op_ge)
+        if cyclic
+            cyclic_npa_moments_block_dual!(ops,A,B,tsize; cPoly=op_ge[i], unique_mons=unique_mons, unique_pos=unique_pos, offset=offset, extra_zeros=extra_zeros) 
+        else
+            npa_moments_block_dual!(ops,A,B,tsize; cPoly=op_ge[i], unique_mons=unique_mons, unique_pos=unique_pos, offset=offset, extra_zeros=extra_zeros) 
+        end
+        offset += length(ops)
+    end
+
+    println("Done building LMI")
+
+    for i in 1:length(op_eq)
+        if cyclic
+            cyclic_npa_moments_block_dual!(ops,A,B,tsize; cPoly=op_eq[i], unique_mons=unique_mons, unique_pos=unique_pos, offset=offset, extra_zeros=extra_zeros) 
+            offset += length(ops)
+            cyclic_npa_moments_block_dual!(ops,A,B,tsize; cPoly=-op_eq[i], unique_mons=unique_mons, unique_pos=unique_pos, offset=offset, extra_zeros=extra_zeros)
+            offset += length(ops) 
+
+        else
+            npa_moments_block_dual!(ops,A,B,tsize; cPoly=op_eq[i], unique_mons=unique_mons, unique_pos=unique_pos, offset=offset, extra_zeros=extra_zeros) 
+            offset += length(ops)
+            npa_moments_block_dual!(ops,A,B,tsize; cPoly=-op_eq[i], unique_mons=unique_mons, unique_pos=unique_pos, offset=offset, extra_zeros=extra_zeros)
             offset += length(ops)
         end
     end
-    println("Done building LMI")
-    if op_eq!=0
-        for i in 1:length(op_eq)
-            if cyclic
-                cyclic_npa_moments_block_dual!(ops,A,B,tsize; cPoly=op_eq[i], unique_mons=unique_mons, unique_pos=unique_pos, offset=offset, extra_zeros=extra_zeros) 
-                offset += length(ops)
-                cyclic_npa_moments_block_dual!(ops,A,B,tsize; cPoly=-op_eq[i], unique_mons=unique_mons, unique_pos=unique_pos, offset=offset, extra_zeros=extra_zeros)
-                offset += length(ops) 
 
-            else
-                npa_moments_block_dual!(ops,A,B,tsize; cPoly=op_eq[i], unique_mons=unique_mons, unique_pos=unique_pos, offset=offset, extra_zeros=extra_zeros) 
-                offset += length(ops)
-                npa_moments_block_dual!(ops,A,B,tsize; cPoly=-op_eq[i], unique_mons=unique_mons, unique_pos=unique_pos, offset=offset, extra_zeros=extra_zeros)
-                offset += length(ops)
-            end
-        end
-    end
     # Add the constraints for the principal moment matrix
-    if tr_eq!=0
-        for i in 1:length(tr_eq)
-            Ai=spzeros(tsize * tsize)
-            if cyclic
-                for (m,c) in Polynomial(tr_eq[i][1])
-                    m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
-                    m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
-                    upi,upj = unique_pos[m_i]
-                    Ai[(upi-1)*tsize + upj] = c
-                end
 
-            else
-                tr_eq_poly=real_rep(Polynomial(Polynomial(tr_eq[i][1])))
-                for (m,c) in tr_eq_poly
-                    mi = findfirst(x->x==m,unique_mons)
-                    upi,upj = unique_pos[mi]
-                    Ai[(upi-1)*tsize + upj] = c
-                end
+    for i in 1:length(tr_eq)
+        Ai=spzeros(tsize * tsize)
+        if cyclic
+            for (m,c) in Polynomial(tr_eq[i][1])
+                m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
+                m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
+                upi,upj = unique_pos[m_i]
+                Ai[(upi-1)*tsize + upj] = c
             end
-            push!(A, Ai)
-            push!(B, tr_eq[i][2])
+
+        else
+            tr_eq_poly=real_rep(Polynomial(Polynomial(tr_eq[i][1])))
+            for (m,c) in tr_eq_poly
+                mi = findfirst(x->x==m,unique_mons)
+                upi,upj = unique_pos[mi]
+                Ai[(upi-1)*tsize + upj] = c
+            end
         end
+        push!(A, Ai)
+        push!(B, tr_eq[i][2])
     end
+
+    for i in 1:length(tr_ge)
+        tr_ge_p=0
+        if cyclic
+            for (m,c) in Polynomial(tr_ge[i][1])
+                m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
+                m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
+                tr_ge_p+=c*X[unique_pos[m_i]...]
+            end
+        else
+            tr_ge_poly=real_rep(Polynomial(Polynomial(tr_ge[i][1])))
+            for (m,c) in tr_ge_poly
+                m_i = findfirst(x->x==m,unique_mons)
+                tr_ge_p+=c*X[unique_pos[m_i]...]
+            end
+        end
+        @constraint(model, tr_ge_p >= tr_ge[i][2])
+    end
+
     println("Done building trace constraints")
-    if tr_ge!=0
-        for i in 1:length(tr_ge)
-            tr_ge_p=0
-            if cyclic
-                for (m,c) in Polynomial(tr_ge[i][1])
-                    m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
-                    m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
-                    tr_ge_p+=c*X[unique_pos[m_i]...]
-                end
-            else
-                tr_ge_poly=real_rep(Polynomial(Polynomial(tr_ge[i][1])))
-                for (m,c) in tr_ge_poly
-                    m_i = findfirst(x->x==m,unique_mons)
-                    tr_ge_p+=c*X[unique_pos[m_i]...]
-                end
-            end
-            @constraint(model, tr_ge_p >= tr_ge[i][2])
-        end
-    end
 
     if normalize
         id_elem=one(first(ops_principal))

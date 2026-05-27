@@ -122,10 +122,10 @@ function mons_at_level(M::AbstractMonoid, k::Int)
 end
 
 function get_monomials(obj, level; 
-    op_eq = 0, 
-    op_ge = 0,
-    tr_eq = 0,
-    tr_ge = 0,
+    op_eq = [], 
+    op_ge = [],
+    tr_eq = [],
+    tr_ge = [],
     list_vars=[])
     # for a given level of the localising moment matrices, it returns the operators at that level and the ones of the principal moment matix (which will be larger)
     if !isempty(list_vars)
@@ -135,11 +135,11 @@ function get_monomials(obj, level;
         vars=unique_array(union([variables(g) for g in pols]...))
         ops = mons_at_level(vars, level)
     end
-    if op_ge==0
+    if isempty(op_ge) && isempty(op_eq)
         return ops, ops
     end
-    deg = Int(ceil(maximum([degree(g) for g in op_ge])/2))
-    extra_vars= unique_array(union([variables(g) for g in op_ge]...))
+    deg = Int(ceil(maximum([[degree(g) for g in op_ge];[degree(g) for g in op_eq]])/2))
+    extra_vars= unique_array(union([[variables(g) for g in op_ge];[variables(g) for g in op_eq]]...))
     ops_add = mons_at_level(extra_vars, deg)
     ops_principal = unique_array([ops_add[o]*ops[p] 
             for o in 1:length(ops_add) for p in 1:length(ops)])
@@ -242,11 +242,11 @@ function npa_moments_block(list_monomials::Vector{M},model;cPoly=1,unique_mons=[
 end
 function npa(obj, level;
     min=true,
-    op_eq = 0, 
-    op_ge = 0,
-    tr_eq = 0,
-    tr_ge = 0,
-    lvl_lm=0,
+    op_eq = [], 
+    op_ge = [],
+    tr_eq = [],
+    tr_ge = [],
+    lvl_lm=-1,
     list_vars=[],
     cyclic=false,
     normalize=true,
@@ -255,14 +255,14 @@ function npa(obj, level;
     rm=false)
 
     # Delete redundant polynomials(polynomials which are numbers, so k*Id) from the op_ge and op_eq and warn for incompatible polynomials in op_ge and op_eq
-    op_ge!=0 && (op_ge=sanity_check_op_ge(op_ge))
-    op_eq!=0 && (op_eq=sanity_check_op_eq(op_eq))
+    !isempty(op_ge) && (op_ge=sanity_check_op_ge(op_ge))
+    !isempty(op_eq) && (op_eq=sanity_check_op_eq(op_eq))
     if all(is_number.(vcat([obj, op_ge..., op_eq...],[tr_ge[i][1] for i in 1:length(tr_ge)], [tr_eq[i][1] for i in 1:length(tr_eq)])))
         @warn "All the input polynomials are constants. The optimization will be trivial."
         isempty(list_vars) && throw(ArgumentError("The list of variables is empty. Please provide a non-empty list of variables."))
     end
     # at this pont, op_ge and op_eq constaints non-trivial polynomials or zero.
-    if lvl_lm==0
+    if lvl_lm==-1
         ops, ops_principal = get_monomials(obj,level; op_eq = op_eq, op_ge = op_ge, tr_eq = tr_eq, tr_ge = tr_ge,list_vars=list_vars)
     else
         if !isempty(list_vars)
@@ -275,7 +275,7 @@ function npa(obj, level;
             ops = mons_at_level(vars, lvl_lm)
         end
     end
-    println("Number of operators in the principal moment matrix: ", length(ops_principal))
+    println("Number of operators in the principal moment matrix and LMI: ", length(ops_principal)," ",length(ops))
     model=Model(optimizer)
     for (flag,val) in model_flags
         set_optimizer_attribute(model,flag,val)
@@ -283,7 +283,7 @@ function npa(obj, level;
     principal_moments_matrix, unique_mons, unique_vars = cyclic ? cyclic_npa_moments_block(ops_principal,model) : npa_moments_block(ops_principal,model)
     # Add the constraints for the principal moment matrix
 
-    if tr_eq!=0
+    if !isempty(tr_eq)
         for i in 1:length(tr_eq)
             tr_eq_p=0
             if cyclic
@@ -302,7 +302,7 @@ function npa(obj, level;
             @constraint(model, tr_eq_p == tr_eq[i][2])
         end
     end
-    if tr_ge!=0
+    if !isempty(tr_ge)
         for i in 1:length(tr_ge)
             tr_ge_p=0
             if cyclic
@@ -321,7 +321,7 @@ function npa(obj, level;
             @constraint(model, tr_ge_p >= tr_ge[i][2])
         end
     end
-    if op_ge!=0
+    if !isempty(op_ge)
         for i in 1:length(op_ge)
             if cyclic
                 cyclic_npa_moments_block(ops,model; cPoly=op_ge[i],unique_mons=unique_mons, unique_vars=unique_vars) 
@@ -330,7 +330,7 @@ function npa(obj, level;
             end
         end
     end
-    if op_eq!=0
+    if !isempty(op_eq)
         for i in 1:length(op_eq)
             if cyclic
                 cyclic_npa_moments_block(ops,model; cPoly=op_eq[i],unique_mons=unique_mons, unique_vars=unique_vars,eq=true) 
