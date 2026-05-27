@@ -161,8 +161,16 @@ level=2
 
 obj = tan(θ)*UA[1]*UBL[1] + UA[1]*UBL[2] + UA[2]*UBL[1] - tan(θ)*UA[2]*UBL[2]
 
-ov,model,_=npa_dual(obj,level;tr_eq=tr_eq,min=false)
-println("Optimal value is ", ov)
+Γ,Cvec, Amat,Bvec=npa_dual(obj,level;tr_eq=tr_eq,min=false,rm=true,extra_zeros=true)
+model_red, P, blkD = jordan_reduce(Cvec, Amat, Bvec; verbose=true,complex=true)
+
+set_optimizer(model_red, Mosek.Optimizer)
+# set_silent!(model_red)
+optimize!(model_red)
+println(termination_status(model_red))
+println(objective_value(model_red))
+
+# println("Optimal value is ", ov)
 
 ##### Example 2 fig 10 in https://arxiv.org/abs/2310.07484, UB on \eta_l in CHSH with inefficient detectors
 @pcmonoid M A[4,0] BS[4,0] BL[4,0]
@@ -183,14 +191,14 @@ PBS = [BS[1] BS[3]; BS[2] BS[4]; 1-BS[1]-BS[2] 1-BS[3]-BS[4]]
 PBL = [BL[1] BL[3]; BL[2] BL[4]; 1-BL[1]-BL[2] 1-BL[3]-BL[4]]
 PA = [A[1] A[3]; A[2] A[4]; 1-A[1]-A[2] 1-A[3]-A[4]]
 
-level = "2+A*A*A+BS*BS*BS+BL*BL*BL+A*A*BL+A*A*BS+BS*BS*BL"
-# level=2
+# level = "2+A*A*A+BS*BS*BS+BL*BL*BL+A*A*BL+A*A*BS+BS*BS*BL"
+level=2
 
 model, Γ,Cmat, Amat,Xmat,Bvec = npa_dual(0,level;min=false,rm=true,list_vars = M.vertices)
 ηl = @variable(model)
 ηs = 0.98
 ηa=ηs
-Γ = Dict([k=>X[v...] for (k,v) in Γ])
+Γ = Dict([k=>Xmat[v...] for (k,v) in Γ])
 [@constraint(model,Γ[PA[a,x]*PBS[b,y]] == ηa*ηs*chsh_correlations(a,b,x,y)) for a in 1:2 for x in 1:2 for b in 1:2 for y in 1:2]
 id = one(A[1])
 [@constraint(model,Γ[PA[a,x]*id] == ηa*chsh_correlations(a,-1,x,1)) for a in 1:2 for x in 1:2]

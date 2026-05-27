@@ -119,3 +119,27 @@ A JuMP Model
 
 (!) Primal is bigger, dual is faster
 """
+
+
+@pcmonoid M Z[0, 2] a0 a1 b0 b1
+@comms [a0, a1] [b0, b1]
+Unipotent.([a0, a1, b0, b1])
+build(M)
+z = M.vertices[1:2]
+za = adjoint.(z)
+# Objective function 
+t=0.1
+α = 3/2*max(1/t, 1/(1-t))
+f(z0,z1,t) = (1/t)*(one(M) + (z0+z1) + (1-t)*(z1*z0) + t*(z0*z1))
+obj = a0*f(z[1], za[1],t) + (1-a0)*f(z[2], za[2],t)
+# Constraints
+B  = (1-2*a0)*(1-2*b0) + (1-2*a0)*(1-2*b1)
+B += (1-2*a1)*(1-2*b0) - (1-2*a1)*(1-2*b1)
+tr_ge = [(B, 2*sqrt(2))]
+op_ge =[α - z[1]*za[1], α - za[1]*z[1],
+        α - z[2]*za[2], α - za[2]*z[2]]
+# Γ,Cvec, Amat,Bvec=npa_dual(obj, 2; op_ge=op_ge, tr_eq=tr_ge,rm=true)
+ov,model,_=npa_dual(obj, 2; op_ge=op_ge, tr_eq=tr_ge)
+model_red, P, blkD = jordan_reduce(Cvec, Amat, Bvec; verbose=true,complex=true)
+
+# Optimize semidefinite relaxation

@@ -287,11 +287,22 @@ function Base.show(io::IO, m::PCMonomial)
         print(io, "Id")
         return
     end
-    for i in 1:length(m.clique_words)
-        vars = get_clique_word(m, i)
-        if !isempty(vars)  
+    show_level = m.monoid.show_level[]
+    if show_level == 1
+        for i in 1:length(m.clique_words)
+            vars = get_clique_word(m, i)
             print(io, "($(join(vars, ",")))")
         end
+    elseif show_level == 2
+        for i in 1:length(m.clique_words)
+            vars = get_clique_word(m, i)
+            if !isempty(vars)  
+                print(io, "($(join(vars, ",")))")
+            end
+        end
+    else
+        mw = monomial_to_word(m)
+        print(io, join(mw))
     end
 end
 

@@ -39,6 +39,9 @@ struct GraphProductMonoid{T<: Union{AbstractMonoid,Variable}} <: AbstractMonoid
     # For non-Variable monoids, these remain empty/nothing
     var_index_dict::Base.RefValue{Union{Nothing, Dict{Variable, UInt32}}}
     conj_indices::Base.RefValue{Union{Nothing, Vector{UInt32}}}
+
+    #  show fields, show_level can be 1,2,3 to control the amount of information printed when show is called on the monoid
+    show_level::Base.RefValue{Int}
     
     function GraphProductMonoid{T}(name::String,vertices::Vector{T};
         parent_monoid::Base.RefValue{AbstractMonoid}=Base.RefValue{AbstractMonoid}(),
@@ -48,7 +51,7 @@ struct GraphProductMonoid{T<: Union{AbstractMonoid,Variable}} <: AbstractMonoid
         clique_indices=Vector{Int}([])) where T <: Union{AbstractMonoid,Variable}
         res=new{T}(name,parent_monoid,Base.RefValue(false),Base.RefValue(false),vertices,commutations,empty_cliques,commutes_with,clique_indices,Base.RefValue(false),
                    Base.RefValue{Union{Nothing, Dict{Variable, UInt32}}}(nothing),
-                   Base.RefValue{Union{Nothing, Vector{UInt32}}}(nothing))
+                   Base.RefValue{Union{Nothing, Vector{UInt32}}}(nothing),Base.RefValue{Int}(1))
         for i in vertices
             i.parent_monoid[]=res
         end

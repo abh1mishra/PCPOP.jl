@@ -457,3 +457,30 @@ function sanity_check_op_eq(op_eq::Vector)
     end
 end
 
+function close_graph!(g,D,m,E)
+    n = nv(g)
+    h = SimpleDiGraph(n * 2)
+
+    for e in edges(g)
+        add_edge!(h, src(e), dst(e))
+    end
+
+    for e in edges(g)
+        add_edge!(h, src(e) + n, dst(e) + n)
+    end
+
+    pairs = [(w[end],w[1]) for w in m if length(w) > 1]
+    pairs = [(D[(p[1],E[p[1]])] , D[(p[2],E[p[2]])]+n) for p in pairs]
+
+    for pair in pairs
+        add_edge!(h, pair...)
+    end
+
+    for pair in pairs
+        rem_edge!(h, pair...)
+        if !has_path(h, pair...)
+            add_edge!(g, pair[1], pair[2]-n)
+            add_edge!(h, pair...)
+        end
+    end
+end

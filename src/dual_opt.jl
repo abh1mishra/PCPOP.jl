@@ -30,13 +30,13 @@ function cyclic_npa_moments_block_dual!(list_monomials::Vector{M},A,B,tsize;cPol
         for j in i:num_monomials
     
             # Initialize the row of the A matrix for constraints
-            Ai=spzeros(tsize, tsize)
+            Ai=spzeros(tsize * tsize)
             
             if cPoly == 1
                 m = list_monomials[i]'* list_monomials[j]
                 m1,m2 = cyclic_reduce(m),cyclic_reduce(m')
                 if m1==0 || m2==0
-                    Ai[i, j] = 1.0
+                    Ai[(i-1)*tsize + j] = 1.0
                     push!(A, Ai)
                     push!(B, 0.0)
                     continue
@@ -44,8 +44,9 @@ function cyclic_npa_moments_block_dual!(list_monomials::Vector{M},A,B,tsize;cPol
                 m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
                 if m_i !== nothing
                     # Use the existing JuMP variable
-                    Ai[i, j] = 1.0
-                    Ai[unique_pos[m_i]...] = -1.0
+                    Ai[(i-1)*tsize + j] = 1.0
+                    upi,upj = unique_pos[m_i]
+                    Ai[(upi-1)*tsize + upj] = -1.0
                     push!(A, Ai)
                     push!(B, 0.0)
                 else
@@ -55,16 +56,17 @@ function cyclic_npa_moments_block_dual!(list_monomials::Vector{M},A,B,tsize;cPol
             else
                 monomial_product = list_monomials[i]'* cPoly * list_monomials[j]
                 if monomial_product == 0
-                    Ai[offset+i, offset+j] = 1.0
+                    Ai[(offset+i-1)*tsize+offset+j] = 1.0
                     push!(A, Ai)
                     push!(B, 0.0)
                     continue
                 end
-                Ai[offset+i, offset+j] = 1.0
+                Ai[(offset+i-1)*tsize + offset+j] = 1.0
                 for (m,c) in monomial_product
                     m1,m2 = cyclic_reduce(m),cyclic_reduce(m')
                     mi = findfirst(x->(x==m1 || x==m2),unique_mons)
-                    Ai[unique_pos[mi]...] = -c
+                    upi,upj = unique_pos[mi]
+                    Ai[(upi-1)*tsize + upj] = -c
                 end
                 push!(A, Ai)
                 push!(B, 0.0)
@@ -75,8 +77,8 @@ function cyclic_npa_moments_block_dual!(list_monomials::Vector{M},A,B,tsize;cPol
     if extra_zeros
         for i in 1:num_monomials
             for j in 1:offset
-                Ai=spzeros(tsize, tsize)
-                Ai[offset+i, j] = 1.0
+                Ai=spzeros(tsize * tsize)
+                Ai[(offset+i-1)*tsize+ j] = 1.0
                 push!(A, Ai)
                 push!(B, 0.0)
             end
@@ -84,8 +86,8 @@ function cyclic_npa_moments_block_dual!(list_monomials::Vector{M},A,B,tsize;cPol
 
         for i in 1:num_monomials
             for j in offset+num_monomials+1:tsize
-                Ai=spzeros(tsize, tsize)
-                Ai[offset+i, j] = 1.0
+                Ai=spzeros(tsize * tsize)
+                Ai[(offset+i-1)*tsize + j] = 1.0
                 push!(A, Ai)
                 push!(B, 0.0)
             end
@@ -108,12 +110,12 @@ function npa_moments_block_dual!(list_monomials::Vector{M},A,B,tsize;cPoly=1,uni
         for j in i:num_monomials
 
             # Initialize the row of the A matrix for constraints
-            Ai=spzeros(tsize, tsize)
+            Ai=spzeros(tsize*tsize)
 
             if cPoly == 1
                 m = real_rep(list_monomials[i]'* list_monomials[j])
                 if m == 0
-                    Ai[i, j] = 1.0
+                    Ai[(i-1)*tsize + j] = 1.0
                     push!(A, Ai)
                     push!(B, 0.0)
                     continue
@@ -121,8 +123,9 @@ function npa_moments_block_dual!(list_monomials::Vector{M},A,B,tsize;cPoly=1,uni
                 m_i=findfirst(x->(x==m),unique_mons)
                 if m_i !== nothing
                     # Use the existing JuMP variable
-                    Ai[i, j] = 1.0
-                    Ai[unique_pos[m_i]...] = -1.0
+                    Ai[(i-1)*tsize + j] = 1.0
+                    upi,upj = unique_pos[m_i]
+                    Ai[(upi-1)*tsize + upj] = -1.0
                     push!(A, Ai)
                     push!(B, 0.0)
                 else
@@ -133,15 +136,16 @@ function npa_moments_block_dual!(list_monomials::Vector{M},A,B,tsize;cPoly=1,uni
                 monomial_product = real_rep(Polynomial(list_monomials[i]'* cPoly * list_monomials[j]))
                 # assume the monomials PM exists and m and m' are in pm.
                 if monomial_product == 0
-                    Ai[offset+i, offset+j] = 1.0
+                    Ai[(offset+i-1)*tsize + (offset+j)] = 1.0
                     push!(A, Ai)
                     push!(B, 0.0)
                     continue
                 end
-                Ai[offset+i, offset+j] = 1.0
+                Ai[(offset+i-1)*tsize + (offset+j)] = 1.0
                 for (m,c) in monomial_product
                     m_i=findfirst(x->(x==m),unique_mons)
-                    Ai[unique_pos[m_i]...] = -c
+                    upi,upj = unique_pos[m_i]
+                    Ai[(upi-1)*tsize + upj] = -c
                 end
                 push!(A, Ai)
                 push!(B, 0.0)
@@ -152,8 +156,8 @@ function npa_moments_block_dual!(list_monomials::Vector{M},A,B,tsize;cPoly=1,uni
     if extra_zeros
         for i in 1:num_monomials
             for j in 1:offset
-                Ai=spzeros(tsize, tsize)
-                Ai[offset+i, j] = 1.0
+                Ai=spzeros(tsize*tsize)
+                Ai[(offset+i-1)*tsize + j] = 1.0
                 push!(A, Ai)
                 push!(B, 0.0)
             end
@@ -161,8 +165,8 @@ function npa_moments_block_dual!(list_monomials::Vector{M},A,B,tsize;cPoly=1,uni
 
         for i in 1:num_monomials
             for j in offset+num_monomials+1:tsize
-                Ai=spzeros(tsize, tsize)
-                Ai[offset+i, j] = 1.0
+                Ai=spzeros(tsize*tsize)
+                Ai[(offset+i-1)*tsize + j] = 1.0
                 push!(A, Ai)
                 push!(B, 0.0)
             end
@@ -179,7 +183,7 @@ function npa_dual(obj, level;
     op_ge = 0,
     tr_eq = 0,
     tr_ge = 0,
-    lvl_lm=0,
+    lvl_lm=-1,
     list_vars=[],
     cyclic=false,
     normalize=true,
@@ -197,7 +201,7 @@ function npa_dual(obj, level;
         isempty(list_vars) && throw(ArgumentError("The list of variables is empty. Please provide a non-empty list of variables."))
     end
     # at this pont, op_ge and op_eq constaints non-trivial polynomials or zero.
-    if lvl_lm==0
+    if lvl_lm==-1
         ops, ops_principal = get_monomials(obj,level; op_eq = op_eq, op_ge = op_ge, tr_eq = tr_eq, tr_ge = tr_ge,list_vars=list_vars)
     else
         if !isempty(list_vars)
@@ -217,10 +221,23 @@ function npa_dual(obj, level;
     end
     A=Vector{SparseMatrixCSC{Float64, Int64}}([])
     B=Float64[]
-    tsize = sum([[length(ops_principal)];[length(ops) for i in 1:length(op_ge)];[2*length(ops) for i in 1:length(op_eq)]])
+    println("op_ge",length(op_ge))
+    tsize=length(ops_principal)
+    if op_ge!=0
+        for i in 1:length(op_ge)
+            tsize+=length(ops)
+        end
+    end
+    if op_eq!=0
+        for i in 1:length(op_eq)
+            tsize+=2*length(ops)
+        end
+    end
+    println("Size of the PSD variable: ", tsize, "x", tsize)
     X = @variable(model, [1:tsize, 1:tsize], PSD)
     unique_mons,unique_pos = cyclic ? cyclic_npa_moments_block_dual!(ops_principal,A,B,tsize; extra_zeros=extra_zeros) : npa_moments_block_dual!(ops_principal,A,B,tsize; extra_zeros=extra_zeros)
     offset = length(ops_principal)
+    println("Done building PM")
     if op_ge!=0
         for i in 1:length(op_ge)
             if cyclic
@@ -231,6 +248,7 @@ function npa_dual(obj, level;
             offset += length(ops)
         end
     end
+    println("Done building LMI")
     if op_eq!=0
         for i in 1:length(op_eq)
             if cyclic
@@ -250,25 +268,28 @@ function npa_dual(obj, level;
     # Add the constraints for the principal moment matrix
     if tr_eq!=0
         for i in 1:length(tr_eq)
-            Ai=spzeros(tsize, tsize)
+            Ai=spzeros(tsize * tsize)
             if cyclic
                 for (m,c) in Polynomial(tr_eq[i][1])
                     m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
                     m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
-                    Ai[unique_pos[m_i]...] = c
+                    upi,upj = unique_pos[m_i]
+                    Ai[(upi-1)*tsize + upj] = c
                 end
 
             else
                 tr_eq_poly=real_rep(Polynomial(Polynomial(tr_eq[i][1])))
                 for (m,c) in tr_eq_poly
                     mi = findfirst(x->x==m,unique_mons)
-                    Ai[unique_pos[mi]...] = c
+                    upi,upj = unique_pos[mi]
+                    Ai[(upi-1)*tsize + upj] = c
                 end
             end
             push!(A, Ai)
             push!(B, tr_eq[i][2])
         end
     end
+    println("Done building trace constraints")
     if tr_ge!=0
         for i in 1:length(tr_ge)
             tr_ge_p=0
@@ -291,19 +312,20 @@ function npa_dual(obj, level;
 
     if normalize
         id_elem=one(first(ops_principal))
-        Ai=spzeros(tsize, tsize)
+        Ai=spzeros(tsize * tsize)
         if cyclic
             id_elem=cyclic_reduce(id_elem)
             id_i=findfirst(x->x==id_elem,unique_mons)
         else
             id_i = findfirst(x->x==id_elem,unique_mons)
         end
-        Ai[unique_pos[id_i]...] = 1.0
+        upi,upj= unique_pos[id_i]   
+        Ai[(upi-1)*tsize + upj] = 1.0
         push!(A, Ai)
         push!(B, 1.0)
     end
-
-    C = spzeros(tsize, tsize)
+    println("Done building normalization constraint")
+    C = spzeros(tsize * tsize)
     if !is_number(obj)
         if cyclic
             for (m,c) in Polynomial(obj)
@@ -312,34 +334,42 @@ function npa_dual(obj, level;
                 if m_i==nothing
                     throw(ArgumentError("level not enough"))
                 end
-                C[unique_pos[m_i]...] = c
+                upi,upj = unique_pos[m_i]
+                C[(upi-1)*tsize + upj] = c
             end
         else
             obj_poly=real_rep(Polynomial(Polynomial(obj)))
             for (m,c) in obj_poly
                 mi = findfirst(x->x==m,unique_mons)
-                C[unique_pos[mi]...] = c
+                if mi==nothing
+                    throw(ArgumentError("level not enough"))
+                end
+                upi,upj = unique_pos[mi]
+                C[(upi-1)*tsize + upj] = c
             end
         end
         
     end
+    println("Done building objective")
     if rm
-        return model,Dict(zip(unique_mons, unique_pos)),C,A,X,B
+        A = vcat([r' for r in A]...)
+        return Dict(zip(unique_mons, unique_pos)),C,A,B
     end
 
     # Impose constraints AX=B
     lenA=length(A)
+    Xvec=vec(X)
     for i in 1:lenA
         println(100*i/lenA, "%")
         Ai = A[i]
         bi = B[i]
-        cons = dot(Ai, X)
+        cons = dot(Ai, Xvec)
         @constraint(model, cons == bi)
     end
 
     # Impose the objective
     if !is_number(obj)
-        obj_cons = dot(C, X)
+        obj_cons = dot(C, Xvec)
         min ? @objective(model, Min, obj_cons) : @objective(model, Max, obj_cons)
     end
     # Solve the model

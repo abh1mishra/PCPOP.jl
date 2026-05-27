@@ -46,8 +46,10 @@ function jordan_reduce(C, A, b; verbose=false, complex=false)
     psdBlocks = sum(blkD.blks[i] .* x[i] for i = 1:P.n)
     for blk in psdBlocks
         if size(blk, 1) > 1
+            blk = realify(blk;complex=complex)
             @constraint(model, blk in PSDCone())
         else
+            blk = realify(blk;complex=complex)
             @constraint(model, blk .>= 0)
         end
     end
@@ -63,10 +65,19 @@ end
 # Block diagonalization through optimal admissible subspace
 function block_diagonal(C, A, b; verbose=false, complex=false)
     P = admPartSubspace(C, A, b, verbose)
-    blkD = blockDiagonalize(P, complex)
+    blkD = blockDiagonalize(P, complex=complex)
     return P, blkD
 end
 
+function realify(M::AbstractMatrix; complex=false)
+    if !complex
+        return M
+    else
+        realM = real(M)
+        imagM = imag(M)
+        return [realM -imagM; imagM realM]
+    end
+end
 
 """
     
@@ -127,32 +138,44 @@ function write_canonical(model::Model)
     return C, hcat(A...), b
 end
 
-# Example statepop 7.2.1
-@pcmonoid M a[2,0] b[2,0]
-Unipotent.(a)
-Unipotent.(b)
-@comms a b
-build(M)
 
-TM = make_trace_monoid(M, 6, tracial=false)
-p  = (state(a[1]*b[2], TM) + state(a[2]*b[1], TM))^2 
-p += (state(a[1]*b[1], TM) - state(a[2]*b[2], TM))^2
-basis = trace_monomials(TM, 0:3, tracial=false)
-model = tpop(p, TM, basis, tracial=false)
+function vec_sparse(M::SparseMatrixCSC)
+    I, J, V = findnz(M)
 
-# Jordan reduction
-C, A, b = write_canonical(model)
-model_red, P, blkD = jordan_reduce(C, A, b; verbose=true)
+    # Convert 2D indices (I, J) to 1D linear indices
+    linear_indices = I .+ (J .- 1) .* size(M, 1)
 
-# Compare optimal solutions
-set_optimizer(model, Mosek.Optimizer)
-set_silent!(model)
-optimize!(model)
-println(termination_status(model))
-println(objective_value(model))
+    # Build the true SparseVector
+    v = sparsevec(linear_indices, V, length(M))
+    return v
+end
 
-set_optimizer(model_red, Mosek.Optimizer)
-set_silent!(model_red)
-optimize!(model_red)
-println(termination_status(model_red))
-println(objective_value(model_red))
+# # Example statepop 7.2.1
+# @pcmonoid M a[2,0] b[2,0]
+# Unipotent.(a)
+# Unipotent.(b)
+# @comms a b
+# build(M)
+
+# TM = make_trace_monoid(M, 6, tracial=false)
+# p  = (state(a[1]*b[2], TM) + state(a[2]*b[1], TM))^2 
+# p += (state(a[1]*b[1], TM) - state(a[2]*b[2], TM))^2
+# basis = trace_monomials(TM, 0:3, tracial=false)
+# model = tpop(p, TM, basis, tracial=false)
+
+# # Jordan reduction
+# C, A, b = write_canonical(model)
+# model_red, P, blkD = jordan_reduce(C, A, b; verbose=true)
+
+# # Compare optimal solutions
+# set_optimizer(model, Mosek.Optimizer)
+# set_silent!(model)
+# optimize!(model)
+# println(termination_status(model))
+# println(objective_value(model))
+
+# set_optimizer(model_red, Mosek.Optimizer)
+# set_silent!(model_red)
+# optimize!(model_red)
+# println(termination_status(model_red))
+# println(objective_value(model_red))

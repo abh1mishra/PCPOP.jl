@@ -167,10 +167,19 @@ function show_monomial(io::IO, m::GraphProductWord)
         print(io, "Id")
         return
     end
-    for j in m
-        if !isempty(j)
+    show_level = m.monoid.show_level[]
+    if show_level == 1
+        for j in m
             print(io,"($(join([k for k in j],",")))")
         end
+    elseif show_level == 2
+        for j in m
+            if !isempty(j)
+                print(io,"($(join([k for k in j],",")))")
+            end
+        end
+    else
+        print(io,monomial_to_word(m))
     end
 end
 
