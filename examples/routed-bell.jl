@@ -161,8 +161,8 @@ level=2
 
 obj = tan(θ)*UA[1]*UBL[1] + UA[1]*UBL[2] + UA[2]*UBL[1] - tan(θ)*UA[2]*UBL[2]
 
-Γ,Cvec, Amat,Bvec=npa_dual(obj,level;tr_eq=tr_eq,min=false,rm=true,extra_zeros=true)
-model_red, P, blkD = jordan_reduce(Cvec, Amat, Bvec; verbose=true,complex=true)
+Γ,Cvec, Amat,Bvec=npa_dual(obj,level;tr_eq=tr_eq,min=false,rm=true)
+model_red, P, blkD = jordan_reduce(Cvec, Amat, Bvec, verbose=true,complex=true,diagonalize=false)
 
 set_optimizer(model_red, Mosek.Optimizer)
 # set_silent!(model_red)
@@ -194,7 +194,7 @@ PA = [A[1] A[3]; A[2] A[4]; 1-A[1]-A[2] 1-A[3]-A[4]]
 level = "2+A*A*A+BS*BS*BS+BL*BL*BL+A*A*BL+A*A*BS+BS*BS*BL"
 # level=2
 
-model, Γ,Cmat, Amat,Xmat,Bvec = npa_dual(0,level;min=false,rm=true,list_vars = M.vertices)
+Γ,Cmat, Amat,Xmat,Bvec = npa_dual(0,level;min=false,rm=true,list_vars = M.vertices)
 ηl = @variable(model)
 ηs = 0.98
 ηa=ηs

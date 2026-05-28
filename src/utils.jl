@@ -470,7 +470,7 @@ function close_graph!(g,D,m,E)
     end
 
     pairs = [(w[end],w[1]) for w in m if length(w) > 1]
-    pairs = [(D[(p[1],E[p[1]])] , D[(p[2],E[p[2]])]+n) for p in pairs]
+    pairs = [(D[(p[1],E[p[1]])] , D[(p[2],1)]+n) for p in pairs]
 
     for pair in pairs
         add_edge!(h, pair...)
