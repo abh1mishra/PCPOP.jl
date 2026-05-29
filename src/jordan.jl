@@ -18,7 +18,7 @@ using StatsBase: sample
     or the Jordan algebra reduction method [Permenter & Parrilo 2016]
 
 """
-function jordan_reduce(C, A, b; verbose=false, complex=false, epsilon=Base.rtoldefault(Float64), diagonalize=true)
+function jordan_reduce(C, A, b; verbose=false, complex=false, epsilon=Base.rtoldefault(Float64), diagonalize=true, solver=Mosek.Optimizert, optimize=false)
     if diagonalize
         return jordan_reduce_diagonal(C, A, b; verbose=verbose, complex=complex, epsilon=epsilon)
     else
@@ -27,22 +27,21 @@ function jordan_reduce(C, A, b; verbose=false, complex=false, epsilon=Base.rtold
         newA = A * PMat
         newB = b
         newC = C' * PMat
-        model = Model(optimizer_with_attributes(Mosek.Optimizer, "QUIET" => !verbose))
+        model = Model()
         x = @variable(model, x[1:P.nparts])
         @objective model Max newC*x
         @constraint model newA*x .== newB
         @constraint model sum((P.matrix .== i)*x[i] for i = 1:P.nparts) in PSDCone()
         # Optimize
-        optimize!(model)  
-        if verbose
-            @show termination_status(model)
-            @show objective_value(model)
+        if optimize
+            set_solver(model, solver)
+            optimize!(model)  
         end    
         return model, P, nothing
     end
 end
 
-function jordan_reduce_diagonal(C, A, b; verbose=false, complex=false, epsilon=Base.rtoldefault(Float64))
+function jordan_reduce_diagonal(C, A, b; verbose=false, complex=false, epsilon=Base.rtoldefault(Float64), solver=Mosek.Optimizer, optimize=false)
     # Optimal invariant subspace
     P, blkD = block_diagonal(C, A, b, verbose=verbose, complex=complex, epsilon=epsilon)
     PMat = hcat([sparse(vec(P.matrix .== i)) for i = 1:P.nparts]...)
@@ -50,7 +49,7 @@ function jordan_reduce_diagonal(C, A, b; verbose=false, complex=false, epsilon=B
     newB = b
     newC = C' * PMat
     # Reduced model
-    model = Model(optimizer_with_attributes(Mosek.Optimizer, "QUIET" => !verbose))
+    model = Model()
     x = @variable(model, x[1:P.nparts])
     # Linear constraints
     for i in 1:size(newA, 1)
@@ -78,11 +77,11 @@ function jordan_reduce_diagonal(C, A, b; verbose=false, complex=false, epsilon=B
         end
     end
     # Optimize
-    optimize!(model)  
-    if verbose
-        @show termination_status(model)
-        @show objective_value(model)
-    end    
+    if optimize
+        set_optimizer(model, solver)
+        optimize!(model)  
+    end 
+
     return model, P, blkD
 end
 
