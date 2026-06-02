@@ -25,7 +25,7 @@ T = [[ρ[1], 1],
 val,model,_ = npa(p,2, min=false,
 					   op_ge = S,
 					   tr_eq = T,
-					   normalize=true,
+					   normalize=false,
 					   cyclic=true) 
 println("Termination status ", termination_status(model))
 println("Optimal value is   ", val)
