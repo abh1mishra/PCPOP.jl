@@ -287,14 +287,14 @@ function npa_canonical(obj, level;
         Ai[offset*tsize + offset+1] = -1.0
 
         if cyclic
-            for (m,c) in Polynomial(tr_ge_p)
+            for (m,c) in Polynomial(tr_ge[i][1])
                 m1,m2 = (cyclic_reduce(m),cyclic_reduce(m'))
                 m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
                 upi,upj = unique_pos[m_i]
                 Ai[(upi-1)*tsize + upj] = c
             end
         else
-            tr_ge_poly=real_rep(Polynomial(tr_ge_p))
+            tr_ge_poly=real_rep(Polynomial(tr_ge[i][1]))
             for (m,c) in tr_ge_poly
                 m_i = findfirst(x->x==m,unique_mons)
                 upi,upj = unique_pos[m_i]
