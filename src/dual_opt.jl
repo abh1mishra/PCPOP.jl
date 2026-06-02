@@ -177,7 +177,7 @@ function npa_moments_block_dual!(list_monomials::Vector{M},A,B,tsize;cPoly=1,uni
         return unique_mons,unique_pos
     end
 end
-function npa_dual(obj, level;
+function npa_canonical(obj, level;
     min=true,
     op_eq = [], 
     op_ge = [],
@@ -191,7 +191,6 @@ function npa_dual(obj, level;
     model_flags=[],
     rm=false,
     extra_zeros=false,
-    id_elem=nothing
     )
 
     # Delete redundant polynomials(polynomials which are numbers, so k*Id) from the op_ge and op_eq and warn for incompatible polynomials in op_ge and op_eq
@@ -231,9 +230,6 @@ function npa_dual(obj, level;
     offset = length(ops_principal)
     println("Done building PM")
 
-    if normalize && id_elem==nothing
-        id_elem=one(first(ops_principal))
-    end
 
     for i in 1:length(op_ge)
         if cyclic
@@ -286,36 +282,34 @@ function npa_dual(obj, level;
     end
 
     for i in 1:length(tr_ge)
-        if id_elem==nothing
-            throw(ArgumentError("trace inequality constraints without normalization is not yet implemented."))
-        end
-        tr_ge_p = tr_ge[i][1]-tr_ge[i][2]*id_elem
+
         Ai=spzeros(tsize * tsize)
-        Ai[offset*tsize + offset+1] = 1.0
+        Ai[offset*tsize + offset+1] = -1.0
 
         if cyclic
             for (m,c) in Polynomial(tr_ge_p)
                 m1,m2 = (cyclic_reduce(m),cyclic_reduce(m'))
                 m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
                 upi,upj = unique_pos[m_i]
-                Ai[(upi-1)*tsize + upj] = -c
+                Ai[(upi-1)*tsize + upj] = c
             end
         else
             tr_ge_poly=real_rep(Polynomial(tr_ge_p))
             for (m,c) in tr_ge_poly
                 m_i = findfirst(x->x==m,unique_mons)
                 upi,upj = unique_pos[m_i]
-                Ai[(upi-1)*tsize + upj] = -c
+                Ai[(upi-1)*tsize + upj] = c
             end
         end
         offset += 1
         push!(A, Ai)
-        push!(B, 0.0)
+        push!(B, tr_ge[i][2])
     end
 
     println("Done building trace constraints")
 
     if normalize
+        id_elem=one(first(ops_principal))
         Ai=spzeros(tsize * tsize)
         if cyclic
             id_elem=cyclic_reduce(id_elem)

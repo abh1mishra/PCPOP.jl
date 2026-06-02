@@ -18,7 +18,7 @@ using StatsBase: sample
     or the Jordan algebra reduction method [Permenter & Parrilo 2016]
 
 """
-function jordan_reduce(C, A, b; verbose=false, complex=false, epsilon=Base.rtoldefault(Float64), diagonalize=true, solver=Mosek.Optimizert, optimize=false)
+function jordan_reduce(C, A, b; verbose=false, complex=false, epsilon=Base.rtoldefault(Float64), diagonalize=true, solver=Mosek.Optimizer, optimize=false)
     if diagonalize
         return jordan_reduce_diagonal(C, A, b; verbose=verbose, complex=complex, epsilon=epsilon)
     else
