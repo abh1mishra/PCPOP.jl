@@ -144,7 +144,6 @@ function npa_moments_block_dual!(list_monomials::Vector{M},A,B,tsize;cPoly=1,uni
                 Ai[(offset+i-1)*tsize + (offset+j)] = 1.0
                 for (m,c) in monomial_product
                     m_i=findfirst(x->(x==m),unique_mons)
-                    m_i == nothing && println(m)
                     upi,upj = unique_pos[m_i]
                     Ai[(upi-1)*tsize + upj] = -c
                 end
@@ -191,7 +190,8 @@ function npa_dual(obj, level;
     optimizer=Mosek.Optimizer,
     model_flags=[],
     rm=false,
-    extra_zeros=false
+    extra_zeros=false,
+    id_elem=nothing
     )
 
     # Delete redundant polynomials(polynomials which are numbers, so k*Id) from the op_ge and op_eq and warn for incompatible polynomials in op_ge and op_eq
@@ -223,13 +223,17 @@ function npa_dual(obj, level;
     A=Vector{SparseMatrixCSC{Float64, Int64}}([])
     B=Float64[]
     println("op_ge",length(op_ge))
-    tsize=sum([[length(ops_principal)];[length(ops) for i in 1:length(op_ge)];[2*length(ops) for i in 1:length(op_eq)]])
+    tsize=sum([[length(ops_principal)];[length(ops) for i in 1:length(op_ge)];[2*length(ops) for i in 1:length(op_eq)];[1 for i in length(tr_ge)]])
 
     println("Size of the PSD variable: ", tsize, "x", tsize)
     X = @variable(model, [1:tsize, 1:tsize], PSD)
     unique_mons,unique_pos = cyclic ? cyclic_npa_moments_block_dual!(ops_principal,A,B,tsize; extra_zeros=extra_zeros) : npa_moments_block_dual!(ops_principal,A,B,tsize; extra_zeros=extra_zeros)
     offset = length(ops_principal)
     println("Done building PM")
+
+    if normalize && id_elem==nothing
+        id_elem=one(first(ops_principal))
+    end
 
     for i in 1:length(op_ge)
         if cyclic
@@ -282,27 +286,36 @@ function npa_dual(obj, level;
     end
 
     for i in 1:length(tr_ge)
-        tr_ge_p=0
+        if id_elem==nothing
+            throw(ArgumentError("trace inequality constraints without normalization is not yet implemented."))
+        end
+        tr_ge_p = tr_ge[i][1]-tr_ge[i][2]*id_elem
+        Ai=spzeros(tsize * tsize)
+        Ai[offset*tsize + offset+1] = 1.0
+
         if cyclic
-            for (m,c) in Polynomial(tr_ge[i][1])
-                m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
+            for (m,c) in Polynomial(tr_ge_p)
+                m1,m2 = (cyclic_reduce(m),cyclic_reduce(m'))
                 m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
-                tr_ge_p+=c*X[unique_pos[m_i]...]
+                upi,upj = unique_pos[m_i]
+                Ai[(upi-1)*tsize + upj] = -c
             end
         else
-            tr_ge_poly=real_rep(Polynomial(Polynomial(tr_ge[i][1])))
+            tr_ge_poly=real_rep(Polynomial(tr_ge_p))
             for (m,c) in tr_ge_poly
                 m_i = findfirst(x->x==m,unique_mons)
-                tr_ge_p+=c*X[unique_pos[m_i]...]
+                upi,upj = unique_pos[m_i]
+                Ai[(upi-1)*tsize + upj] = -c
             end
         end
-        @constraint(model, tr_ge_p >= tr_ge[i][2])
+        offset += 1
+        push!(A, Ai)
+        push!(B, 0.0)
     end
 
     println("Done building trace constraints")
 
     if normalize
-        id_elem=one(first(ops_principal))
         Ai=spzeros(tsize * tsize)
         if cyclic
             id_elem=cyclic_reduce(id_elem)
