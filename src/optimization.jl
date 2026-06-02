@@ -141,7 +141,7 @@ function sos(p::Polynomial, basis;
     cores_psd = union([Polynomial(one(p.monoid))], Polynomial.(op_ge))
     cores = union(monomials.(cores_psd)...)
         
-    matrix_psd = Dict(s => [tracial_reduce(x'*s*y, tracial=tracial) for x in basis_psd, y in basis_psd] for s in cores)
+    matrix_psd = Dict(s => [tracial_reduce(x'*s*y, tracial=tracial) for x in basis, y in basis] for s in cores)
         
     basis_constraints = StarAlgebras.Basis{UInt16}(
               unique(union([union(matrix_psd[s]) for s in cores]...)),
@@ -156,17 +156,24 @@ function sos(p::Polynomial, basis;
     n = length(tr_eq)
     m = length(tr_ge)
     JuMP.@variable model t[1:n+m]
-    JuMP.@objective model Min sum([tr_eq[i][2]*t[i] for i in 1:n]) +
-                              sum([tr_ge[i][2]*t[i] for i in n+1:m])  - p
-    @constraint model t[n+1:n+m] .>= 0
+    if m > 0
+        JuMP.@objective model Min sum([tr_eq[i][2]*t[i] for i in 1:n]) + sum([tr_ge[i][2]*t[i] for i in n+1:m])
+        @constraint model t[n+1:n+m] .>= 0
+    else
+        JuMP.@objective model Min sum([tr_eq[i][2]*t[i] for i in 1:n])
+    end
     N = length(basis_psd)
 
     P = Dict(s=> JuMP.@variable model [1:N, 1:N] in PSDCone() for (i,s) in enumerate(cores_psd))
-
+    # Objective function sum of squares decomposition
+    objective = sum([tr_eq[i][1]*t[i] for i in 1:n]) + (-1)*p
+    if m > 0
+        objective += sum([tr_ge[i][1]*t[i] for i in n+1:m])
+    end
     for (idx, b) in enumerate(basis_constraints)
         if typeof(b) <: AbstractMonomial
             c = coefficient(objective, b)
-            JuMP.@constraint sos_model sum(cs*LinearAlgebra.dot(P[s], Γ[ms] .== idx) for s in cores_psd for (ms, cs) in s) == c
+            JuMP.@constraint model sum(cs*LinearAlgebra.dot(P[s], Γ[ms] .== idx) for s in cores_psd for (ms, cs) in s) == c
         elseif typeof(b) <: Polynomial
             for (b_coeff, b_monomial) in zip(b.coeffs, b.monomials)
                 c = b_coeff*coefficient(objective, b_monomial)
@@ -176,6 +183,107 @@ function sos(p::Polynomial, basis;
     end
 
     return model
+end
+
+function sos_block_diag(p::Polynomial, basis; 
+    op_eq = [], 
+    op_ge = [], 
+    tr_eq = [],
+    tr_ge = [],
+    normalize = true, 
+    tracial = false,
+    verbose = false,
+    epsilon = 1e-8,
+    complex = false)
+
+op_ge = union(op_ge, op_eq, -op_eq)
+cores_psd = union([Polynomial(one(p.monoid))], Polynomial.(op_ge))
+cores = union(monomials.(cores_psd)...)
+
+matrix_psd = Dict(s => [tracial_reduce(x'*s*y, tracial=tracial) for x in basis, y in basis] for s in cores)
+
+basis_constraints = StarAlgebras.Basis{UInt16}(
+      unique(union([union(matrix_psd[s]) for s in cores]...)),
+    )
+Γ = Dict(s=> [(basis_constraints[m]) for m in matrix_psd[s]] for s in cores)
+basis_psd = Dict(s => StarAlgebras.Basis{UInt16}(
+    union(sum(c*matrix_psd[m] for (m,c) in s))) for s in cores_psd)
+Γ_psd = Dict(s => [basis_psd[s][m] for m in basis_psd[s]] for s in cores_psd)
+
+model = JuMP.Model()
+
+if normalize
+tr_eq = union([(one(p.monoid), 1)], tr_eq)
+end
+
+n = length(tr_eq)
+m = length(tr_ge)
+JuMP.@variable model t[1:n+m]
+if m > 0
+    JuMP.@objective model Min sum([tr_eq[i][2]*t[i] for i in 1:n]) + sum([tr_ge[i][2]*t[i] for i in n+1:m])
+    @constraint model t[n+1:n+m] .>= 0
+else
+    JuMP.@objective model Min sum([tr_eq[i][2]*t[i] for i in 1:n])
+end
+N = length(basis)
+
+# Objective function sum of squares decomposition
+objective = sum([tr_eq[i][1]*t[i] for i in 1:n]) + (-1)*p
+if m > 0
+    objective += sum([tr_ge[i][1]*t[i] for i in n+1:m])
+end
+
+blocks = Dict()
+parts = Dict()
+
+for s in cores_psd
+
+    Ps = SDPSymmetryReduction.Partition(Γs)
+    blkD =
+        SDPSymmetryReduction.blockDiagonalize(
+            Ps,
+            verbose,
+            epsilon=epsilon,
+            complex=complex
+            )
+
+    if blkD === nothing && !complex
+        blkD =
+            SDPSymmetryReduction.blockDiagonalize(
+                Ps,
+                verbose,
+                epsilon=epsilon,
+                complex=true
+            )
+    end
+
+    @assert blkD !== nothing
+
+    blocks[s] = blkD
+    parts[s] = Dict(i => (Ps .== i)  for i in 1:Ps.nparts)
+end
+
+P = Dict(s => [JuMP.@variable(model, [1:i, 1:i] in PSDCone()) for i in blocks[s].blkSizes] for s in cores_psd)
+
+    for (k,b) in enumerate(basis_constraints)
+
+        c = coefficient(objective,b)
+
+        lhs = AffExpr()
+
+        for s in cores_psd
+            for m in basis_psd[s]
+                cm = coefficient(m, b)
+                i = basis_psd[s][m]
+                lhs += cm*sum(blocks[s].blks[i])
+            end
+        end
+
+        @constraint(model, lhs == c)
+    end
+
+    return model
+
 end
 
 """
@@ -198,7 +306,7 @@ function moments(p::Polynomial, basis;
     else
         cores = union(union(monomials.(cores_psd)...), union(monomials.(cores_zero)...)) 
     end
-    matrix_psd = Dict(s => [tracial_reduce(x'*s*y, tracial=tracial) for x in basis_psd, y in basis_psd] for s in cores)
+    matrix_psd = Dict(s => [tracial_reduce(x'*s*y, tracial=tracial) for x in basis, y in basis] for s in cores)
 
     basis_constraints = StarAlgebras.Basis{UInt16}(
         unique(union([union(matrix_psd[s]) for s in cores]...)),
@@ -243,4 +351,77 @@ function moments(p::Polynomial, basis;
     end
 
     return model   
+end
+
+function moments_block_diag(
+    p::Polynomial, basis; 
+    op_eq = [], 
+    op_ge = [], 
+    tr_eq = [],
+    tr_ge = [],
+    normalize = true, 
+    tracial = false,
+    verbose = false,
+    epsilon = 1e-8,
+    complex = false)
+
+    cores_zero = Polynomial.(op_eq)
+    cores_psd = union([Polynomial(one(p.monoid))], Polynomial.(op_ge))
+    if isempty(cores_zero)
+        cores = union(monomials.(cores_psd)...)
+    else
+        cores = union(union(monomials.(cores_psd)...), union(monomials.(cores_zero)...)) 
+    end
+
+    matrix_psd = Dict(s => [tracial_reduce(x'*s*y, tracial=tracial) for x in basis, y in basis] for s in cores)
+
+    basis_constraints = StarAlgebras.Basis{UInt16}(
+      unique(union([union(matrix_psd[s]) for s in cores]...)),
+    )
+    Γ = Dict(s=> [(basis_constraints[m]) for m in matrix_psd[s]] for s in cores)
+
+    if normalize
+        tr_eq = union([(one(p.monoid), 1)], tr_eq)
+    end
+
+    model = JuMP.Model()
+    JuMP.@variable model y[1:length(basis_constraints)]
+
+    # Objective function
+    JuMP.@objective model Max sum([c*y[basis_constraints[m]] for (m,c) in p])
+
+    # Moment constraints
+    for (s,b) in tr_eq
+        JuMP.@constraint model sum(c*y[basis_constraints[m]] for (m,c) in s) == b
+    end
+    for (s,b) in tr_ge
+        JuMP.@constraint model sum(c*y[basis_constraints[m]] for (m,c) in s) >= b
+    end
+
+    # PSD constraints
+    for s in cores_psd
+        basis_psd = StarAlgebras.Basis{UInt16}(
+            union(sum(c*matrix_psd[m] for (m,c) in s)))
+        Γ_psd = [basis_psd[s][m] for m in basis_psd[s]]
+        P_psd = SDPSymmetryReduction.Partition(Γ_psd)
+        blkD = SDPSymmetryReduction.blockDiagonalize(P_psd, verbose, epsilon=epsilon, complex=complex)
+
+        psdBlocks = sum(blkD.blks[i] .* sum(ci*y[basis_constraints[mi]]) for (mi, ci) in basis_psd[i] for i = 1:P.nparts)
+        for blk in psdBlocks
+            if size(blk, 1) > 1
+                blk = realify(blk;complex=complex)
+                @constraint(model, blk in PSDCone())
+            else
+                blk = realify(blk;complex=complex)
+                @constraint(model, blk .>= 0)
+            end
+        end
+    end
+
+    # Zero Γ(y) = 0
+    for s in cores_zero
+        JuMP.@constraint model sum(c*y[x'*m*y] for (m, c) in s for x in basis for y in basis) .== 0
+    end
+
+    return model
 end
