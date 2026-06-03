@@ -4,6 +4,7 @@
 ############################
 
 function pcpop(p::Polynomial, k::Int;
+    min=false,
     op_eq = [],
     op_ge = [],
     tr_eq = [],
@@ -17,7 +18,9 @@ function pcpop(p::Polynomial, k::Int;
     primal = true)
 
     basis = mons_at_level(p.monoid, k)
-    return pcpop(p, basis, op_eq = op_eq,
+    return pcpop(p, basis;
+                           min = min,
+                           op_eq = op_eq,
                            op_ge = op_ge,
                            tr_eq = tr_eq,
                            tr_ge = tr_ge,
@@ -27,6 +30,7 @@ function pcpop(p::Polynomial, k::Int;
                            optimize = optimize,
                            reduce = reduce,
                            block_diag = block_diag,
+                           model_flags = [],
                            primal = primal)
 end
 
@@ -69,6 +73,7 @@ end
     s.t. t - p in SOS(k)    
 """
 function pcpop(p::Polynomial, basis;
+    min = false,
     op_eq = [],
     op_ge = [],
     tr_eq = [],
@@ -79,42 +84,42 @@ function pcpop(p::Polynomial, basis;
     optimize = false,
     reduce = false,
     block_diag = false,
+    model_flags=[],
     primal = true)
 
     if reduce
-        Γ, C, A, b = npa_canonical(p, basis, 
+        Γ, C, A, b = npa_canonical(p, basis;
+                           min = min, 
                            op_eq = op_eq,
                            op_ge = op_ge,
                            tr_eq = tr_eq,
                            tr_ge = tr_ge,
                            normalize = normalize,
                            tracial = tracial,
-                           reduce = reduce,
-                           block_diag = block_diag,
-                           primal = primal)
+                           model_flags = model_flags)
         model = jordan_reduce(C, A, b, complex=true, diagonalize=block_diag)
     elseif primal
-        model = npa(p, basis, 
+        model = npa(p, basis;
+                           min = min, 
                            op_eq = op_eq,
                            op_ge = op_ge,
                            tr_eq = tr_eq,
                            tr_ge = tr_ge,
                            normalize = normalize,
                            tracial = tracial,
-                           reduce = reduce,
                            block_diag = block_diag,
-                           primal = primal)
+                           model_flags = model_flags)
     else
-        model = sos(p, basis, 
+        model = sos(p, basis;
+                            min = min,
                            op_eq = op_eq,
                            op_ge = op_ge,
                            tr_eq = tr_eq,
                            tr_ge = tr_ge,
                            normalize = normalize,
                            tracial = tracial,
-                           reduce = reduce,
                            block_diag = block_diag,
-                           primal = primal)
+                           model_flags = model_flags)
     end
 
     set_solver(model, solver)
