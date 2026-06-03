@@ -1,3 +1,4 @@
+include("traceGrobner.jl")
 # PROJECTORS
 
 # Parameters
@@ -19,11 +20,11 @@ tr_eq = [[ρ[x],1] for x in 1:3]
 # Optimization of the semidefinite relaxation
 obj = -(2*PA[1,1]-1)*ρ[1] - (2*PA[1,2]-1)*ρ[1] - (2*PA[1,1]-1)*ρ[2]
 obj+=  (2*PA[1,2]-1)*ρ[2] + (2*PA[1,1]-1)*ρ[3]
-val, model, _ = npa(obj,2;min=false,
+val, model, _ = pcpop!(obj, 2; min=false,
                  op_ge=op_ge,
                  tr_eq=tr_eq,
                  tr_ge=tr_ge,
-                 cyclic=true,
+                 tracial=true,
                  normalize=false)
 println("Optimal value is ", val)
 
@@ -41,10 +42,10 @@ tr_ge = [[-σ,-G]]
 tr_eq = [[ρ[x],1] for x in 1:3]
 # Optimization of the semidefinite relaxation
 obj = -a[1]*ρ[1] - a[2]*ρ[1] - a[1]*ρ[2] +  a[2]*ρ[2] + a[1]*ρ[3]
-val, model, _ = npa(obj,2;min=false,
+val, model, _ = pcpop!(obj, 2; min=false,
                  op_ge=op_ge,
                  tr_eq=tr_eq,
                  tr_ge=tr_ge,
-                 cyclic=true,
+                 tracial=true,
                  normalize=false)
 println("Optimal value is ", val)

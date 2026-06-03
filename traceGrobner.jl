@@ -10,12 +10,14 @@ include("src/NCMonoid.jl")
 include("src/utils.jl")
 include("src/representations.jl")
 include("src/cyclic.jl")
+include("src/npa_level.jl")
 include("src/primal_opt.jl")
-# include("issued/primal_opt_old.jl")
+include("src/primal_opt_nc.jl")
 include("src/jordan.jl")
 include("src/pcpop.jl")
 include("src/grobner.jl")
 include("src/tpop.jl")
+include("src/optimization.jl")
 
 const package_types=Dict([NCMonoid=>NCWord,
 GraphProductMonoid=>GraphProductWord,

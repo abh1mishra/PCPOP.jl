@@ -1,3 +1,4 @@
+include("../traceGrobner.jl")
 # Build the monoid
 @pcmonoid M X[9,0]
 Unipotent.(X)
@@ -15,5 +16,5 @@ R = [x[1,1]*x[1,2]*x[1,3] - 1,
 	 x[1,2]*x[2,2]*x[3,2] + 1,
 	 x[1,3]*x[2,3]*x[3,3] + 1]
 # Optimize semidefinite relaxation
-val,model,_ = npa(0,2;op_eq=R,lvl_lm=0) 
+val,model,_ = pcpop!(0, 2; op_eq=R, lvl_lm=0)
 println("Termination status ", termination_status(model))

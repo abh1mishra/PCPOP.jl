@@ -161,14 +161,11 @@ level=2
 
 obj = tan(θ)*UA[1]*UBL[1] + UA[1]*UBL[2] + UA[2]*UBL[1] - tan(θ)*UA[2]*UBL[2]
 
-Γ,Cvec, Amat,Bvec=npa_dual(obj,level;tr_eq=tr_eq,min=false,rm=true)
-model_red, P, blkD = jordan_reduce(Cvec, Amat, Bvec, verbose=true,complex=true,diagonalize=false)
+ov,model,_=pcpop!(obj,level;tr_eq=tr_eq,min=false)
 
-set_optimizer(model_red, Mosek.Optimizer)
-# set_silent!(model_red)
-optimize!(model_red)
-println(termination_status(model_red))
-println(objective_value(model_red))
+
+println(termination_status(model))
+println(objective_value(model))
 
 # println("Optimal value is ", ov)
 
@@ -194,11 +191,10 @@ PA = [A[1] A[3]; A[2] A[4]; 1-A[1]-A[2] 1-A[3]-A[4]]
 level = "2+A*A*A+BS*BS*BS+BL*BL*BL+A*A*BL+A*A*BS+BS*BS*BL"
 # level=2
 
-Γ,Cmat, Amat,Xmat,Bvec = npa_dual(0,level;min=false,rm=true,list_vars = M.vertices)
+model,Γ,_ = pcpop!(0,level;min=false,optimize=false,list_vars = M.vertices)
 ηl = @variable(model)
 ηs = 0.98
 ηa=ηs
-Γ = Dict([k=>Xmat[v...] for (k,v) in Γ])
 [@constraint(model,Γ[PA[a,x]*PBS[b,y]] == ηa*ηs*chsh_correlations(a,b,x,y)) for a in 1:2 for x in 1:2 for b in 1:2 for y in 1:2]
 id = one(A[1])
 [@constraint(model,Γ[PA[a,x]*id] == ηa*chsh_correlations(a,-1,x,1)) for a in 1:2 for x in 1:2]
@@ -229,12 +225,11 @@ build(M)
 level = "3+A*A*A*A+b[1:2]*b[1:2]*b[1:2]*b[1:2]+b[3:4]*b[3:4]*b[3:4]*b[3:4]+A*A*b[1:2]*b[1:2]+A*A*b[3:4]*b[3:4]+b[1:2]*b[1:2]*b[3:4]*b[3:4]"
 # level = 3
 # model, Γ, pm = npa(0,level;min=false,rm=true,list_vars = [a;b],optimizer=SDPA.Optimizer,model_flags=[("Mode",SDPA.PARAMETER_STABLE_BUT_SLOW)])
-Γ,model,Xmat, pm = npa(0,level;min=false,rm=true,list_vars = [a;b])
+model,Γ,_ = pcpop!(0,level;min=false,optimize=false,list_vars = [a;b])
 
 ηl = @variable(model)
 ηs = 0.98
 ηa=ηs
-Γ = Dict([k=>Xmat[v...] for (k,v) in Γ])
 # AxBsy
 [@constraint(model,Γ[a[x]*bs[y]] == ηa*ηs*chsh_correlations(1,1,x,y;obs=true)) for x in 1:2 for y in 1:2]#4
 

@@ -1,6 +1,5 @@
 include("traceGrobner.jl")
 
-println("Building monoid...")
 # Build the monoid
 @pcmonoid M a[16,0]
 Projector.(a)
@@ -27,13 +26,11 @@ append!(R, [one(M) - sum(A[3:4,1:2])])
 append!(R, [one(M) - sum(A[3:4,3:4])])
 
 # Semidefinite relaxation
-println("Building model...")
-val,model,_,_ = npa(p, 1, min=false, op_eq=R)
+val,model,_,_ = pcpop!(p, 1; min=false, op_eq=R)
 
 println("Termination status ", termination_status(model))
 println("Optimal value is   ", objective_value(model))
 
-println("Building model...")
 model = pcpop(p, 1, equalities=R;localize=true)
 set_optimizer(model, Mosek.Optimizer)
 println("Optimizing...")

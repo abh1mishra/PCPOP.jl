@@ -1,4 +1,4 @@
-include("traceGrobner.jl")
+include("../traceGrobner.jl")
 using PolyChaos: radau, rm_jacobi
 
 """
@@ -54,7 +54,7 @@ function bff(t, α, γ, k::Int; primal=true)
             α - z[2]'*z[2]]
 
     if primal
-        return npa(obj, k; tr_ge=tr_ge, op_ge=op_ge)
+        return pcpop!(obj, k; tr_ge=tr_ge, op_ge=op_ge)
     else
         return pcpop(-obj, k, inequalities=op_ge, moments=tr_ge)
     end
@@ -141,15 +141,14 @@ op_ge =[α - z[1]*za[1], α - za[1]*z[1],
 
 # Full semidefinite program
 println("Solving SDP relaxation...")
-ov,model,_=npa(obj, 2; op_ge=op_ge, tr_ge=tr_ge)
+ov,model,_=pcpop!(obj, 2; op_ge=op_ge, tr_ge=tr_ge)
 println("Termination status: ", termination_status(model))
 println("Objective value: ", objective_value(model))
 
-# Jordan reduction semidefinite program
+Jordan reduction semidefinite program
 println("Solving Jordan reduced SDP relaxation...")
 k = 2
 diagonalize=false
-Γ,C, A, b = npa_dual(obj, k; op_ge=op_ge, tr_eq=tr_ge,rm=true)
-model, P, blkD = jordan_reduce(C, A, b; verbose=true,complex=true, diagonalize=diagonalize)
+model=pcpop!(obj, k; op_ge=op_ge, tr_ge=tr_ge,reduce=true)
 println("Termination status: ", termination_status(model))
 println("Objective value: ", objective_value(model))

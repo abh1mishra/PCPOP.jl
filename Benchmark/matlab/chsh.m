@@ -4,7 +4,9 @@
 
 %% Define scenario
 % Two parties
+tic
 scenario = LocalityScenario(2);
+
 Alice = scenario.Parties(1);
 Bob = scenario.Parties(2);
 
@@ -15,24 +17,15 @@ B0 = Bob.AddMeasurement(2);
 B1 = Bob.AddMeasurement(2);
 
 %% Make moment matrix
-matrix = scenario.MomentMatrix(1);
+matrix = scenario.MomentMatrix(10);
 
-% Make correlator objects
-Corr00 = Correlator(A0, B0);
-Corr01 = Correlator(A0, B1);
-Corr10 = Correlator(A1, B0);
-Corr11 = Correlator(A1, B1);
-
-% Make CHSH object manually
-CHSH_ineq = Corr00 + Corr01 + Corr10 - Corr11;
 
 % Alternatively, make via full-correlator
-CHSH_ineq2 = scenario.FCTensor([[0 0 0]; [0 1 1]; [0 1 -1]]);
+CHSH_ineq = scenario.FCTensor([[0 0 0]; [0 1 1]; [0 1 -1]]);
 
-% Alternatively, make via Collins-Gisin notation
-CHSH_ineq3 = scenario.CGTensor([[2 -4 0]; [-4 4 4]; [0 4 -4]]);
 
 %% Define and solve SDP
+cvx_solver mosek
 cvx_begin sdp
 
     % Declare basis variables a (real) and b (imaginary)
@@ -47,12 +40,10 @@ cvx_begin sdp
     % Positivity
     M >= 0;
 
-    % CHSH inequality (maximize!)
+    %CHSH inequality (maximize!)
     solve_chsh_ineq = CHSH_ineq.Apply(a);
     maximize(solve_chsh_ineq);
 cvx_end
-
+toc
 %% Print out values found (should be identical!)
-chsh_max_val = CHSH_ineq.Apply(a)
-chsh_max_val2 = CHSH_ineq2.Apply(a)
-chsh_max_val3 = CHSH_ineq3.Apply(a)
+%chsh_max_val = CHSH_ineq.Apply(a)

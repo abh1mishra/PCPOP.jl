@@ -3,22 +3,27 @@
 ##  OPTIMIZATION METHODS  ##
 ############################
 
-function pcpop(p::Polynomial, k::Int;
+function pcpop!(p, k;
     min=false,
     op_eq = [],
     op_ge = [],
     tr_eq = [],
     tr_ge = [],
+    lvl_lm=-1,
+    list_vars=[],
     normalize = true,
     tracial = false,
     solver = Mosek.Optimizer,
-    optimize = false,
+    optimize = true,
     reduce = false,
     block_diag = false,
-    primal = true)
+    model_flags=[],
+    primal = true,
+    canonical=true,
+    extra_zeros=false)
 
-    basis = mons_at_level(p.monoid, k)
-    return pcpop(p, basis;
+    basis,basis_principal = basis_gen(p,k,op_eq,op_ge,tr_eq,tr_ge,list_vars,lvl_lm)
+    return pcpop!(p, basis,basis_principal;
                            min = min,
                            op_eq = op_eq,
                            op_ge = op_ge,
@@ -31,14 +36,16 @@ function pcpop(p::Polynomial, k::Int;
                            reduce = reduce,
                            block_diag = block_diag,
                            model_flags = [],
-                           primal = primal)
+                           primal = primal,
+                           canonical = canonical,
+                           extra_zeros = extra_zeros)
 end
 
 """
     Polynomial optimization problem in partially commutative monoid `Μ`.
     
-    pcpop(p, k)
-    pcpop(p, basis)
+    pcpop!(p, k)
+    pcpop!(p, basis)
 
     #Arguments:
     - `p` : polynomial `p` in monoid `Μ`.
@@ -72,7 +79,7 @@ end
     Min t
     s.t. t - p in SOS(k)    
 """
-function pcpop(p::Polynomial, basis;
+function pcpop!(p, basis, basis_principal;
     min = false,
     op_eq = [],
     op_ge = [],
@@ -81,34 +88,47 @@ function pcpop(p::Polynomial, basis;
     normalize = true,
     tracial = false,
     solver = Mosek.Optimizer,
-    optimize = false,
+    optimize = true,
     reduce = false,
     block_diag = false,
     model_flags=[],
-    primal = true)
+    primal = true,
+    canonical=true,
+    extra_zeros=false)
 
+    if is_number(p)
+        @warn "The objective function is a constant, it is a feasibility check"
+    end
     if reduce
-        Γ, C, A, b = npa_canonical(p, basis;
-                           min = min, 
+        Γ, C, A, b = npa_canonical(p, basis, basis_principal;
                            op_eq = op_eq,
                            op_ge = op_ge,
                            tr_eq = tr_eq,
                            tr_ge = tr_ge,
                            normalize = normalize,
                            tracial = tracial,
-                           model_flags = model_flags)
-        model = jordan_reduce(C, A, b, complex=true, diagonalize=block_diag)
-    elseif primal
-        model = npa(p, basis;
-                           min = min, 
-                           op_eq = op_eq,
-                           op_ge = op_ge,
-                           tr_eq = tr_eq,
-                           tr_ge = tr_ge,
-                           normalize = normalize,
-                           tracial = tracial,
-                           block_diag = block_diag,
-                           model_flags = model_flags)
+                           extra_zeros = extra_zeros)
+        model,_,_ = jordan_reduce(C, A, b, complex=true, diagonalize=block_diag)
+    elseif primal && canonical
+        model,Γ,PM = npa(p, basis, basis_principal;
+            min = min,
+            op_eq = op_eq,
+            op_ge = op_ge,
+            tr_eq = tr_eq,
+            tr_ge = tr_ge,
+            normalize = normalize,
+            tracial = tracial,
+            extra_zeros = extra_zeros)
+    elseif primal && !canonical
+         model,Γ,PM = npa_nc(p, basis, basis_principal;
+            min = min,
+            op_eq = op_eq,
+            op_ge = op_ge,
+            tr_eq = tr_eq,
+            tr_ge = tr_ge,
+            normalize = normalize,
+            tracial = tracial,
+            extra_zeros = extra_zeros)
     else
         model = sos(p, basis;
                             min = min,
@@ -118,16 +138,27 @@ function pcpop(p::Polynomial, basis;
                            tr_ge = tr_ge,
                            normalize = normalize,
                            tracial = tracial,
-                           block_diag = block_diag,
-                           model_flags = model_flags)
+                           block_diag = block_diag)
     end
-
-    set_solver(model, solver)
 
     if optimize
+        set_optimizer(model, solver)
+        for (flag,val) in model_flags
+            set_optimizer_attribute(model,flag,val)
+        end
         optimize!(model)
+        if primal && !reduce
+            optimal_vars = Dict{AbstractMonomial, Float64}()
+            for (k,v) in Γ
+                optimal_vars[k] = value(v)
+            end
+            ov = objective_value(model)
+            return ov,model, optimal_vars, basis, basis_principal, PM
+        end
     end
-
+    if primal && !reduce
+        return model,Γ, PM, basis, basis_principal
+    end
     return model
 end
 
@@ -135,12 +166,14 @@ end
     Dual sum of squares implementation.
 """
 function sos(p::Polynomial, basis; 
+            min=false,
             op_eq = [], 
             op_ge = [], 
             tr_eq = [],
             tr_ge = [],
             normalize = true, 
-            tracial = false)
+            tracial = false,
+            block_diag = false)
 
     op_ge = union(op_ge, op_eq, -op_eq)
     cores_psd = union([Polynomial(one(p.monoid))], Polynomial.(op_ge))
