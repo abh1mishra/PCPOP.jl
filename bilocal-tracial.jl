@@ -13,7 +13,7 @@ build(M)
 # Objective function
 r = ρ[1]*ρ[2]
 α = r*sum(a[i]*b[1]*c[j] for i in 1:2 for j in 1:2)
-γ = r*sum(a[i]*b[1]*c[j]*(-1)^(i+j) for i in 1:2 for j in 1:2)
+γ = r*sum(a[i]*b[2]*c[j]*(-1)^(i+j) for i in 1:2 for j in 1:2)
 p = (α - γ)^2/8 - (α + γ)
 # Inequality constraints
 S = [ρ[1] - ρ[1]^2,
