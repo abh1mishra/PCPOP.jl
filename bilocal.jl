@@ -10,7 +10,7 @@ k = 2
 TM = make_trace_monoid(M, 2*k+2, tracial=false) 
 # Objective function.
 α = sum(state(a[i]*b[1]*c[j], TM) for i in 1:2 for j in 1:2)
-γ = sum(state(a[i]*b[1]*c[j], TM)*(-1)^(i+j) for i in 1:2 for j in 1:2)
+γ = sum(state(a[i]*b[2]*c[j], TM)*(-1)^(i+j) for i in 1:2 for j in 1:2)
 p = (α - γ)^2/8 - (α + γ)
 # Equality constraints
 basis = union(trace_monomials(TM, 0:k), [state(a[i]*b[1]*c[j], TM) for i in 1:2 for j in 1:2])
