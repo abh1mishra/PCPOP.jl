@@ -7,7 +7,7 @@ Unipotent.([a b c])
 @comms ρ[1] c
 @comms ρ[2] a
 @comms ρ[3] b
-@comms M.vertices...
+#@comms M.vertices...
 build(M)
 # Objective function.
 r = ρ[1]*ρ[2]*ρ[3]
@@ -24,6 +24,7 @@ T = [[ρ[1], 1],
 	 [ρ[3], 1]]
 # Optimize semidefinite relaxation
 val,model,_ = pcpop!(p, 3; min=false,
+             primal=false,
 					   op_ge = S,
 					   tr_eq = T,
 					   normalize=false,
