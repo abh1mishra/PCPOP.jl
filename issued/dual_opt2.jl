@@ -30,183 +30,134 @@ function sym_add!(matrix, i, j, val)
     return matrix
 end
 
-function upscale_poly_mat(p::Polynomial, tsize::Int, offset::Int)
-    new_coeffs = typeof(p.coeffs[1])[]
-    
-    for c in p.coeffs
-        n, m = size(c)
-        # Create an inflated sparse matrix
-        new_mat = spzeros(eltype(c), tsize, tsize)
-        new_mat[offset+1:offset+n, offset+1:offset+m] = c
-        push!(new_coeffs, new_mat)
-    end
 
-    # Return a new polynomial with identical monomials but inflated coefficient matrices
-    return Polynomial(p.monomials, new_coeffs, p.monoid)
-end
-
-
-function npa_moment(operators::Vector;cPoly=1)
+function npa_moment(operators::Vector,Zsi::Symmetric{VariableRef, Matrix{VariableRef}};cPoly=1)
     N = length(operators)
     iops = collect(enumerate(operators))
-    monoid = first(operators).monoid
-    moment_mat = Polynomial{Matrix{Float64}}(monoid)
-    unique_mons=[]
+    moment_D = Dict{AbstractMonomial,AbstractJuMPScalar}([])
     for (i, x) in iops
         for (j, y) in iops[i:end]
             p = Polynomial(real_rep(conj(x)*cPoly*y))
-
             for (m,c) in p
-                m_i=findfirst(x->(x==m),unique_mons)
-                if m_i !== nothing
-                    sym_add!(Main.coefficient(moment_mat,m), i, j, c)
+                term = c*Zsi[i, j]
+                if i != j
+                    term += c*Zsi[j, i]
+                end
+                
+                if haskey(moment_D, m)
+                    moment_D[m] += term
                 else
-                    push!(moment_mat.monomials, m)
-                    push!(moment_mat.coeffs, sym_add!(spzeros(N, N), i, j, c))
-                    push!(unique_mons,m)
+                    moment_D[m] = term
                 end
             end
         end
     end
 
-    return moment_mat
+    return moment_D
 end
 
 
-function npa_dual(obj, level;
-    min=true,
-    op_eq = 0, 
-    op_ge = 0,
-    tr_eq = 0,
-    tr_ge = 0,
-    lvl_lm=0,
-    list_vars=[],
-    cyclic=false,
-    normalize=true,
-    optimizer=Mosek.Optimizer,
-    model_flags=[],
-    rm=false)
-
-    # Delete redundant polynomials(polynomials which are numbers, so k*Id) from the op_ge and op_eq and warn for incompatible polynomials in op_ge and op_eq
-    op_ge!=0 && (op_ge=sanity_check_op_ge(op_ge))
-    op_eq!=0 && (op_eq=sanity_check_op_eq(op_eq))
-    if all(is_number.(vcat([obj, op_ge..., op_eq...],[tr_ge[i][1] for i in 1:length(tr_ge)], [tr_eq[i][1] for i in 1:length(tr_eq)])))
-        @warn "All the input polynomials are constants. The optimization will be trivial."
-        isempty(list_vars) && throw(ArgumentError("The list of variables is empty. Please provide a non-empty list of variables."))
-    end
-    # at this pont, op_ge and op_eq constaints non-trivial polynomials or zero.
-    if lvl_lm==0
-        ops, ops_principal = get_monomials(obj,level; op_eq = op_eq, op_ge = op_ge, tr_eq = tr_eq, tr_ge = tr_ge,list_vars=list_vars)
-    else
-        if !isempty(list_vars)
-            ops_principal= mons_at_level(list_vars, level)
-            ops= mons_at_level(list_vars, lvl_lm)
-        else
-            pols=vcat([obj, op_ge..., op_eq...],[tr_ge[i][1] for i in 1:length(tr_ge)], [tr_eq[i][1] for i in 1:length(tr_eq)])
-            vars=unique_array(union([variables(g) for g in pols]...))
-            ops_principal = mons_at_level(vars, level)
-            ops = mons_at_level(vars, lvl_lm)
+function cyclic_npa_moment(operators::Vector,Zsi::Symmetric{VariableRef, Matrix{VariableRef}};cPoly=1)
+    N = length(operators)
+    iops = collect(enumerate(operators))
+    moment_D = Dict{AbstractMonomial,AbstractJuMPScalar}([])
+    for (i, x) in iops
+        for (j, y) in iops[i:end]
+            p = Polynomial(conj(x)*cPoly*y)
+            for (m,c) in p
+                if m isa Variable
+                    println("error ",x, "  ", y, "  ", cPoly)
+                end
+                m_,m__ = cyclic_reduce(m), cyclic_reduce(m')
+                
+                term = c*Zsi[i, j]
+                if i != j
+                    term += c*Zsi[j, i]
+                end
+                
+                if haskey(moment_D, m_)
+                    moment_D[m_] += term
+                elseif haskey(moment_D, m__)
+                    moment_D[m__] += term
+                else
+                    moment_D[m_] = term
+                end
+            end
         end
     end
-    println("Number of operators in the principal moment matrix: ", length(ops_principal))
-    model=Model(optimizer)
-    for (flag,val) in model_flags
-        set_optimizer_attribute(model,flag,val)
+
+    return moment_D
+end
+
+function obj_gen(obj_poly, LMI, Id, s)
+    obj_p = Main.coefficient(obj_poly,Id) + sum((s*LMI[i][Id] for i in 1:length(LMI) if haskey(LMI[i], Id)), init=0.0)        
+    return obj_p
+end
+
+function cons_gen!(LMI, obj_poly, Id, s,model)
+    mons = union!(Set(), [keys(lmi) for lmi in LMI]...)
+    for m in mons
+        if m != Id
+            constr = sum((s*LMI[i][m] for i in 1:length(LMI) if haskey(LMI[i], m)), init=0.0) + Main.coefficient(obj_poly, m)
+            @constraint(model, constr == 0)
+        end
     end
+end
+
+function npa_dual(obj, ops,ops_principal;
+    min=false,
+    op_eq = [], 
+    op_ge = [],
+    tr_eq = [],
+    tr_ge = [],
+    tracial=false,
+    normalize=true)
+    println("npa_dual in action")
+    println("Number of operators in the principal moment matrix: ", length(ops_principal))
+    model=Model()
 
     Id = one(first(ops_principal))
+
     pair_mat_ops = [(Id,ops_principal)]
-    if op_ge != 0
-        pair_mat_ops=vcat(pair_mat_ops,[(g,ops) for g in op_ge])
-    end
 
-    if op_eq != 0
-        pair_mat_ops=vcat(pair_mat_ops,[(g,ops) for g in op_eq])
-        pair_mat_ops=vcat(pair_mat_ops,[(-g,ops) for g in op_eq])
-    end
+    pair_mat_ops=vcat(pair_mat_ops,[(g,ops) for g in op_ge])
+
+    pair_mat_ops=vcat(pair_mat_ops,[(g,ops) for g in op_eq])
+    pair_mat_ops=vcat(pair_mat_ops,[(-g,ops) for g in op_eq])
 
 
-    # if normalize
-    #     push!(tr_eq, (Id, 1.0))
-    # end
-
-    if tr_ge != 0
+    if !isempty(tr_ge)
         for (g, val) in tr_ge
             tr_ge_poly = g-val
-            pair_mat_ops=vcat(pair_mat_ops,[(tr_eq_poly,[Id])])
+            pair_mat_ops=vcat(pair_mat_ops,[(tr_ge_poly,[Id])])
         end
     end
 
-    if tr_eq != 0
+    if !isempty(tr_eq)
         for (g, val) in tr_eq
             tr_eq_poly = g-val
             pair_mat_ops=vcat(pair_mat_ops,[(tr_eq_poly,[Id])])
             pair_mat_ops=vcat(pair_mat_ops,[(-tr_eq_poly,[Id])])
         end
     end
-    println("LMI begin")
-    LMI = [npa_moment(ops_i;cPoly=g) for (g, ops_i) in pair_mat_ops]
-    tsize = sum(length(i) for (j,i) in pair_mat_ops)
-    upscaled_LMI = []
-    offset = 0
-    for i in 1:length(LMI)
-        push!(upscaled_LMI,upscale_poly_mat(LMI[i], tsize,offset))
-        offset += length(pair_mat_ops[i][2])
-    end
-    println("F begin")
 
-    F = sum(upscaled_LMI)
-    Z=@variable(model, [1:tsize, 1:tsize], PSD)
-    println("F ends")
+    tsize = [length(i) for (j,i) in pair_mat_ops]
 
-    obj_poly=real_rep(Polynomial(obj))
-    if !is_number(obj)
-        obj_p=0
-        if cyclic
-            for (m,c) in Polynomial(obj)
-                m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
-                m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
-                if m_i==nothing
-                    throw(ArgumentError("level not enough"))
-                end
-                obj_p+=c*unique_vars[m_i]
-            end
-        else
-            obj_p=Main.coefficient(obj_poly,Id) + LinearAlgebra.dot(Z,Main.coefficient(F,Id))
-        end
-        
-        min ? @objective(model, Max, obj_p) : @objective(model, Min, obj_p)
-    end
-    println("Adding constraints")
-    mons=monomials(F)
-    for (i,m) in enumerate(mons)
-        println("Adding constraint for monomial ", i/length(mons))
-        if m!=Id
-            constr = LinearAlgebra.dot(Z,Main.coefficient(F,m)) + Main.coefficient(obj_poly,m)
-            @constraint(model, constr == 0)
-        end
-    end
-    println("Constraints added")
-    if rm
-        return model, F, Z
-    end
-    # Solve the model
-    optimize!(model)
-    # Check the optimization status
-    if termination_status(model) != MOI.OPTIMAL
-        @warn "The optimization problem is $(termination_status(model))."
-    end
-    # Extract the optimal value of the objective function
-    optimal_value = objective_value(model)
+    Zs=[@variable(model, [1:l, 1:l], PSD) for l in tsize]
 
-    # Return the optimal value and the dictionary of optimal variables
-    # return optimal_value, optimal_vars, model
+    LMI = [tracial ? cyclic_npa_moment(ops_i,Zs[i];cPoly=g) : npa_moment(ops_i,Zs[i];cPoly=g) for (i,(g, ops_i)) in enumerate(pair_mat_ops)]
 
-    if is_number(obj)
-        @warn "The objective function is a constant, it is a feasibility check"
-        return termination_status(model),model,ops_principal,unique_mons,PM
-    end
+    min ? s=-1 : s=1
+    tracial ? Id = cyclic_reduce(Id) : Id = Id
 
-    return optimal_value, model, F,Z
+    obj_poly = obj*Id
+    tracial ? obj_poly = Polynomial(obj_poly) : obj_poly = real_rep(Polynomial(obj_poly))
+
+    obj_p = obj_gen(obj_poly, LMI, Id, s)
+    min ? @objective(model, Max, obj_p) : @objective(model, Min, obj_p)
+
+    cons_gen!(LMI, obj_poly, Id, s,model)
+
+    return model, LMI,Zs
 
 end

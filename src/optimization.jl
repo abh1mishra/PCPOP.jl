@@ -110,7 +110,7 @@ function pcpop!(p, basis, basis_principal;
                            extra_zeros = extra_zeros)
         model,_,_ = jordan_reduce(C, A, b, complex=true, diagonalize=block_diag)
     elseif primal && canonical
-        model,Γ,PM = npa(p, basis, basis_principal;
+        model,Γ,X = npa(p, basis, basis_principal;
             min = min,
             op_eq = op_eq,
             op_ge = op_ge,
@@ -127,18 +127,25 @@ function pcpop!(p, basis, basis_principal;
             tr_eq = tr_eq,
             tr_ge = tr_ge,
             normalize = normalize,
-            tracial = tracial,
-            extra_zeros = extra_zeros)
+            tracial = tracial)
     else
-        model = sos(p, basis;
-                            min = min,
-                           op_eq = op_eq,
-                           op_ge = op_ge,
-                           tr_eq = tr_eq,
-                           tr_ge = tr_ge,
-                           normalize = normalize,
-                           tracial = tracial,
-                           block_diag = block_diag)
+        model,Γ,Zs = npa_dual(p, basis, basis_principal;
+            min = min,
+            op_eq = op_eq,
+            op_ge = op_ge,
+            tr_eq = tr_eq,
+            tr_ge = tr_ge,
+            normalize = normalize,
+            tracial = tracial)
+        # model = sos(p, basis;
+        #                     min = min,
+        #                    op_eq = op_eq,
+        #                    op_ge = op_ge,
+        #                    tr_eq = tr_eq,
+        #                    tr_ge = tr_ge,
+        #                    normalize = normalize,
+        #                    tracial = tracial,
+        #                    block_diag = block_diag)
     end
 
     if optimize
@@ -147,19 +154,9 @@ function pcpop!(p, basis, basis_principal;
             set_optimizer_attribute(model,flag,val)
         end
         optimize!(model)
-        if primal && !reduce
-            optimal_vars = Dict{AbstractMonomial, Float64}()
-            for (k,v) in Γ
-                optimal_vars[k] = value(v)
-            end
-            ov = objective_value(model)
-            return ov,model, optimal_vars, basis, basis_principal, PM
-        end
+        return objective_value(model), model,basis, basis_principal
     end
-    if primal && !reduce
-        return model,Γ, PM, basis, basis_principal
-    end
-    return model
+    return model, basis, basis_principal
 end
 
 """

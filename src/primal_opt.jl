@@ -65,7 +65,6 @@ function cyclic_npa_moments_block!(list_monomials::Vector{M},X,tsize,model;cPoly
 end
 
 function npa_moments_block!(list_monomials::Vector{M},X,tsize,model;cPoly=1,mons_pos_D=Dict([]),offset=0,extra_zeros=false) where M<:AbstractMonomial
-
     # Get the number of monomials
     num_monomials = length(list_monomials)
 
@@ -186,7 +185,11 @@ function npa(obj, ops, ops_principal;
                 tr_eq_p += c*X[upi,upj]
             end
         end
-        @constraint(model, tr_eq_p - tr_eq[i][2] == 0)
+        try
+            @constraint(model, tr_eq_p - tr_eq[i][2] == 0)
+        catch e
+            println("error",tr_eq_p, " ", tr_eq[i][2])
+        end
     end
 
     for i in 1:length(tr_ge)
@@ -230,7 +233,7 @@ function npa(obj, ops, ops_principal;
                 obj_p += c*X[upi,upj]
             end
         else
-            obj_poly=real_rep(Polynomial(Polynomial(obj)))
+            obj_poly=real_rep(Polynomial(obj))
             for (m,c) in obj_poly
                 if !haskey(mons_pos_D,m)
                     throw(ArgumentError("level not enough"))

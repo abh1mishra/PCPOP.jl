@@ -183,25 +183,6 @@ function add_poly(p::Polynomial{C_T_1}, q::Polynomial{C_T_2}) where {C_T_1,C_T_2
         T=MA.promote_operation(+,C_T_1,C_T_2)
         r = Polynomial{T}(p.monoid)  # Create a new polynomial with the same monoid
 
-        # cmn_mons=intersect(p.monomials,q.monomials)
-        # for mon in cmn_mons
-        #     push!(r.monomials,mon)
-        #     index_p=findfirst(m->m==mon,p.monomials)
-        #     index_q=findfirst(m->m==mon,q.monomials)
-        #     push!(r.coeffs,p.coeffs[index_p]+q.coeffs[index_q])
-        # end
-        # for i in 1:length(p)
-        #     if !(p.monomials[i] in cmn_mons)
-        #         push!(r.monomials,p.monomials[i])
-        #         push!(r.coeffs,p.coeffs[i])
-        #     end
-        # end
-        # for j in 1:length(q)
-        #     if !(q.monomials[j] in cmn_mons)
-        #         push!(r.monomials,q.monomials[j])
-        #         push!(r.coeffs,q.coeffs[j])
-        #     end
-        # end
         i, j = 1, 1  # Pointers for p and q
 
         # Merge the monomials and coefficients
@@ -286,7 +267,7 @@ Base.:+(M::AbstractMonomial,n::Number)=+(M,n*one(M))
 Base.:+(n::Number,M::AbstractMonomial)=+(n*one(M),M)
 Base.:+(m1::AbstractMonomial,m2::AbstractMonomial)=1*m1+1*m2
 
-Base.:-(m1::AbstractMonomial,m2::AbstractMonomial)=1*m1-1*m2
+Base.:-(m1::AbstractMonomial,m2::AbstractMonomial)=Polynomial(m1)-Polynomial(m2)
 Base.:-(m::AbstractMonomial,n::Number)=m-n*one(m)
 Base.:-(n::Number,m::AbstractMonomial)=n*one(m)-m
 

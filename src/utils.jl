@@ -248,7 +248,7 @@ function get_root_polynomials(p::Polynomial,q::Polynomial)
 
     if f_m_p.monoid==f_m_p_.monoid && f_m_q.monoid!=f_m_q_.monoid
         Mon=p.monoid
-        q_=Polynomial(Mon)
+        q_=Polynomial{q.coeff_type}(Mon)
         for i in 1:length(q.monomials)
             push!(q_.monomials,raise_monomial(q.monomials[i],Mon))
             push!(q_.coeffs,q.coeffs[i])
@@ -256,7 +256,7 @@ function get_root_polynomials(p::Polynomial,q::Polynomial)
         return (p,q_)
     elseif f_m_p.monoid!=f_m_p_.monoid && f_m_q.monoid==f_m_q_.monoid
         Mon=q.monoid
-        p_=Polynomial(Mon)
+        p_=Polynomial{p.coeff_type}(Mon)
         for i in 1:length(p.monomials)
             push!(p_.monomials,raise_monomial(p.monomials[i],Mon))
             push!(p_.coeffs,p.coeffs[i])
