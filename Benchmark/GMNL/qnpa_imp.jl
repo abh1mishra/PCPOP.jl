@@ -23,10 +23,10 @@ function gmnl(n,k;primal=false,optimize=true)
         stop_solve = time()
         elapsed_setup = stop_setup - start_setup
         elapsed_solve = stop_solve - start_solve
-        return elapsed_setup, elapsed_solve
+        return elapsed_setup, elapsed_solve,model
     else
         elapsed_setup = stop_setup - start_setup
-        return elapsed_setup,0.0
+        return elapsed_setup,0.0,model
     end
 end
 
@@ -37,7 +37,7 @@ function avg_time(total_runs,n,k;optimize=true,primal=false)
     gmnl(1,1; optimize=false, primal=primal)
 
     for i in 1:total_runs
-        setup_time, solve_time = gmnl(n,k; optimize=optimize, primal=primal)
+        setup_time, solve_time,_ = gmnl(n,k; optimize=optimize, primal=primal)
         total_setup_time += setup_time
         total_solve_time += solve_time
     end
