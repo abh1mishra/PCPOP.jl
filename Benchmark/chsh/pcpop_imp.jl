@@ -21,10 +21,10 @@ function chsh(k;primal=false,canonical=true)
     return elapsed_setup, elapsed_solve
 end
 
-function avg_time(total_runs,k;primal=true,canonical=true)
+function avg_time(total_runs,k;primal=false,canonical=true)
     # hot run
-    chsh(k; primal=primal, canonical=canonical)
-    chsh(k; primal=primal, canonical=canonical)
+    chsh(1; primal=primal, canonical=canonical)
+    chsh(1; primal=primal, canonical=canonical)
 
     # Actual timer starts here
     total_setup_time = 0.0

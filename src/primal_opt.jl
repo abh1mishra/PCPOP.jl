@@ -179,7 +179,7 @@ function npa(obj, ops, ops_principal;
             end
 
         else
-            tr_eq_poly=real_rep(Polynomial(Polynomial(tr_eq[i][1])))
+            tr_eq_poly=real_rep(Polynomial(tr_eq[i][1]))
             for (m,c) in tr_eq_poly
                 upi,upj = mons_pos_D[m]
                 tr_eq_p += c*X[upi,upj]

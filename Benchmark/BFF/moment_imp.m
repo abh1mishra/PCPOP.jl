@@ -4,16 +4,17 @@
 
 
 %% Prepare setting
+tic
 setting = make_bff_setting();
-mm_level = 2;
+mm_level = 3;
 gauss_radau_level = 8;
-verbose = false;
+verbose = true;
 
 chsh = 0.80;
-value_chsh = 2*chsh-1.5;
+value_chsh = 2*(2^0.5);
 
 %% Gauss-Radau estimation
-tic;
+
 [w, t] = gauss_radau(gauss_radau_level);
 val = (-1/gauss_radau_level^2 + sum(w./t))/log(2);
 for i=1:(gauss_radau_level-1)
@@ -73,7 +74,7 @@ function val = solve_bff_sdp(setting, t, moment_matrix_level, ...
     [a0, a1, b0, b1, z0, z1] = setting.getAll();
     
     % CHSH constraint polynomial
-    chsh = - a0 - b0 + a0*b0 + a0*b1 + a1*b0 - a1*b1;
+    chsh = (1-2*a0)*(1-2*b0) + (1-2*a0)*(1-2*b1) + (1-2*a1)*(1-2*b0) - (1-2*a1)*(1-2*b1);
     
     % Objective function polynomial   
     obj = a0*(z0 + z0' + (1-t)*(z0'*z0)) + t*(z0*z0') + ...

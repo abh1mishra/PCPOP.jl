@@ -1,49 +1,47 @@
-%% Example: cvx_chsh.m 
-% Solves CHSH scenario, with CVX.
-% Expected answer: 2 sqrt 2 (2.828...)
+%% Example: yalmip_chsh.m 
+% Solves CHSH scenario, with yalmip.
+%
 
-%% Define scenario
-% Two parties
+%% Parameters
+mm_level = 14;
+
+%% Set up scenario
 tic
-scenario = LocalityScenario(2);
+setting = LocalityScenario(2, 2, 2);
+[A0, A1, B0, B1] = setting.getMeasurements();
 
-Alice = scenario.Parties(1);
-Bob = scenario.Parties(2);
+%% Make matrices and polynomials
+% Make moment matrix
+matrix = setting.MomentMatrix(mm_level);
 
-% Each party with two measurements
-A0 = Alice.AddMeasurement(2);
-A1 = Alice.AddMeasurement(2);
-B0 = Bob.AddMeasurement(2);
-B1 = Bob.AddMeasurement(2);
+% Make correlator objects
+Corr00 = A0.Correlator(B0);
+Corr01 = A0.Correlator(B1);
+Corr10 = A1.Correlator(B0);
+Corr11 = A1.Correlator(B1);
 
-%% Make moment matrix
-matrix = scenario.MomentMatrix(14);
-
-
-% Alternatively, make via full-correlator
-CHSH_ineq = scenario.FCTensor([[0 0 0]; [0 1 1]; [0 1 -1]]);
-
+% Make CHSH object
+CHSH_ineq = Corr00 + Corr01 + Corr10 - Corr11;
 
 %% Define and solve SDP
-cvx_solver mosek
-cvx_begin sdp
+yalmip('clear')
 
-    % Declare basis variables a (real) and b (imaginary)
-    scenario.cvxVars('a');
-    
-    % Compose moment matrix from these basis variables
-    M = matrix.Apply(a);
+% Get SDP vars and matrix
+a = setting.yalmipVars();
+M = matrix.Apply(a);
 
-    % Normalization
-    a(1) == 1;
+% Constraints (normalization, positivity)
+constraints = [a(1) == 1];
+constraints = [constraints, M>=0];
 
-    % Positivity
-    M >= 0;
-
-    %CHSH inequality (maximize!)
-    solve_chsh_ineq = CHSH_ineq.Apply(a);
-    maximize(solve_chsh_ineq);
-cvx_end
+% Objective function (maximize)
+objective = -CHSH_ineq.Apply(a);
 toc
-%% Print out values found (should be identical!)
-%chsh_max_val = CHSH_ineq.Apply(a)
+tic
+% Solve
+optimize(constraints, objective); 
+toc
+%% Get solutions
+a_vals = value(a);
+disp(setting.FullCorrelator.Apply(a_vals));
+disp(CHSH_ineq.Apply(a_vals));

@@ -1,7 +1,7 @@
 include("../../traceGrobner.jl")
 using Combinatorics
 
-function gmnl(n,k; primal=true, canonical=true)
+function gmnl(n,k; primal=false, canonical=true,optimize=true)
 
     @pcmonoid M A[2*n,0]
     # Set variables to projectors
@@ -23,24 +23,30 @@ function gmnl(n,k; primal=true, canonical=true)
     # Optimization of the semidefinite relaxation
     model,_ = pcpop!(obj, k; tr_eq=tr_eq, min=false,optimize=false,primal=primal,canonical=canonical)
     stop_setup = time()
-    set_optimizer(model, Mosek.Optimizer)
-    start_solve = time()
-    optimize!(model)
-    stop_solve = time()
-    elapsed_setup = stop_setup - start_setup
-    elapsed_solve = stop_solve - start_solve
-    return elapsed_setup, elapsed_solve
+    if optimize
+        set_optimizer(model, Mosek.Optimizer)
+        start_solve = time()
+        optimize!(model)
+        stop_solve = time()
+        println("Termination status: ", termination_status(model))
+        elapsed_setup = stop_setup - start_setup
+        elapsed_solve = stop_solve - start_solve
+        return elapsed_setup, elapsed_solve
+    else
+        elapsed_setup = stop_setup - start_setup
+        return elapsed_setup,0.0
+    end
 end
 
-function avg_time(total_runs,n,k;primal=true,canonical=true)
+function avg_time(total_runs,n,k;primal=false,canonical=true,optimize=true)
     # Hot start
-    gmnl(n,k; primal=primal, canonical=canonical)
-    gmnl(n,k; primal=primal, canonical=canonical)
+    gmnl(1,1; primal=primal, canonical=canonical,optimize=optimize)
+    gmnl(1,1; primal=primal, canonical=canonical,optimize=optimize)
 
     total_setup_time = 0.0
     total_solve_time = 0.0
     for i in 1:total_runs
-        setup_time, solve_time = gmnl(n,k; primal=primal, canonical=canonical)
+        setup_time, solve_time = gmnl(n,k; primal=primal, canonical=canonical,optimize=optimize)
         total_setup_time += setup_time
         total_solve_time += solve_time
     end

@@ -19,7 +19,7 @@ function chsh(k;primal=false)
     return elapsed_setup, elapsed_solve
 end
 
-function avg_time(total_runs,k;primal=true)
+function avg_time(total_runs,k;primal=false)
     # hot run
     chsh(k; primal=primal)
     chsh(k; primal=primal)
