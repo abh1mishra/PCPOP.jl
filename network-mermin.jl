@@ -16,15 +16,12 @@ p = r*(a[2]*b[1]*c[1] + a[1]*b[2]*c[1] + a[1]*b[1]*c[2] - a[2]*b[2]*c[2])
 S = [ρ[1] - ρ[1]^2,
 	 ρ[2] - ρ[2]^2,
 	 ρ[3] - ρ[3]^2]
-T = [[ρ[1]-ρ[2], 0],
-	 [ρ[2]-ρ[3], 0],
-	 [ρ[3]-ρ[1], 0],]
 T = [[ρ[1], 1],
 	 [ρ[2], 1],
 	 [ρ[3], 1]]
 # Optimize semidefinite relaxation
 val,model,_ = pcpop!(p, 3; min=false,
-             primal=false,
+             primal=true,
 					   op_ge = S,
 					   tr_eq = T,
 					   normalize=false,
