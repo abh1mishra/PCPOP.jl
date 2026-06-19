@@ -18,9 +18,10 @@ function pcpop!(p, k;
     reduce = false,
     block_diag = false,
     model_flags=[],
-    primal = true,
+    primal = false,
     canonical=true,
-    extra_zeros=false)
+    extra_zeros=false,
+    silent = true)
 
     basis,basis_principal = basis_gen(p,k,op_eq,op_ge,tr_eq,tr_ge,list_vars,lvl_lm)
     return pcpop!(p, basis,basis_principal;
@@ -38,7 +39,8 @@ function pcpop!(p, k;
                            model_flags = [],
                            primal = primal,
                            canonical = canonical,
-                           extra_zeros = extra_zeros)
+                           extra_zeros = extra_zeros,
+                           silent=silent)
 end
 
 """
@@ -92,9 +94,10 @@ function pcpop!(p, basis, basis_principal;
     reduce = false,
     block_diag = false,
     model_flags=[],
-    primal = true,
+    primal = false,
     canonical=true,
-    extra_zeros=false)
+    extra_zeros=false,
+    silent = true)
 
     if is_number(p)
         @warn "The objective function is a constant, it is a feasibility check"
@@ -150,6 +153,7 @@ function pcpop!(p, basis, basis_principal;
 
     if optimize
         set_optimizer(model, solver)
+        silent ? set_silent(model) : Nothing
         for (flag,val) in model_flags
             set_optimizer_attribute(model,flag,val)
         end

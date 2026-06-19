@@ -40,7 +40,6 @@ Polynomial(v::Variable,n)=Polynomial(monomial(v),n)
 Base.hash(p::Polynomial, h::UInt)=hash(p.monoid, hash(p.monomials, hash(p.coeffs,hash(0x7d6979235cb005d0, h))))
 Base.zero(p::Polynomial)=Polynomial(p.monoid)
 
-
 Base.iterate(p::Polynomial)=iterate(zip(p.monomials,p.coeffs))
 Base.iterate(p::Polynomial, state)=iterate(zip(p.monomials,p.coeffs),state)
 Base.length(p::Polynomial)=length(p.monomials)
@@ -141,9 +140,10 @@ Base.adjoint(p::Polynomial{C_T}) where C_T = Base.conj(p)
 Base.:*(x,m::AbstractMonomial)=x==0 ? zero(Polynomial(m,x)) : Polynomial(m,x)
 Base.:*(m::AbstractMonomial,x)=x*m
 
-function Base.:+(x::C_T_X, p::Polynomial{C_T_P}) where {C_T_X,C_T_P}
+function Base.:+(x::C_T_X, p::Polynomial{C_T_P,M}) where {C_T_X,C_T_P,M}
     T=MA.promote_operation(*,C_T_X,C_T_P)
-    scaled_poly = Polynomial{T}(p.monoid)  # Create a new Polynomial with the same monoid
+    scaled_poly = Polynomial(M[],T[],p.monoid)  # Create a new Polynomial with the same monoid
+  # Create a new Polynomial with the same monoid
     for index in 1:length(p.coeffs)
         res_coeff = T(1) * p.coeffs[index]  # Scale the coefficient by x
         res_coeff == 0 && continue  # Skip if the coefficient is zero
@@ -153,9 +153,9 @@ function Base.:+(x::C_T_X, p::Polynomial{C_T_P}) where {C_T_X,C_T_P}
     return scaled_poly + x*one(p.monoid)
 end
 
-function Base.:*(x::C_T_X, p::Polynomial{C_T_P}) where {C_T_X,C_T_P}
+function Base.:*(x::C_T_X, p::Polynomial{C_T_P,M}) where {C_T_X,C_T_P,M}
     T=MA.promote_operation(*,C_T_X,C_T_P)
-    scaled_poly = Polynomial{T}(p.monoid)  # Create a new Polynomial with the same monoid
+    scaled_poly = Polynomial(M[],T[],p.monoid)  # Create a new Polynomial with the same monoid
     for index in 1:length(p.coeffs)
         res_coeff = x * p.coeffs[index]  # Scale the coefficient by x
         res_coeff == 0 && continue  # Skip if the coefficient is zero
@@ -178,10 +178,10 @@ general_add(m::AbstractMonomial,n::AbstractMonomial)=Polynomial(m)+Polynomial(n)
 
     
 
-function add_poly(p::Polynomial{C_T_1}, q::Polynomial{C_T_2}) where {C_T_1,C_T_2}
+function add_poly(p::Polynomial{C_T_1,M1}, q::Polynomial{C_T_2,M2}) where {M1,M2,C_T_1,C_T_2}
     if p.monoid == q.monoid
         T=MA.promote_operation(+,C_T_1,C_T_2)
-        r = Polynomial{T}(p.monoid)  # Create a new polynomial with the same monoid
+        r = Polynomial(M1[],T[],p.monoid)  # Create a new polynomial with the same monoid
 
         i, j = 1, 1  # Pointers for p and q
 
@@ -276,15 +276,15 @@ Base.:*(p::Polynomial,x::AbstractMonomial)=mult_poly(p,Polynomial(x))
 Base.:*(x::AbstractMonomial,p::Polynomial)=mult_poly(Polynomial(x),p)
 Base.:+(p::Polynomial,x::AbstractMonomial)=add_poly(p,Polynomial(x))
 Base.:+(x::AbstractMonomial,p::Polynomial)=add_poly(Polynomial(x),p)
-Base.:-(p::Polynomial,q::Polynomial)=add_poly(p,-q)
-Base.:-(p::Polynomial,x::AbstractMonomial)=add_poly(p,-Polynomial(x))
-Base.:-(x::AbstractMonomial,p::Polynomial)=add_poly(Polynomial(x),-p)
+Base.:-(p::Polynomial,q::Polynomial)=p+(-q)
+Base.:-(p::Polynomial,x::AbstractMonomial)=p+(-x)
+Base.:-(x::AbstractMonomial,p::Polynomial)=(-p)+x
 Base.:+(p::Polynomial,x::Number)=add_poly(p,Polynomial(one(p.monoid),x))
 Base.:+(x::Number,p::Polynomial)=add_poly(Polynomial(one(p.monoid),x),p)
-Base.:-(p::Polynomial,x::Number)=add_poly(p,Polynomial(one(p.monoid),-x))
-Base.:-(x::Number,p::Polynomial)=add_poly(Polynomial(one(p.monoid),x),-p)
+Base.:-(p::Polynomial,x::Number)=p+(-x)
+Base.:-(x::Number,p::Polynomial)=(-p)+x
 Base.:-(p::Polynomial)=-1*p
-
+Base.one(p::Polynomial)=one(p.monoid)
 
 MA.promote_operation(::F,::Type{Number},::Type{N}) where {F<:Function,N<:Number} =Number
 MA.promote_operation(::F,::Type{N},::Type{Number}) where {F<:Function,N<:Number} =Number

@@ -1,9 +1,8 @@
 struct CyclicWord <: AbstractMonomial
     monoid::AbstractMonoid
-    graph::NautyDiGraph{UInt64}
     exponents::Dict
-    node_dict::Dict
     ref_word::PCMonomial
+    reduced_word::PCMonomial
 end
 
 function cyclic_reduce(m::PCMonomial)
@@ -50,100 +49,12 @@ function cyclic_reduce(m::PCMonomial)
     end
     
     reduced_word = PCMonomial(monoid, Base.RefValue{AbstractMonomial}(), m_words, m_l, m_r)
-    
-    # Build graph (returns UInt32-based node_dict and exponents)
-    graph, node_dict_idx, exponents_idx = monomial_to_graph(reduced_word)
-    close_graph!(graph,node_dict_idx,m_words,exponents_idx)
-    # # Add cyclic edges
-    # for word in m_words
-    #     if length(word) > 1
-    #         first_label = node_dict_idx[(word[1], 1)]
-    #         last_label = node_dict_idx[(word[end], exponents_idx[word[end]])]
-    #         add_edge!(graph, last_label, first_label)
-    #     end
-    # end
-    
-    # # remove redundant or transitive edges, iterate through clique words, then for a cliqueword path, remove the cycle and check if there is a path between the end of cliquewords path and the beginning, if not place back the edge, if there is a path, move on.
-    # for word in m_words
-    #     if length(word) > 1
-    #         first_label = node_dict_idx[(word[1], 1)]
-    #         last_label = node_dict_idx[(word[end], exponents_idx[word[end]])]
-    #         rem_edge!(graph, last_label, first_label)
-    #         if !has_path(graph,last_label, first_label)
-    #             add_edge!(graph, last_label, first_label)
-    #         end
-    #     end
-    # end
-    # Convert to Variable-based format for CyclicWord
-    # node_dict = Dict(label => (monoid.vertices[var_idx], occ) for ((var_idx, occ), label) in node_dict_idx)
-    node_dict = Dict(label => var_idx for ((var_idx, occ), label) in node_dict_idx)
-
-    label_n = Vector{UInt32}(undef, length(node_dict))
-    for (k, v) in node_dict
-        label_n[k] = v
-    end
-
-    exponents = Dict(monoid.vertices[var_idx] => count for (var_idx, count) in exponents_idx)
+    exp = exponents(reduced_word)
 
 
-    graph_nauty = DenseNautyGraph{true}(graph; vertex_labels=label_n)
-    return CyclicWord(monoid, graph_nauty, exponents, node_dict, reduced_word)
+    return CyclicWord(monoid, exp,m,reduced_word)
 end
 
-# Legacy version for GraphProductWord{Variable} - delegates to PCMonomial version
-function cyclic_reduce(m::GraphProductWord{V}) where V<: Variable
-    return cyclic_reduce(PCMonomial(m))
-end
-
-#= Legacy cyclic_reduce for GraphProductWord{Variable} - kept for reference
-function cyclic_reduce_legacy(m::GraphProductWord{V}) where V<: Variable
-    parent_monoid=m.monoid
-
-    m_words = copy(m.clique_words)
-    m_l=copy(m.edge_l)
-    m_r=copy(m.edge_r)
-    prod=product(m_r,m_l)
-    for (i,j) in prod
-        if j in i.ortho_conj
-            return 0
-        end
-        # projector
-        if i==j && i.mult_type[]==:Projector && length(m_words[i.clique_indices[1]])!=1
-            for index in i.clique_indices
-                pop!(m_words[index])
-            end
-            delete!(m_r,i)
-        end
-        # unitary and unipotent
-        if (i==j && i.mult_type[]==:Unipotent) || (i'==j && i.mult_type[]==:Unitary)
-            if length(m_words[i.clique_indices[1]])==1
-                continue
-            end
-            for index in i.clique_indices
-                pop!(m_words[index])
-                popfirst!(m_words[index])
-            end
-            delete!(m_r,i)
-            delete!(m_l,j)
-            union!(m_l,get_edge_variables(m_words,:first,i.clique_indices))
-            union!(m_r,get_edge_variables(m_words,:last,i.clique_indices))
-            return cyclic_reduce(GraphProductWord(parent_monoid,Base.RefValue{AbstractMonomial}(),m_words,m_l,m_r))
-        end
-    end
-    reduced_word=GraphProductWord(parent_monoid,Base.RefValue{AbstractMonomial}(),m_words,m_l,m_r)
-    graph, node_dict,exponents=monomial_to_graph(reduced_word)
-    for word in m_words
-        if length(word)>1
-            first_letter_label=node_dict[word[1],1]
-            last_letter_label= node_dict[word[end],length(exponents[word[end]])]
-            add_edge!(graph,last_letter_label,first_letter_label)
-        end
-    end
-    node_dict=Dict([(value,key) for (key,value) in node_dict])
-    exponents=Dict([key=>length(value) for (key,value) in exponents])
-    return CyclicWord(parent_monoid,graph,exponents,node_dict,Base.RefValue(reduced_word))
-end
-=#
 
 function cyclic_reduce(poly::Polynomial)
     r=Polynomial(cyclic_reduce(first(poly.monomials)),first(poly.coeffs))
@@ -162,12 +73,15 @@ end
 
 function Base.:(==)(c1::CyclicWord,c2::CyclicWord)
     (c1.exponents!=c2.exponents || c1.monoid!=c2.monoid) && return false
-    #edges_1=Set([(c1.node_dict[e.src],c1.node_dict[e.dst]) for e in edges(c1.graph)])
-    #edges_2=Set([(c2.node_dict[e.src],c2.node_dict[e.dst]) for e in edges(c2.graph)])
-    # edges_1=[(c1.node_dict[e.src][1],c1.node_dict[e.dst][1]) for e in edges(c1.graph)]
-    # edges_2=[(c2.node_dict[e.src][1],c2.node_dict[e.dst][1]) for e in edges(c2.graph)]
-    # (length(edges_1)!=length(edges_2) || countmap(edges_1)!=countmap(edges_2)) && return false
-    return NautyGraphs.is_isomorphic(c1.graph,c2.graph)
+    nvars = length(c1.monoid.vertices)
+    m1 = c1.reduced_word
+    m2 = c2.reduced_word
+    for i in 2:nvars
+        if m1^i/m2
+            return true
+        end
+    end
+    return false
 end
 
 Base.:(==)(c1::CyclicWord,c2::GraphProductWord{Variable}) = c1==cyclic_reduce(c2)
@@ -180,6 +94,42 @@ Base.conj(m::CyclicWord) = conjugate(m)
 Base.adjoint(m::CyclicWord)=Base.conj(m)
 
 function Base.hash(t::CyclicWord, h::UInt)
-    edges_t=Set([(t.node_dict[e.src],t.node_dict[e.dst]) for e in edges(t.graph)])
-    return hash(t.exponents,hash(edges_t,hash(t.monoid,hash(0x23269960ff982ff6, h))))
+    return hash(t.exponents,hash(t.monoid,hash(0x23269960ff982ff6, h)))
 end
+
+Base.zero(p::Polynomial{C_T,CyclicWord}) where C_T=Polynomial(CyclicWord[],Float64[],p.monoid)
+
+function add_poly(p::Polynomial{C_T_1,CyclicWord}, q::Polynomial{C_T_2,CyclicWord}) where {C_T_1,C_T_2}
+    T = MA.promote_operation(+, C_T_1, C_T_2)
+    r = Polynomial(CyclicWord[], T[], p.monoid)  # Create a new polynomial with the same monoid
+    for (m, c) in p
+        push!(r.monomials, m)
+        push!(r.coeffs, c)
+    end
+    for (m, c) in q
+        index = findfirst(x -> x == m, r.monomials)
+        if index === nothing
+            push!(r.monomials, m)
+            push!(r.coeffs, c)
+        else
+            r.coeffs[index] += c
+        end
+    end
+    return r
+end
+    
+function coefficient(p::Polynomial{C_T,CyclicWord}, m::CyclicWord) where C_T
+    index = findfirst(x -> x == m, p.monomials)
+    return index === nothing ? zero(C_T) : p.coeffs[index]
+end
+
+Base.:+(p::Polynomial{CT,CyclicWord},x::AbstractMonomial) where {CT}=add_poly(p,Polynomial(cyclic_reduce(x)))
+Base.:+(x::AbstractMonomial,p::Polynomial{CT,CyclicWord}) where {CT}=add_poly(Polynomial(cyclic_reduce(x)),p)
+Base.:-(p::Polynomial{CT,CyclicWord},x::AbstractMonomial) where {CT}=add_poly(p,-Polynomial(cyclic_reduce(x)))
+Base.:-(x::AbstractMonomial,p::Polynomial{CT,CyclicWord}) where {CT}=add_poly(Polynomial(cyclic_reduce(x)),-p)
+Base.:+(p::Polynomial{CT,CyclicWord},x::Number) where {CT}=add_poly(p,Polynomial([cyclic_reduce(one(p.monoid))],[x],p.monoid))
+Base.:+(x::Number,p::Polynomial{CT,CyclicWord}) where {CT}=add_poly(Polynomial([cyclic_reduce(one(p.monoid))],[x],p.monoid),p)
+Base.:+(x::Number,m::CyclicWord) = x+Polynomial(m)
+Base.:+(m::CyclicWord,x::Number) = x+Polynomial(m)
+Base.:-(m::CyclicWord,x::Number) = (-x)+Polynomial(m)
+Base.:-(x::Number,m::CyclicWord) = x+(-Polynomial(m))

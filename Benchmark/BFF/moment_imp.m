@@ -4,17 +4,18 @@
 
 
 %% Prepare setting
-tic
+t1=tic
 setting = make_bff_setting();
 mm_level = 3;
 gauss_radau_level = 8;
-verbose = true;
+verbose = false;
 
 chsh = 0.80;
 value_chsh = 2*(2^0.5);
 
 %% Gauss-Radau estimation
-
+elapsed1 = toc(t1)
+fprintf('Time1: %.4f seconds\n', elapsed1);
 [w, t] = gauss_radau(gauss_radau_level);
 val = (-1/gauss_radau_level^2 + sum(w./t))/log(2);
 for i=1:(gauss_radau_level-1)
@@ -68,6 +69,7 @@ end
 %% Define and solve BFF SDP
 function val = solve_bff_sdp(setting, t, moment_matrix_level, ...
                              value_chsh, verbose)
+    t2 = tic
     % Generate MM
     mm = setting.MomentMatrix(moment_matrix_level);
     
@@ -98,7 +100,8 @@ function val = solve_bff_sdp(setting, t, moment_matrix_level, ...
     
     % Set other settings    
     ops = sdpsettings('verbose', verbose);
-    
+    elapsed2 = toc(t2)
+    fprintf('Time2: %.4f seconds\n', elapsed2);
     % Solve
     optimize(constraints, objective, ops);
 	val = value(objective);

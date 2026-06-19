@@ -21,10 +21,11 @@ function gmnl(n,k; primal=false, canonical=true,optimize=true)
     push!(tr_eq,[A[n,2]*A[1,1],0])
     push!(tr_eq,[prod([1-A[i,2] for i in 1:n]),0])
     # Optimization of the semidefinite relaxation
-    model,_ = pcpop!(obj, k; tr_eq=tr_eq, min=false,optimize=false,primal=primal,canonical=canonical)
+    model,_ = pcpop!(obj, k; tr_eq=tr_eq, min=false,optimize=false,normalize=true,primal=primal,canonical=canonical)
     stop_setup = time()
     if optimize
         set_optimizer(model, Mosek.Optimizer)
+        set_silent(model)
         start_solve = time()
         optimize!(model)
         stop_solve = time()
@@ -34,7 +35,7 @@ function gmnl(n,k; primal=false, canonical=true,optimize=true)
         return elapsed_setup, elapsed_solve
     else
         elapsed_setup = stop_setup - start_setup
-        return elapsed_setup,0.0
+        return elapsed_setup,0.0,model
     end
 end
 

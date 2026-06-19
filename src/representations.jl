@@ -211,14 +211,21 @@ end
     The function first converts the monomial into a graph. If the conversion fails, it returns false. Otherwise, it checks if the graph is cyclic. If the graph is cyclic, it returns false, indicating that the monomial is not reconstructible. If the graph is not cyclic, it returns true, indicating that the monomial is reconstructible.
 """
 function is_reconstructible(monomial::GraphProductWord)
-
-    graph_conversion_result = monomial_to_graph(monomial)
-    if graph_conversion_result==false
-        return false
-    else
-        graph, node_dict,exponents = graph_conversion_result
-        return !is_cyclic(graph)
+    exponents = check_exponents_consistency(monomial)
+    (exponents == false) && return false
+    cw = deepcopy(monomial.clique_words)
+    while ! all(isempty.(cw))
+        edge_vars = get_edge_variables(cw, :first)
+        if isempty(edge_vars)
+            return false
+        end
+        for ev in edge_vars
+            for clique_index in ev.clique_indices
+                popfirst!(cw[clique_index])
+            end
+        end
     end
+    return true
 end
 
 

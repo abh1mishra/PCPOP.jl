@@ -12,12 +12,10 @@ function cyclic_npa_moments_block_nc(list_monomials::Vector{M},model;cPoly=1,uni
             
             # Compute the product of the monomials
             monomial_product = list_monomials[i]'* cPoly * list_monomials[j]
-            # println("1",typeof(monomial_product))
-            # Initialize the JuMP variable for the matrix entry
+
             moments_matrix[i, j] = 0.0
             # Check if the product already exists in the dictionary
             for (m,c) in monomial_product
-                # println("2",typeof(m))
                 m1,m2 =  (cyclic_reduce(m),cyclic_reduce(m'))
                 if m1==0 || m2==0
                     continue
@@ -100,13 +98,11 @@ function npa_nc(obj, ops,ops_principal;
     tr_ge = [],
     tracial=false,
     normalize=true)
-
-    println("Number of operators in the principal moment matrix and LMI: ", length(ops_principal)," ",length(ops))
     model=Model()
 
     principal_moments_matrix, unique_mons, unique_vars = tracial ? cyclic_npa_moments_block_nc(ops_principal,model) : npa_moments_block_nc(ops_principal,model)
     # Add the constraints for the principal moment matrix
-
+    println("Number of operators in the principal moment matrix: ", length(ops_principal))
     if !isempty(tr_eq)
         for i in 1:length(tr_eq)
             tr_eq_p=0

@@ -304,9 +304,9 @@ end
 
 function ncword_to_poly(m::NCWord)
     if m==0
-        return Polynomial{Rational{BigInt}}(m.monoid)
+        return Polynomial{Float64}(m.monoid)
     end
-    p=Polynomial{Rational{BigInt}}(m.monoid)
+    p=Polynomial{Float64}(m.monoid)
     for i in 1:length(m.word)
         push!(p.monomials,NCWord(m.monoid,AbstractAlgebra.monomial(m.word,i)))
         push!(p.coeffs,m.word.coeffs[i])
@@ -483,4 +483,35 @@ function close_graph!(g,D,m,E)
             add_edge!(h, pair...)
         end
     end
+end
+
+
+function trace_mons_reduce(mons::Set,tr_pols::Vector)
+    tr_polsc = Vector{Polynomial}([])
+    for i in 1:length(tr_pols)
+        tr_polsi = Polynomial(tr_pols[i])
+        tr_polsci=0
+        for (m,c) in tr_polsi
+            m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
+            if m1 in mons
+                tr_polsci+=c*m1
+            elseif m2 in mons
+                tr_polsci+=c*m2
+            else
+                throw(ArgumentError("Monomial $m in tr_pols constraint is not present in any of the LMIs."))
+            end
+        end
+        push!(tr_polsc,tr_polsci)
+    end
+    return tr_polsc
+end
+
+function trace_mons_reduce(mons::Set,tr_pols::Vector{<:AbstractVector})
+    just_pols = [i[1] for i in tr_pols]
+    return [[pol,tr_pols[i][2]] for (i,pol) in enumerate(trace_mons_reduce(mons,just_pols))]
+end
+
+function trace_mons_reduce(mons::Set,tr_pols::Vector{<:Tuple})
+    just_pols = [i[1] for i in tr_pols]
+    return [(pol,tr_pols[i][2]) for (i,pol) in enumerate(trace_mons_reduce(mons,just_pols))]
 end

@@ -1,36 +1,3 @@
-# Taken from QuantumNPA.jl with some modifications
-
-function LinearAlgebra.dot(A::SparseMatrixCSC,
-                           B::Symmetric{<:JuMP._MA.AbstractMutable,
-                                        Matrix{<:JuMP._MA.AbstractMutable}})
-    acc = zero(eltype(B))
-
-    for j in 1:size(A, 2)
-        for k in nzrange(A, j)
-            add_to_expression!(acc, nonzeros(A)[k], B[rowvals(A)[k], j])
-        end
-    end
-
-    return acc
-end
-
-function LinearAlgebra.dot(A::Symmetric{<:JuMP._MA.AbstractMutable,
-                                        Matrix{<:JuMP._MA.AbstractMutable}},
-                           B::SparseMatrixCSC)
-    return dot(B, A)
-end
-
-function sym_add!(matrix, i, j, val)
-    matrix[i, j] += val
-
-    if i != j
-        matrix[j, i] += val
-    end
-
-    return matrix
-end
-
-
 function npa_moment(operators::Vector,Zsi::Symmetric{VariableRef, Matrix{VariableRef}};cPoly=1)
     N = length(operators)
     iops = collect(enumerate(operators))

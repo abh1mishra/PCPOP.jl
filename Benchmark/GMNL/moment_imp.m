@@ -1,5 +1,6 @@
-n=8;
-k=4;
+n=2;
+k=2;
+verbose=true;
 tic
 scenario = LocalityScenario(n, 2, 2);
 
@@ -40,24 +41,29 @@ eq_list{n+1} = prod_term;
 mm = scenario.MomentMatrix(k);
 toc
 tic
-% cvx_solver mosek
-% cvx_begin sdp
-% 
-%     scenario.cvxVars('a');
-%     M = mm.Apply(a);
-%     objective = obj.Apply(a);
-% 
-%     a(1) == 1;
-%     M >= 0;
-% 
-%     % Apply moment equalities separately as YALMIP constraints
-%     for i = 1:length(eq_list)
-%          eq_list{i}.Apply(a) == 0;
-%     end
-% 
-%     maximize(objective)
-% 
-%     opt_val = value(objective);
-% cvx_end
-% toc
+
+a=scenario.yalmipVars();
+M = mm.Apply(a);
+objective = obj.Apply(a);
+
+constraints=[a(1) == 1;M >= 0];
+
+% Apply moment equalities separately as YALMIP constraints
+ for i = 1:length(eq_list)
+      constraints=[constraints; eq_list{i}.Apply(a) == 0];
+ end
+ ops = sdpsettings('solver', 'mosek', 'verbose', 1, 'savesolveroutput', 1, 'saveduals', 1);
+ sol=optimize(constraints, -objective, ops);
+
+ opt_val = value(objective);
+
+ sol.problem        % YALMIP's problem code
+ sol.info           % string description
+ sol.solveroutput   % raw solver output struct
+
+ % Mosek specific termination code
+ sol.solveroutput.res.sol.itr.solsta   % interior point solution status
+ sol.solveroutput.res.sol.itr.prosta   % primal problem status
+
+toc
 

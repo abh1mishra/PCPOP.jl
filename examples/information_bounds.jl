@@ -25,6 +25,7 @@ val, model, _ = pcpop!(obj, 2; min=false,
                  tr_eq=tr_eq,
                  tr_ge=tr_ge,
                  tracial=true,
+                 primal=false,
                  normalize=false)
 println("Optimal value is ", val)
 

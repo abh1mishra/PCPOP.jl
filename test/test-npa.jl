@@ -18,7 +18,7 @@ end
     chsh=e*chsh
     level=2
     tr_eq=[(e,1.0)]
-    optimal_value,_,_=pcpop!(chsh,level;min=false,tr_eq=tr_eq,cyclic=true,normalize=false)
+    optimal_value,_,_=pcpop!(chsh,level;min=false,tr_eq=tr_eq,tracial=true,normalize=false,primal=false)
     @test abs(optimal_value-2*sqrt(2)) < 1e-6
 end
 
@@ -37,6 +37,6 @@ end
     eq_constr = [[ρ[x],1] for x in 1:3]
     wit = -(2*PA[1,1]-1)*ρ[1]-(2*PA[1,2]-1)*ρ[1]-(2*PA[1,1]-1)*ρ[2]+(2*PA[1,2]-1)*ρ[2]+(2*PA[1,1]-1)*ρ[3]
     level = 2 # this is the level of the localising matrices and it will be enough to retrieve the values of the plot (they use level 3 of the principal moment matrix)
-    ov,model,_=pcpop!(wit,level;op_ge=ge,tr_eq=eq_constr,tr_ge=ge_constr,cyclic=true,min=false,normalize=false)
-    @test abs(ov-4.412149217891719) < 1e-2
+    ov,model,_=pcpop!(wit,level;op_ge=ge,tr_eq=eq_constr,tr_ge=ge_constr,tracial=true,min=false,normalize=false,primal=false)
+    @test abs(ov-4.415553124033708) < 1e-4
 end

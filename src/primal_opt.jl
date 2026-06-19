@@ -132,14 +132,13 @@ function npa(obj, ops, ops_principal;
     )
 
     println("Number of operators in the principal moment matrix: ", length(ops_principal))
+
     model=Model()
     tsize=sum([[length(ops_principal)];[length(ops) for i in 1:length(op_ge)];[2*length(ops) for i in 1:length(op_eq)]])
 
-    println("Size of the PSD variable: ", tsize, "x", tsize)
     X = @variable(model, [1:tsize, 1:tsize], PSD)
     mons_pos_D = tracial ? cyclic_npa_moments_block!(ops_principal,X,tsize,model; extra_zeros=extra_zeros) : npa_moments_block!(ops_principal,X,tsize,model; extra_zeros=extra_zeros)
     offset = length(ops_principal)
-    println("Done building PM")
 
     for i in 1:length(op_ge)
         if tracial
@@ -150,7 +149,6 @@ function npa(obj, ops, ops_principal;
         offset += length(ops)
     end
 
-    println("Done building LMI")
 
     for i in 1:length(op_eq)
         if tracial
@@ -210,7 +208,6 @@ function npa(obj, ops, ops_principal;
         @constraint(model, tr_ge_p >= tr_ge[i][2])
     end
 
-    println("Done building trace constraints")
 
     if normalize
         id_elem=one(first(ops_principal))
@@ -220,7 +217,6 @@ function npa(obj, ops, ops_principal;
         upi,upj = mons_pos_D[id_elem]   
         @constraint(model, X[upi,upj] == 1)
     end
-    println("Done building normalization constraint")
     obj_p = 0
     if !is_number(obj)
         if tracial
@@ -244,7 +240,6 @@ function npa(obj, ops, ops_principal;
         end
         min ? @objective(model, Min, obj_p) : @objective(model, Max, obj_p)
     end
-    println("Done building objective")
 
     mons_pos_D = Dict([k => X[v...] for (k,v) in mons_pos_D])
     return model,mons_pos_D,X    

@@ -604,8 +604,8 @@ function divide(m::PCMonomial, n::PCMonomial; all=false)
     end
 end
 
-Base.:/(m::PCMonomial, n::PCMonomial) = divides(n, m)
-divides(a::PCMonomial, b::PCMonomial) = !isempty(divide(a, b))
+Base.:/(m::PCMonomial, n::PCMonomial) = divides(m, n)
+divides(a::PCMonomial, b::PCMonomial) = (divide(a, b))[1]
 
 # ============================================================================
 # Degree and Exponents

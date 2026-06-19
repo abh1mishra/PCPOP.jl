@@ -1,4 +1,4 @@
-include("traceGrobner.jl")
+include("../traceGrobner.jl")
 
 # Build the monoid
 @pcmonoid M a[16,0]

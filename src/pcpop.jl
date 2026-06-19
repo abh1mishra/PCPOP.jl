@@ -114,7 +114,7 @@ function pcpop(p::Polynomial, basis_psd; equalities=[], inequalities=[], moments
         inequalities = union(inequalities, equalities, (-1).*equalities)
         equalities = []
     end
-
+    println("Number of operators in the principal moment matrix: ", length(basis_psd))
     cores_psd = union([Polynomial(one(p.monoid))], Polynomial.(inequalities))
     cores = union(monomials.(cores_psd)...)
     if isempty(equalities)
@@ -129,7 +129,7 @@ function pcpop(p::Polynomial, basis_psd; equalities=[], inequalities=[], moments
         grobner_truncated = macaulay_grobner(equalities, truncate)
         matrix_psd = Dict(s=>tracial_reduce.(reduce_duplicates([reduce_grobner(Polynomial(x'*s*y), grobner_truncated) for x in basis_psd, y in basis_psd]), tracial=tracial) for s in cores)
     end   
-    basis_constraints = StarAlgebras.Basis{UInt16}(
+    basis_constraints = StarAlgebras.Basis{UInt64}(
               unique(union([union(matrix_psd[s]) for s in cores]...)),
             )
     Γ = Dict(s=> [(basis_constraints[m]) for m in matrix_psd[s]] for s in cores)
@@ -173,7 +173,7 @@ end
 function pcpop(poly::Polynomial, k::Int, G::GroupsCore.Group, action::SymbolicWedderburn.Action; diagonalize=false)
     M = poly.monoid
     basis_psd = mons_at_level(M,k)
-    basis_constraints = StarAlgebras.Basis{UInt16}(
+    basis_constraints = StarAlgebras.Basis{UInt64}(
               unique([x'*y for x in basis_psd, y in basis_psd]),
     )
     if diagonalize
@@ -234,7 +234,7 @@ end
 ##        matrix_psd = [reduce_grobner(Polynomial(x'*y), grobner_truncated) for x in basis_psd, y in basis_psd]
 ##        matrix_psd = reduce_duplicates(matrix_psd)
 ##    end   
-##    basis_constraints = StarAlgebras.Basis{UInt16}(
+##    basis_constraints = StarAlgebras.Basis{UInt64}(
 ##              unique(matrix_psd),
 ##            )
 ##    if diagonalize
