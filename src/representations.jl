@@ -213,7 +213,7 @@ end
 function is_reconstructible(monomial::GraphProductWord)
     exponents = check_exponents_consistency(monomial)
     (exponents == false) && return false
-    cw = deepcopy(monomial.clique_words)
+    cw = copy(monomial.clique_words)
     while ! all(isempty.(cw))
         edge_vars = get_edge_variables(cw, :first)
         if isempty(edge_vars)

@@ -60,7 +60,7 @@ function bff(t,w, γ, k::Int; primal=true,canonical=true)
         elapsed_setup = setup_stop - setup_start
         solve_start = time()
         set_optimizer(model, Mosek.Optimizer)
-        set_silent(model)
+        # set_silent(model)
         optimize!(model)
         ov1 = objective_value(model)
         H += w[1]/(t[1]*log(2))*(1 + ov1)
@@ -107,13 +107,25 @@ function bff(t,w, γ, k::Int; primal=true,canonical=true)
 
 end
 
-function entropy_bound(m::Int, γ, k::Int;t=[],w=[],primal=true,canonical=true)
+function avg_time(total_runs,m::Int, γ, k::Int;t=[],w=[],primal=true,canonical=true)
     if isempty(t) || isempty(w)
         t, w = gaussradau(m)
         t = t[2:end]
         w = w[2:end]
     end
-    return bff(t,w, γ, k; primal=primal, canonical=canonical)
+    bff(t,w, γ, 1; primal=primal, canonical=canonical)
+    total_setup_time = 0.0
+    total_solve_time = 0.0
+    for i in 1:total_runs
+        H,setup_time, solve_time = bff(t,w, γ, k; primal=primal, canonical=canonical)
+        total_setup_time += setup_time
+        total_solve_time += solve_time
+        println("H:", H)
+    end
+    avg_setup_time = total_setup_time / total_runs
+    avg_solve_time = total_solve_time / total_runs
+    return avg_setup_time, avg_solve_time
+
 end
 
 

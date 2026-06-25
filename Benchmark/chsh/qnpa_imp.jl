@@ -21,8 +21,8 @@ end
 
 function avg_time(total_runs,k;primal=false)
     # hot run
-    chsh(k; primal=primal)
-    chsh(k; primal=primal)
+    chsh(1; primal=primal)
+    chsh(1; primal=primal)
     
     # Actual timer starts here
     total_setup_time = 0.0

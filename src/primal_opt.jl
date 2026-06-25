@@ -8,7 +8,7 @@ function cyclic_npa_moments_block!(list_monomials::Vector{M},X,tsize,model;cPoly
     # Iterate over the list of monomials to fill the matrix
     for i in 1:num_monomials
         for j in i:num_monomials
-                
+            println("i: ", i, " j: ", j)
             if cPoly == 1
                 m = list_monomials[i]'* list_monomials[j]
                 m1,m2 = cyclic_reduce(m),cyclic_reduce(m')

@@ -35,3 +35,18 @@ def avg_time(level, trials):
     avg_setup_time = sum(setup_times) / trials
     avg_solve_time = sum(solve_times) / trials
     return avg_setup_time, avg_solve_time
+
+if __name__ == "__main__":
+    import sys
+    
+    if len(sys.argv) > 1:
+        level = int(sys.argv[1])
+        trials = int(sys.argv[2]) if len(sys.argv) > 2 else 1
+    else:
+        level = 2
+        trials = 1
+    
+    avg_setup, avg_solve = avg_time(level, trials)
+    print(f"Level {level} ({trials} trials):")
+    print(f"  Average setup time: {avg_setup:.4f}s")
+    print(f"  Average solve time: {avg_solve:.4f}s")

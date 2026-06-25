@@ -14,6 +14,7 @@ function chsh(k;primal=false,canonical=true)
     stop_setup = time()
     start_solve = time()
     set_optimizer(model, Mosek.Optimizer)
+    set_silent(model)
     optimize!(model)
     stop_solve = time()
     elapsed_setup = stop_setup - start_setup

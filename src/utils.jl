@@ -490,6 +490,9 @@ function trace_mons_reduce(mons::Set,tr_pols::Vector)
     tr_polsc = Vector{Polynomial}([])
     for i in 1:length(tr_pols)
         tr_polsi = Polynomial(tr_pols[i])
+        if iszero(tr_polsi)
+            throw(ArgumentError("$i -th polynomial is a constant polynomial, which is not allowed. It will be ignored."))
+        end
         tr_polsci=0
         for (m,c) in tr_polsi
             m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))

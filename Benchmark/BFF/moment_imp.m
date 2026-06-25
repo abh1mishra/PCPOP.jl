@@ -2,29 +2,26 @@
 % Computes the conditional von Neumann entropy using the Brown-Fawzi-Fawzi 
 % hierarchy [see arXiv:2106.13692].
 
+function [setup_time,solve_time,val] = bff(mm_level,gauss_radau_level)
 
-%% Prepare setting
-t1=tic
-setting = make_bff_setting();
-mm_level = 3;
-gauss_radau_level = 8;
-verbose = false;
-
-chsh = 0.80;
-value_chsh = 2*(2^0.5);
-
-%% Gauss-Radau estimation
-elapsed1 = toc(t1)
-fprintf('Time1: %.4f seconds\n', elapsed1);
-[w, t] = gauss_radau(gauss_radau_level);
-val = (-1/gauss_radau_level^2 + sum(w./t))/log(2);
-for i=1:(gauss_radau_level-1)
-	val = val + (w(i)/(t(i)*log(2))) ...
-             * solve_bff_sdp(setting, t(i), mm_level, value_chsh, verbose);
+    %% Gauss-Radau estimation
+    [w, t] = gauss_radau(gauss_radau_level);
+    %% Prepare setting
+    tic;
+    setting = make_bff_setting();
+    verbose = false;
+    
+    value_chsh = 2*(2^0.5);
+    mm = setting.MomentMatrix(mm_level);
+    setup_time=toc;
+    tic;
+    val = (-1/gauss_radau_level^2 + sum(w./t))/log(2);
+    for i=1:(gauss_radau_level-1)
+	    val = val + (w(i)/(t(i)*log(2))) ...
+                 * solve_bff_sdp(setting, t(i), mm, value_chsh, verbose);
+    end
+    solve_time = toc;
 end
-timing = toc;
-fprintf("Solution: %f [calculated in %f seconds].\n", val, timing);
-
 %% Make BFF setting
 function setting = make_bff_setting()
 
@@ -67,16 +64,14 @@ function [w, t] = gauss_radau(m)
 end	
 
 %% Define and solve BFF SDP
-function val = solve_bff_sdp(setting, t, moment_matrix_level, ...
+function val = solve_bff_sdp(setting, t, mm, ...
                              value_chsh, verbose)
-    t2 = tic
-    % Generate MM
-    mm = setting.MomentMatrix(moment_matrix_level);
     
     [a0, a1, b0, b1, z0, z1] = setting.getAll();
     
     % CHSH constraint polynomial
     chsh = (1-2*a0)*(1-2*b0) + (1-2*a0)*(1-2*b1) + (1-2*a1)*(1-2*b0) - (1-2*a1)*(1-2*b1);
+
     
     % Objective function polynomial   
     obj = a0*(z0 + z0' + (1-t)*(z0'*z0)) + t*(z0*z0') + ...
@@ -100,9 +95,23 @@ function val = solve_bff_sdp(setting, t, moment_matrix_level, ...
     
     % Set other settings    
     ops = sdpsettings('verbose', verbose);
-    elapsed2 = toc(t2)
-    fprintf('Time2: %.4f seconds\n', elapsed2);
+    
     % Solve
     optimize(constraints, objective, ops);
 	val = value(objective);
 end
+
+function [avgsetuptime,avgsolvetime] = avg_time(t_runs,mm_level,m)
+    total_setup_time = 0;
+    total_solve_time = 0;
+    for run = 1:t_runs
+        [setup_time,solve_time,val] = bff(mm_level,m);
+        total_setup_time = total_setup_time + setup_time;
+        total_solve_time = total_solve_time + solve_time;
+    end
+    avgsetuptime = total_setup_time/t_runs;
+    avgsolvetime = total_solve_time/t_runs;
+end
+[avgsetuptime,avgsolvetime] = avg_time(10,3,8);
+fprintf('Average setup time: %.4f seconds\n', avgsetuptime);
+fprintf('Average solve time: %.4f seconds\n', avgsolvetime);

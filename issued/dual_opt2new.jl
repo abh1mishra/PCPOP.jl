@@ -64,7 +64,7 @@ end
 function cons_gen!(LMI, obj_poly, s,model,mons)
     V = Vector([])
     for m in mons
-        constr = sum((s*LMI[i][m] for i in 1:length(LMI) if haskey(LMI[i], m)), init=0.0) - Main.coefficient(obj_poly, m)
+        constr = sum((s*LMI[i][m] for i in 1:length(LMI) if haskey(LMI[i], m)), init=0.0) - coefficient(obj_poly, m)
         push!(V, @constraint(model, constr == 0))
     end
     return V
@@ -128,14 +128,15 @@ function npa_dual(obj, ops,ops_principal;
     obj_poly = sum(Zmeq[i]*tr_eq[i][2] for i in 1:length(tr_eq); init=0)
     obj_poly += sum(-s*Zmge[i]*tr_ge[i][2] for i in 1:length(tr_ge); init=0)
 
-    if tracial
-        
-        obj = trace_mons_reduce(mons,[obj])[1]
-    else
-        obj = real_rep(Polynomial(obj))
+    if !iszero(Polynomial(obj))
+        if tracial
+            obj = trace_mons_reduce(mons,[obj])[1]
+        else
+            obj = real_rep(Polynomial(obj))
+        end
     end
+    
     S = -obj
-
     S += sum(Zmeq[i]*tr_eq[i][1] for i in 1:length(tr_eq); init=0)
     S += sum(-s*Zmge[i]*tr_ge[i][1] for i in 1:length(tr_ge); init=0)
 

@@ -56,7 +56,10 @@ function cyclic_reduce(m::PCMonomial)
 end
 
 
-function cyclic_reduce(poly::Polynomial)
+function cyclic_reduce(poly::Polynomial{C_T,PCMonomial}) where C_T
+    if iszero(poly)
+        return Polynomial(Vector{CyclicWord}([]), Vector{C_T}([]), poly.monoid)
+    end
     r=Polynomial(cyclic_reduce(first(poly.monomials)),first(poly.coeffs))
     for i in 2:length(poly.monomials)
         c_mon=cyclic_reduce(poly.monomials[i])
@@ -113,6 +116,10 @@ function add_poly(p::Polynomial{C_T_1,CyclicWord}, q::Polynomial{C_T_2,CyclicWor
             push!(r.coeffs, c)
         else
             r.coeffs[index] += c
+            if r.coeffs[index] == 0
+                deleteat!(r.monomials, index)
+                deleteat!(r.coeffs, index)
+            end
         end
     end
     return r
@@ -123,10 +130,25 @@ function coefficient(p::Polynomial{C_T,CyclicWord}, m::CyclicWord) where C_T
     return index === nothing ? zero(C_T) : p.coeffs[index]
 end
 
-Base.:+(p::Polynomial{CT,CyclicWord},x::AbstractMonomial) where {CT}=add_poly(p,Polynomial(cyclic_reduce(x)))
-Base.:+(x::AbstractMonomial,p::Polynomial{CT,CyclicWord}) where {CT}=add_poly(Polynomial(cyclic_reduce(x)),p)
-Base.:-(p::Polynomial{CT,CyclicWord},x::AbstractMonomial) where {CT}=add_poly(p,-Polynomial(cyclic_reduce(x)))
-Base.:-(x::AbstractMonomial,p::Polynomial{CT,CyclicWord}) where {CT}=add_poly(Polynomial(cyclic_reduce(x)),-p)
+
+Base.:+(p::Polynomial{C1,CyclicWord},q::Polynomial{C2,CyclicWord}) where {C1,C2}=add_poly(p,q)
+Base.:+(p::Polynomial{C1,CyclicWord},q::Polynomial{C2,M}) where {C1,C2,M<:AbstractMonomial}=add_poly(p,cyclic_reduce(q))
+Base.:+(q::Polynomial{C1,M},p::Polynomial{C2,CyclicWord}) where {C1,C2,M<:AbstractMonomial}=add_poly(p,cyclic_reduce(q))
+
+Base.:-(p::Polynomial{C1,CyclicWord},q::Polynomial{C2,CyclicWord}) where {C1,C2}=add_poly(p,-q)
+Base.:-(p::Polynomial{C1,CyclicWord},q::Polynomial{C2,M}) where {C1,C2,M<:AbstractMonomial}=add_poly(p,-cyclic_reduce(q))
+Base.:-(q::Polynomial{C1,M},p::Polynomial{C2,CyclicWord}) where {C1,C2,M<:AbstractMonomial}=add_poly(cyclic_reduce(q),-p)
+
+# NCWord must not mix with CyclicWord
+Base.:+(p::Polynomial{CT,CyclicWord},n::NCWord) where {CT}=error("cannot mix NCWord with CyclicWord")
+Base.:+(n::NCWord,p::Polynomial{CT,CyclicWord}) where {CT}=error("cannot mix NCWord with CyclicWord")
+Base.:-(p::Polynomial{CT,CyclicWord},n::NCWord) where {CT}=error("cannot mix NCWord with CyclicWord")
+Base.:-(n::NCWord,p::Polynomial{CT,CyclicWord}) where {CT}=error("cannot mix NCWord with CyclicWord")
+
+Base.:+(p::Polynomial{CT,CyclicWord},x::AbstractMonomial) where {CT}=x isa CyclicWord ? add_poly(p,Polynomial(x)) : add_poly(p,Polynomial(cyclic_reduce(x)))
+Base.:+(x::AbstractMonomial,p::Polynomial{CT,CyclicWord}) where {CT}=x isa CyclicWord ? add_poly(Polynomial(x),p) : add_poly(Polynomial(cyclic_reduce(x)),p)
+Base.:-(p::Polynomial{CT,CyclicWord},x::AbstractMonomial) where {CT}=x isa CyclicWord ? add_poly(p,-Polynomial(x)) : add_poly(p,-Polynomial(cyclic_reduce(x)))
+Base.:-(x::AbstractMonomial,p::Polynomial{CT,CyclicWord}) where {CT}=x isa CyclicWord ? add_poly(Polynomial(x),-p) : add_poly(Polynomial(cyclic_reduce(x)),-p)
 Base.:+(p::Polynomial{CT,CyclicWord},x::Number) where {CT}=add_poly(p,Polynomial([cyclic_reduce(one(p.monoid))],[x],p.monoid))
 Base.:+(x::Number,p::Polynomial{CT,CyclicWord}) where {CT}=add_poly(Polynomial([cyclic_reduce(one(p.monoid))],[x],p.monoid),p)
 Base.:+(x::Number,m::CyclicWord) = x+Polynomial(m)

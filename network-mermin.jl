@@ -1,5 +1,6 @@
 include("traceGrobner.jl")
 # Build the monoid
+using ProfileView
 @pcmonoid M ρ[3,0] a[2,0] b[2,0] c[2,0]
 Unipotent.([a b c])
 @comms a b c
@@ -12,6 +13,7 @@ build(M)
 # Objective function.
 r = ρ[1]*ρ[2]*ρ[3]
 p = r*(a[2]*b[1]*c[1] + a[1]*b[2]*c[1] + a[1]*b[1]*c[2] - a[2]*b[2]*c[2])
+p = (a[2]*b[1]*c[1] + a[1]*b[2]*c[1] + a[1]*b[1]*c[2] - a[2]*b[2]*c[2])
 # Constraints
 S = [ρ[1] - ρ[1]^2,
 	 ρ[2] - ρ[2]^2,
@@ -20,12 +22,19 @@ T = [[ρ[1], 1],
 	 [ρ[2], 1],
 	 [ρ[3], 1]]
 # Optimize semidefinite relaxation
-val,model,_ = pcpop!(p, 3; min=false,
-             primal=true,
+val,model,_ = pcpop!(p, 2; min=false,
+             primal=false,
 					   op_ge = S,
 					   tr_eq = T,
 					   normalize=false,
 					   tracial=true,lvl_lm=1) 
+
+@profview pcpop!(p, 2; min=false,
+primal=false,
+op_ge = S,
+tr_eq = T,
+normalize=false,
+tracial=true,lvl_lm=1) 
 println("Termination status ", termination_status(model))
 println("Optimal value is   ", val)
 
@@ -211,4 +220,4 @@ Optimal value is   2.8284271245417183
     
 "
 println("Maximal classical value: 2")
-println("Maximal quantum value: [2√2, 3.085]")
+println("Maximal quantum value: [2.828, 3.085]")
