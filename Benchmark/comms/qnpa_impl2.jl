@@ -19,8 +19,8 @@ function polygon_bell(n,d;primal=false)
         push!(V, projector(party_D[i], 1, 1:2))
     end
     # Objective function (projector form: dichotomic = 1 - 2*projector)
-    obj = sum([let (a, b) = (V[i], V[i+1]); (1-2*a[1])*(1-2*b[1]) + (1-2*a[1])*(1-2*b[2]) + (1-2*a[2])*(1-2*b[1]) - (1-2*a[2])*(1-2*b[2]) end for i in 1:(n-1)])
-    a=V[n];b=V[1];obj += (1-2*a[1])*(1-2*b[1]) + (1-2*a[1])*(1-2*b[2]) + (1-2*a[2])*(1-2*b[1]) - (1-2*a[2])*(1-2*b[2])
+    obj = sum([let (a, b) = (V[i], V[i+1]); (Id-2*a[1])*(Id-2*b[1]) + (Id-2*a[1])*(Id-2*b[2]) + (Id-2*a[2])*(Id-2*b[1]) - (Id-2*a[2])*(Id-2*b[2]) end for i in 1:(n-1)])
+    a=V[n];b=V[1];obj += (Id-2*a[1])*(Id-2*b[1]) + (Id-2*a[1])*(Id-2*b[2]) + (Id-2*a[2])*(Id-2*b[1]) - (Id-2*a[2])*(Id-2*b[2])
     # Optimization of the semidefinite relaxation
     if !primal
         model = npa2jump_d(obj, d; sense=:maximize,solver=Mosek.Optimizer)
@@ -30,11 +30,11 @@ function polygon_bell(n,d;primal=false)
     stop_setup = time()
     start_solve = time()
     set_optimizer(model, Mosek.Optimizer)
-    set_silent(model)
+    unset_silent(model)
     optimize!(model)
     stop_solve = time()
     if termination_status(model) != MOI.OPTIMAL
-        error("Optimization failed with status: $(termination_status(model))")
+        @warn "Optimization terminated with status: $(termination_status(model))"
     end
     elapsed_setup = stop_setup - setup_start
     elapsed_solve = stop_solve - start_solve

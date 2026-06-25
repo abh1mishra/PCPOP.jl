@@ -2,6 +2,7 @@ include("traceGrobner.jl")
 # Build the monoid
 @pcmonoid M ρ[3,0] a[2,0] b[2,0] c[2,0]
 Unipotent.([a b c])
+# Projector.(ρ)
 @comms a b c
 @comms ρ
 @comms ρ[1] c
@@ -19,9 +20,10 @@ S = [ρ[1] - ρ[1]^2,
 # T = [[ρ[1]-ρ[2], 0],
 # 	 [ρ[2]-ρ[3], 0],
 # 	 [ρ[3]-ρ[1], 0],]
-T = [[ρ[1], 1],
-	 [ρ[2], 1],
-	 [ρ[3], 1]]
+T = [[ρ[1] - ρ[2], 0],
+	   [ρ[2] - ρ[3], 0],
+	   [ρ[3] - ρ[1], 0],
+     [r, 1]]
 # Optimize semidefinite relaxation
 val,model,_ = pcpop!(p, 2; min=false,
 					   op_ge = S,

@@ -21,12 +21,16 @@ T = [[ρ[1] - ρ[2], 0],
 	   [ρ[3] - ρ[1], 0],
      [r, 1]]
 # Optimize semidefinite relaxation
-val,model,_ = pcpop!(p, 3; min=false,
+model,_ = pcpop!(p, 3; min=false,
              primal=true,
 					   op_ge = S,
 					   tr_eq = T,
 					   normalize=false,
-					   tracial=true,lvl_lm=1) 
+					   tracial=true,lvl_lm=1
+             ,optimize=false) 
+write_to_file(model,"network-mermin.dat-s")
+set_optimizer(model, Mosek.Optimizer)
+optimize!(model)
 println("Termination status ", termination_status(model))
 println("Optimal value is   ", val)
 

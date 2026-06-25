@@ -139,7 +139,6 @@ function npa(obj, ops, ops_principal;
     X = @variable(model, [1:tsize, 1:tsize], PSD)
     mons_pos_D = tracial ? cyclic_npa_moments_block!(ops_principal,X,tsize,model; extra_zeros=extra_zeros) : npa_moments_block!(ops_principal,X,tsize,model; extra_zeros=extra_zeros)
     offset = length(ops_principal)
-
     for i in 1:length(op_ge)
         if tracial
             cyclic_npa_moments_block!(ops,X,tsize,model; cPoly=op_ge[i], mons_pos_D=mons_pos_D, offset=offset, extra_zeros=extra_zeros) 

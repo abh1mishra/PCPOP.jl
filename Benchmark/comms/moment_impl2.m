@@ -1,4 +1,4 @@
-function [setup_time, solve_time, obj_val] = polygon_bell(n, mm_level)
+function [setup_time, solve_time, obj_val] = polygon_bell(n, mm_level,optm)
     tic;
     % to generate the matrix of Operatornames, where each row corresponds to names for variables in a vertex of polygon 
     vars_M = arrayfun(@(i,j) sprintf("X%d%d", i, j), repmat((1:n)', 1, 2), repmat(1:2, n, 1), 'UniformOutput', false);
@@ -25,7 +25,7 @@ function [setup_time, solve_time, obj_val] = polygon_bell(n, mm_level)
             end
         end
     end
-    setting.Complete(100);
+    setting.Complete(300);
     % vars_A is row-major: ops(2k-1)=row k col1, ops(2k)=row k col2
     % Here it gives warning of "Supplied ruleset was not completed."
     ops = setting.getAll();
@@ -41,6 +41,7 @@ function [setup_time, solve_time, obj_val] = polygon_bell(n, mm_level)
 
     % Here it gives error of some Symbol X... not found in Symbols table.
     mm = setting.MomentMatrix(mm_level);
+
     yalmip('clear');
 
     % Declare basis variables a (real)
@@ -54,9 +55,13 @@ function [setup_time, solve_time, obj_val] = polygon_bell(n, mm_level)
 
     % Objective function (maximize)
     objective = -obj.Apply(model_vars);
-    options = sdpsettings('verbose',0);
+    options = sdpsettings('verbose',1);
     setup_time=toc;
-
+    if isequal(optm,0)
+        solve_time = 0;
+        obj_val = NaN;
+        return;
+    end
     tic
     % Solve
     optimize(constraints, objective,options);
@@ -76,7 +81,7 @@ function [avgsetuptime,avgsolvetime] = avg_time(t_runs,n,mm_level)
     avgsetuptime = total_setup_time/t_runs;
     avgsolvetime = total_solve_time/t_runs;
 end
-%[avgsetuptime,avgsolvetime] = avg_time(10,5,2);
+%[avgsetuptime,avgsolvetime] = avg_time(3,10,2);
 %fprintf('Average setup time: %.4f seconds\n', avgsetuptime);
 %fprintf('Average solve time: %.4f seconds\n', avgsolvetime);
-[setup_time, solve_time, obj_val] = polygon_bell(7, 2)
+[setup_time, solve_time, obj_val] = polygon_bell(11, 2,0)

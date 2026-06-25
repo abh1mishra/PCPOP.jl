@@ -1,6 +1,6 @@
 include("../../traceGrobner.jl")
 
-function polygon_bell(n,d;primal=false,canonical=true)
+function polygon_bell(n,d;primal=true,canonical=true)
     setup_start = time()
     @pcmonoid M V[2*n,0]
     Projector.(M.vertices)
@@ -18,19 +18,19 @@ function polygon_bell(n,d;primal=false,canonical=true)
     stop_setup = time()
     start_solve = time()
     set_optimizer(model, Mosek.Optimizer)
-    # set_silent(model)
+    set_silent(model)
     optimize!(model)
     stop_solve = time()
 
     if termination_status(model) != MOI.OPTIMAL
-        error("Optimization failed with status: $(termination_status(model))")
+        @warn "Optimization terminated with status: $(termination_status(model))"
     end
     elapsed_setup = stop_setup - setup_start
     elapsed_solve = stop_solve - start_solve
     return objective_value(model), elapsed_setup, elapsed_solve
 end
 
-function avg_time(total_runs,n,k;primal=false,canonical=true)
+function avg_time(total_runs,n,k;primal=true,canonical=true)
     # hot run
     polygon_bell(n,1; primal=primal, canonical=canonical)
     polygon_bell(n,1; primal=primal, canonical=canonical)
