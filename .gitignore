@@ -1,0 +1,22 @@
+# Python virtual environments
+Benchmark/chsh/ncp/
+Benchmark/BFF/pythonimp/
+
+# General Python venv patterns
+venv/
+.venv/
+env/
+.env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# macOS
+.DS_Store
+
+# Julia
+*.jl.cov
+*.jl.*.cov
+*.jl.mem
