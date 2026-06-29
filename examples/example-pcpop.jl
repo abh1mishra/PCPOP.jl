@@ -17,7 +17,7 @@ G = PG.PermGroup(p1, p2)
 
 # Optimimzation
 k = 2 
-sos_model = pcpop(f, k)
+sos_model,_ = pcpop(f, k;optimize=false)
 sa_model = pcpop(f, k, G, action)
 blk_model = pcpop(f, k, G, action, diagonalize=true)
 

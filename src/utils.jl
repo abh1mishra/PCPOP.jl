@@ -486,7 +486,25 @@ function close_graph!(g,D,m,E)
 end
 
 
-function trace_mons_reduce(mons::Set,tr_pols::Vector)
+function trace_mons_reduce(mons::Set, tr_pols::Vector)
+    # `tr_pols` may be:
+    #   (a) a vector of (poly, value) tuples,
+    #   (b) a vector of [poly, value] vectors, or
+    #   (c) a vector of plain polynomials.
+    # We dispatch on the *element kind* at runtime rather than relying on the
+    # container's static type, because mixing tuples/vectors (e.g. when
+    # `normalize` pushes `[Id, 1.0]` onto a vector of tuples) widens the
+    # element type to `Any`, which would otherwise fall through to the
+    # plain-polynomial branch and crash.
+    if !isempty(tr_pols) && all(x -> x isa Tuple, tr_pols)
+        just_pols = [x[1] for x in tr_pols]
+        return [(pol, tr_pols[i][2]) for (i, pol) in enumerate(trace_mons_reduce(mons, just_pols))]
+    elseif !isempty(tr_pols) && all(x -> x isa AbstractVector, tr_pols)
+        just_pols = [x[1] for x in tr_pols]
+        return [[pol, tr_pols[i][2]] for (i, pol) in enumerate(trace_mons_reduce(mons, just_pols))]
+    end
+
+    # Plain polynomials.
     tr_polsc = Vector{Polynomial}([])
     for i in 1:length(tr_pols)
         tr_polsi = Polynomial(tr_pols[i])
@@ -507,14 +525,4 @@ function trace_mons_reduce(mons::Set,tr_pols::Vector)
         push!(tr_polsc,tr_polsci)
     end
     return tr_polsc
-end
-
-function trace_mons_reduce(mons::Set,tr_pols::Vector{<:AbstractVector})
-    just_pols = [i[1] for i in tr_pols]
-    return [[pol,tr_pols[i][2]] for (i,pol) in enumerate(trace_mons_reduce(mons,just_pols))]
-end
-
-function trace_mons_reduce(mons::Set,tr_pols::Vector{<:Tuple})
-    just_pols = [i[1] for i in tr_pols]
-    return [(pol,tr_pols[i][2]) for (i,pol) in enumerate(trace_mons_reduce(mons,just_pols))]
 end

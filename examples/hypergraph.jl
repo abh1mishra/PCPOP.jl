@@ -26,14 +26,7 @@ append!(R, [one(M) - sum(A[3:4,1:2])])
 append!(R, [one(M) - sum(A[3:4,3:4])])
 
 # Semidefinite relaxation
-val,model,_,_ = pcpop!(p, 1; min=false, op_eq=R)
+val,model,_,_ = pcpop(p, 1; min=false, op_eq=R)
 
-println("Termination status ", termination_status(model))
-println("Optimal value is   ", objective_value(model))
-
-model = pcpop(p, 1, equalities=R;localize=true)
-set_optimizer(model, Mosek.Optimizer)
-println("Optimizing...")
-optimize!(model)
 println("Termination status ", termination_status(model))
 println("Optimal value is   ", objective_value(model))

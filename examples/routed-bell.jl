@@ -190,7 +190,7 @@ PA = [A[1] A[3]; A[2] A[4]; 1-A[1]-A[2] 1-A[3]-A[4]]
 level = "2+A*A*A+BS*BS*BS+BL*BL*BL+A*A*BL+A*A*BS+BS*BS*BL"
 # level=2
 
-model,Γ,_ = pcpop!(0,level;min=false,optimize=false,list_vars = M.vertices)
+model,Γ,_ = pcpop(0,level;min=false,optimize=false,list_vars = M.vertices)
 ηl = @variable(model)
 ηs = 0.98
 ηa=ηs
@@ -224,7 +224,7 @@ build(M)
 level = "3+A*A*A*A+b[1:2]*b[1:2]*b[1:2]*b[1:2]+b[3:4]*b[3:4]*b[3:4]*b[3:4]+A*A*b[1:2]*b[1:2]+A*A*b[3:4]*b[3:4]+b[1:2]*b[1:2]*b[3:4]*b[3:4]"
 # level = 3
 # model, Γ, pm = npa(0,level;min=false,rm=true,list_vars = [a;b],optimizer=SDPA.Optimizer,model_flags=[("Mode",SDPA.PARAMETER_STABLE_BUT_SLOW)])
-model,Γ,_ = pcpop!(0,level;min=false,optimize=false,list_vars = [a;b])
+model,Γ,_ = pcpop(0,level;min=false,optimize=false,list_vars = [a;b])
 
 ηl = @variable(model)
 ηs = 0.98

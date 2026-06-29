@@ -11,12 +11,16 @@ function party_vec_gen(n)
     return party_D
 end
 
-function polygon_bell(n,d;primal=false)
+function polygon_bell(n,d;primal=false,optimize=true)
     setup_start = time()
     party_D = party_vec_gen(n)
     V=[]
+    party_n = Dict([v=>0 for (k,v) in party_D])
     for i in 1:n
-        push!(V, projector(party_D[i], 1, 1:2))
+        st = party_n[party_D[i]]+1
+        en = party_n[party_D[i]]+2
+        push!(V, projector(party_D[i], 1, st:en))
+        party_n[party_D[i]] += 2
     end
     # Objective function (projector form: dichotomic = 1 - 2*projector)
     obj = sum([let (a, b) = (V[i], V[i+1]); (Id-2*a[1])*(Id-2*b[1]) + (Id-2*a[1])*(Id-2*b[2]) + (Id-2*a[2])*(Id-2*b[1]) - (Id-2*a[2])*(Id-2*b[2]) end for i in 1:(n-1)])
@@ -28,6 +32,9 @@ function polygon_bell(n,d;primal=false)
         model = npa2jump(obj, d; sense=:maximize,solver=Mosek.Optimizer)
     end
     stop_setup = time()
+    if !optimize
+        return nothing, stop_setup - setup_start, 0.0
+    end
     start_solve = time()
     set_optimizer(model, Mosek.Optimizer)
     unset_silent(model)
@@ -41,7 +48,7 @@ function polygon_bell(n,d;primal=false)
     return objective_value(model), elapsed_setup, elapsed_solve
 end
 
-function avg_time(total_runs,n,k;primal=false)
+function avg_time(total_runs,n,k;primal=false,optimize=true)
     # hot run
     polygon_bell(n,1; primal=primal)
     polygon_bell(n,1; primal=primal)
@@ -50,7 +57,7 @@ function avg_time(total_runs,n,k;primal=false)
     total_setup_time = 0.0
     total_solve_time = 0.0
     for i in 1:total_runs
-        _,setup_time, solve_time = polygon_bell(n,k; primal=primal)
+        _,setup_time, solve_time = polygon_bell(n,k; primal=primal,optimize=optimize)
         total_setup_time += setup_time
         total_solve_time += solve_time
     end

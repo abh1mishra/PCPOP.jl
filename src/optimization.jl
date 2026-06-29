@@ -3,7 +3,7 @@
 ##  OPTIMIZATION METHODS  ##
 ############################
 
-function pcpop!(p, k;
+function pcpop(p, k;
     min=false,
     op_eq = [],
     op_ge = [],
@@ -24,7 +24,7 @@ function pcpop!(p, k;
     silent = true)
 
     basis,basis_principal = basis_gen(p,k,op_eq,op_ge,tr_eq,tr_ge,list_vars,lvl_lm)
-    return pcpop!(p, basis,basis_principal;
+    return pcpop(p, basis,basis_principal;
                            min = min,
                            op_eq = op_eq,
                            op_ge = op_ge,
@@ -46,8 +46,8 @@ end
 """
     Polynomial optimization problem in partially commutative monoid `Μ`.
     
-    pcpop!(p, k)
-    pcpop!(p, basis)
+    pcpop(p, k)
+    pcpop(p, basis)
 
     #Arguments:
     - `p` : polynomial `p` in monoid `Μ`.
@@ -81,7 +81,7 @@ end
     Min t
     s.t. t - p in SOS(k)    
 """
-function pcpop!(p, basis, basis_principal;
+function pcpop(p, basis, basis_principal;
     min = false,
     op_eq = [],
     op_ge = [],

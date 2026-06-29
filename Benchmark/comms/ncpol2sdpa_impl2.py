@@ -3,7 +3,7 @@ import time
 from ncpol2sdpa import *
 
 
-def polygon_bell(n, k):
+def polygon_bell(n, k, optimize=True, return_model=False):
     start_setup = time.perf_counter()
     # 2*n hermitian operators, 2 per vertex of the polygon
     A_flat = generate_operators('A', 2 * n, hermitian=True)
@@ -44,42 +44,52 @@ def polygon_bell(n, k):
     sdp_nc.get_relaxation(k, objective=-obj, substitutions=subs)
     stop_setup = time.perf_counter()
 
+    if return_model:
+        return sdp_nc
+
+    elapsed_setup = stop_setup - start_setup
+    if not optimize:
+        # Stop after setup; no solve performed.
+        return elapsed_setup, 0, float('nan')
+
     start_solve = time.perf_counter()
     sdp_nc.solve(solver="mosek")
     stop_solve = time.perf_counter()
 
-    elapsed_setup = stop_setup - start_setup
     elapsed_solve = stop_solve - start_solve
     # maximize obj == minimize -obj, so obj value = -primal
     obj_val = -sdp_nc.primal
     return elapsed_setup, elapsed_solve, obj_val
 
 
-def avg_time(total_runs, n, k):
+def avg_time(total_runs, n, k, optimize=True):
     setup_times = []
     solve_times = []
     for _ in range(total_runs):
-        setup_time, solve_time, _ = polygon_bell(n, k)
+        setup_time, solve_time, _ = polygon_bell(n, k, optimize=optimize)
         setup_times.append(setup_time)
         solve_times.append(solve_time)
     avg_setup_time = sum(setup_times) / total_runs
     avg_solve_time = sum(solve_times) / total_runs
     return avg_setup_time, avg_solve_time
 
-
 if __name__ == "__main__":
-    import sys
+    import argparse
 
-    if len(sys.argv) > 1:
-        n = int(sys.argv[1])
-        k = int(sys.argv[2]) if len(sys.argv) > 2 else 2
-        trials = int(sys.argv[3]) if len(sys.argv) > 3 else 1
-    else:
-        n = 7
-        k = 2
-        trials = 1
+    parser = argparse.ArgumentParser(description="Average setup/solve time for polygon_bell")
+    parser.add_argument("n", nargs="?", type=int, default=7, help="number of vertices/parties")
+    parser.add_argument("k", nargs="?", type=int, default=2, help="relaxation level")
+    parser.add_argument("trials", nargs="?", type=int, default=1, help="number of runs to average")
+    parser.add_argument(
+        "--optimize",
+        dest="optimize",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="solve the SDP as well as building it (use --no-optimize to only time setup)",
+    )
+    args = parser.parse_args()
 
-    avg_setup, avg_solve = avg_time(trials, n, k)
-    print(f"n={n}, level={k} ({trials} trials):")
+    avg_setup, avg_solve = avg_time(args.trials, args.n, args.k, optimize=args.optimize)
+    print(f"n={args.n}, level={args.k} ({args.trials} trials):")
     print(f"  Average setup time: {avg_setup:.4f}s")
     print(f"  Average solve time: {avg_solve:.4f}s")

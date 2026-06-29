@@ -20,7 +20,7 @@ tr_eq = [[ρ[x],1] for x in 1:3]
 # Optimization of the semidefinite relaxation
 obj = -(2*PA[1,1]-1)*ρ[1] - (2*PA[1,2]-1)*ρ[1] - (2*PA[1,1]-1)*ρ[2]
 obj+=  (2*PA[1,2]-1)*ρ[2] + (2*PA[1,1]-1)*ρ[3]
-val, model, _ = pcpop!(obj, 2; min=false,
+val, model, _ = pcpop(obj, 2; min=false,
                  op_ge=op_ge,
                  tr_eq=tr_eq,
                  tr_ge=tr_ge,

@@ -133,6 +133,7 @@ def Hvn(w):
     return 1 - h(1/2 + sqrt((8*w - 4)**2 / 4 - 1)/2)
 
 
+import time
 import numpy as np
 from math import sqrt, log2, log, pi, cos, sin
 import ncpol2sdpa as ncp
@@ -140,94 +141,148 @@ from sympy.physics.quantum.dagger import Dagger
 import mosek
 import chaospy
 
-LEVEL = 2                        # NPA relaxation level
-M = 4                            # Number of nodes / 2 in gaussian quadrature
-T, W = generate_quadrature(M)    # Nodes, weights of quadrature
 KEEP_M = 0                        # Optimizing mth objective function?
-VERBOSE = 1                        # If > 1 then ncpol2sdpa will also be verbose
+VERBOSE = 0                       # If > 1 then ncpol2sdpa will also be verbose
 WMAX = 0.5 + sqrt(2)/4            # Maximum CHSH score
 
-# Description of Alice and Bobs devices (each input has 2 outputs)
-A_config = [2,2]
-B_config = [2,2]
 
-# Operators in the problem Alice, Bob and Eve
-A = [Ai for Ai in ncp.generate_measurements(A_config, 'A')]
-B = [Bj for Bj in ncp.generate_measurements(B_config, 'B')]
-Z = ncp.generate_operators('Z', 2, hermitian=0)
+def bff(level, m, t, w):
+    """
+    Builds and solves the BFF SDP relaxation for the rate of randomness
+    against a fixed CHSH score.
 
+        level -- NPA relaxation level
+        m     -- number of nodes / 2 in gaussian quadrature
+        t, w  -- quadrature nodes and weights (from generate_quadrature(m))
 
-substitutions = {}            # substitutions to be made (e.g. projections)
-moment_ineqs = []            # Moment inequalities (e.g. Tr[rho CHSH] >= c)
-moment_eqs = []                # Moment equalities (not needed here)
-op_eqs = []                    # Operator equalities (not needed here)
-op_ineqs = []                # Operator inequalities (e.g. Id - A00 >= 0 -- we don't include for speed)
-extra_monos = []            # Extra monomials to add to the relaxation beyond the level.
+    Returns (setup_time, solve_time) in seconds.
+    """
+    # The helper functions (objective, compute_entropy, ...) read these as
+    # globals, so publish the per-round operators and quadrature here.
+    global A, B, Z, M, T, W
+    M = m
+    T, W = t, w
 
+    start_setup = time.perf_counter()
 
-# Get the relevant substitutions
-substitutions = get_subs()
+    # Description of Alice and Bobs devices (each input has 2 outputs)
+    A_config = [2,2]
+    B_config = [2,2]
 
-# Define the moment inequality related to chsh score
-test_score = 0.85
-score_cons = score_constraints(test_score)
+    # Operators in the problem Alice, Bob and Eve
+    A = [Ai for Ai in ncp.generate_measurements(A_config, 'A')]
+    B = [Bj for Bj in ncp.generate_measurements(B_config, 'B')]
+    Z = ncp.generate_operators('Z', 2, hermitian=0)
 
-# Get any extra monomials we wanted to add to the problem
-extra_monos = get_extra_monomials()
+    substitutions = {}            # substitutions to be made (e.g. projections)
+    moment_ineqs = []            # Moment inequalities (e.g. Tr[rho CHSH] >= c)
+    moment_eqs = []                # Moment equalities (not needed here)
+    op_eqs = []                    # Operator equalities (not needed here)
+    op_ineqs = []                # Operator inequalities (e.g. Id - A00 >= 0 -- we don't include for speed)
+    extra_monos = []            # Extra monomials to add to the relaxation beyond the level.
 
-# Define the objective function (changed later)
-obj = objective(1)
+    # Get the relevant substitutions
+    substitutions = get_subs()
 
-# Finally defining the sdp relaxation in ncpol2sdpa
-ops = ncp.flatten([A,B,Z])
-sdp = ncp.SdpRelaxation(ops, verbose = VERBOSE-1, normalized=True, parallel=0)
-sdp.get_relaxation(level = LEVEL,
-    equalities = op_eqs[:],
-    inequalities = op_ineqs[:],
-    momentequalities = moment_eqs[:],
-    momentinequalities = moment_ineqs[:] + score_cons[:],
-    objective = obj,
-    substitutions = substitutions)
+    # Define the moment inequality related to chsh score
+    test_score = 0.85
+    score_cons = score_constraints(test_score)
 
-# # Test
-# ent = compute_entropy(sdp)
-# print("Analytical bound:", Hvn(test_score))
-# print("SDP bound:" , ent)
-# exit()
+    # Get any extra monomials we wanted to add to the problem
+    extra_monos = get_extra_monomials()
 
+    # Define the objective function (changed later)
+    obj = objective(1)
 
-"""
-Now let's collect some data
-"""
-# We'll loop over the different CHSH scores and compute lower bounds on the rate of the protocol
-scores = np.linspace(0.75, WMAX-1e-4, 10).tolist()
-entropy = []
-for score in scores:
-    # Modify the CHSH score
-    sdp.process_constraints(equalities = op_eqs[:],
-    inequalities = op_ineqs[:],
-    momentequalities = moment_eqs[:],
-    momentinequalities = moment_ineqs[:] + score_constraints(score))
-    # Get the resulting entropy bound
+    # Finally defining the sdp relaxation in ncpol2sdpa
+    ops = ncp.flatten([A,B,Z])
+    sdp = ncp.SdpRelaxation(ops, verbose = VERBOSE-1, normalized=True, parallel=0)
+    sdp.get_relaxation(level = level,
+        equalities = op_eqs[:],
+        inequalities = op_ineqs[:],
+        momentequalities = moment_eqs[:],
+        momentinequalities = moment_ineqs[:] + score_cons[:],
+        objective = obj,
+        substitutions = substitutions,
+        extramonomials = extra_monos)
+    stop_setup = time.perf_counter()
+
+    # Solve (sequence of objective optimizations inside compute_entropy)
+    start_solve = time.perf_counter()
     ent = compute_entropy(sdp)
-    entropy += [ent]
-    print(score, Hvn(score), ent)
+    stop_solve = time.perf_counter()
 
-# np.savetxt('./data/chsh_local_' + str(2*M) + 'M.csv', [scores, entropy], delimiter = ',')
+    if VERBOSE:
+        print("Analytical bound:", Hvn(test_score))
+        print("SDP bound:" , ent)
 
-entropy_h = [Hvn(score) for score in scores]
-entropy_hmin = [hmin(score) for score in scores]
+    elapsed_setup = stop_setup - start_setup
+    elapsed_solve = stop_solve - start_solve
+    return elapsed_setup, elapsed_solve
+
+def avg_time(level, m, trials):
+    setup_times = []
+    solve_times = []
+    for _ in range(trials):
+        # Compute the quadrature once per round and feed it to bff
+        t, w = generate_quadrature(m)
+        setup_time, solve_time = bff(level, m, t, w)
+        setup_times.append(setup_time)
+        solve_times.append(solve_time)
+    avg_setup_time = sum(setup_times) / trials
+    avg_solve_time = sum(solve_times) / trials
+    return avg_setup_time, avg_solve_time
+
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) > 1:
+        level = int(sys.argv[1])
+        m = int(sys.argv[2]) if len(sys.argv) > 2 else 4
+        trials = int(sys.argv[3]) if len(sys.argv) > 3 else 1
+    else:
+        level = 2
+        m = 4
+        trials = 1
+
+    avg_setup, avg_solve = avg_time(level, m, trials)
+    print(f"Level {level}, M {m} ({trials} trials):")
+    print(f"  Average setup time: {avg_setup:.4f}s")
+    print(f"  Average solve time: {avg_solve:.4f}s")
+
+
+# """
+# Now let's collect some data
+# """
+# # We'll loop over the different CHSH scores and compute lower bounds on the rate of the protocol
+# scores = np.linspace(0.75, WMAX-1e-4, 20).tolist()
+# entropy = []
+# for score in scores:
+#     # Modify the CHSH score
+#     sdp.process_constraints(equalities = op_eqs[:],
+#     inequalities = op_ineqs[:],
+#     momentequalities = moment_eqs[:],
+#     momentinequalities = moment_ineqs[:] + score_constraints(score))
+#     # Get the resulting entropy bound
+#     ent = compute_entropy(sdp)
+#     entropy += [ent]
+#     print(score, Hvn(score), ent)
+
+# # np.savetxt('./data/chsh_local_' + str(2*M) + 'M.csv', [scores, entropy], delimiter = ',')
+
+# entropy_h = [Hvn(score) for score in scores]
+# entropy_hmin = [hmin(score) for score in scores]
 # np.savetxt('./data/analytic_H_chsh_local.csv', [scores, entropy_h], delimiter = ',')
 # np.savetxt('./data/analytic_Hmin_chsh_local.csv', [scores, entropy_hmin], delimiter = ',')
 
 """
 Plot and compare
 """
-import matplotlib.pyplot as plt
-plt.plot(scores, entropy)
-plt.plot(scores, entropy_h)
-plt.plot(scores, entropy_hmin)
-plt.ylim(0.0, 1.0)
-plt.xlim(0.75, WMAX)
-# plt.savefig('chsh_local_rates.png')
-plt.show()
+# import matplotlib.pyplot as plt
+# plt.plot(scores, entropy)
+# plt.plot(scores, entropy_h)
+# plt.plot(scores, entropy_hmin)
+# plt.ylim(0.0, 1.0)
+# plt.xlim(0.75, WMAX)
+# # plt.savefig('chsh_local_rates.png')
+# plt.show()

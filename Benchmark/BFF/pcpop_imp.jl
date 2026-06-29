@@ -36,7 +36,7 @@ end
 f(A,z,t) = A * (z + z' + (1-t)*z'*z) + t*z*z'
 # F[a] * (Z[a] + Dagger(Z[a]) + (1-ti)*Dagger(Z[a])*Z[a]) + ti*Z[a]*Dagger(Z[a])
 
-function bff(t,w, γ, k::Int; primal=true,canonical=true)
+function bff(t,w, γ, k::Int; primal=true,canonical=true,optimize=true)
     # Build monoid
     setup_start = time()
     @pcmonoid M Z[0, 2] a0 a1 b0 b1
@@ -58,6 +58,9 @@ function bff(t,w, γ, k::Int; primal=true,canonical=true)
         model,S,V,mons,LMI = npa_dual(obj,basis,basis_principal; tr_ge=tr_ge, min=true,change_objective=true)
         setup_stop = time()
         elapsed_setup = setup_stop - setup_start
+        if !optimize
+            return nothing, elapsed_setup, 0.0
+        end
         solve_start = time()
         set_optimizer(model, Mosek.Optimizer)
         # set_silent(model)
@@ -69,6 +72,7 @@ function bff(t,w, γ, k::Int; primal=true,canonical=true)
             obj = f(a0, z[1], t[i]) + f(1-a0, z[2], t[i])
             S = S+old_obj-obj
             model,V = model_new_obj(model,S,V,mons,LMI,-1)
+            # set_silent(model)
             optimize!(model);ovi = objective_value(model)
             old_obj = obj
             H += w[i]/(t[i]*log(2))*(1 + ovi)
@@ -107,17 +111,17 @@ function bff(t,w, γ, k::Int; primal=true,canonical=true)
 
 end
 
-function avg_time(total_runs,m::Int, γ, k::Int;t=[],w=[],primal=true,canonical=true)
+function avg_time(total_runs,m::Int, γ, k::Int;t=[],w=[],primal=true,canonical=true,optimize=true)
     if isempty(t) || isempty(w)
         t, w = gaussradau(m)
         t = t[2:end]
         w = w[2:end]
     end
-    bff(t,w, γ, 1; primal=primal, canonical=canonical)
+    bff(t,w, γ, 1; primal=primal, canonical=canonical, optimize=optimize)
     total_setup_time = 0.0
     total_solve_time = 0.0
     for i in 1:total_runs
-        H,setup_time, solve_time = bff(t,w, γ, k; primal=primal, canonical=canonical)
+        H,setup_time, solve_time = bff(t,w, γ, k; primal=primal, canonical=canonical, optimize=optimize)
         total_setup_time += setup_time
         total_solve_time += solve_time
         println("H:", H)

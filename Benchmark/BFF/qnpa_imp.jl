@@ -41,7 +41,7 @@ f(A, z, t) = A*(z + conj(z) + (1-t)*conj(z)*z) + t*z*conj(z)
 
 bff_objective(a0, z, t) = f(a0, z[1], t) + f(Id - a0, z[2], t)
 
-function bff(t, w, γ, k::Int)
+function bff(t, w, γ, k::Int;optimize=true)
     # Build operators
     t_start = time()
     a0 = projector(1, 1, 1)
@@ -59,6 +59,10 @@ function bff(t, w, γ, k::Int)
     # both the objective and the constraint appears in `mons`.
     obj0 = bff_objective(a0, z, t[1])
     model = npa2jump_d(obj0, k;sense=:minimise, ge=[B - γ*Id],solver=Mosek.Optimizer)
+    if !optimize
+        stop_setup = time()
+        return nothing, stop_setup - t_start, 0.0
+    end
     unset_silent(model)  # don't solve yet, we will iterate over quadrature nodes
     optimize!(model)
     println("Termination status ", termination_status(model))
@@ -77,7 +81,7 @@ function bff(t, w, γ, k::Int)
     return H,elapsed_total
 end
 
-function avg_time(total_runs,m::Int, γ, k::Int;t=[],w=[])
+function avg_time(total_runs,m::Int, γ, k::Int;t=[],w=[],optimize=true)
     if isempty(t) || isempty(w)
         t, w = gaussradau(m)
         t = t[2:end]
@@ -86,7 +90,7 @@ function avg_time(total_runs,m::Int, γ, k::Int;t=[],w=[])
     bff(t,w, γ, 2)
     total_time = 0.0
     for i in 1:total_runs
-        H,t_time = bff(t,w, γ, k)
+        H,t_time = bff(t,w, γ, k;optimize=optimize)
         total_time += t_time
         println("H:", H)
     end

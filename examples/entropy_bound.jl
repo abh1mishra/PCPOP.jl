@@ -53,11 +53,7 @@ function bff(t, α, γ, k::Int; primal=true)
             α - z[1]'*z[1],
             α - z[2]'*z[2]]
 
-    if primal
-        return pcpop!(obj, k; tr_ge=tr_ge, op_ge=op_ge)
-    else
-        return pcpop(-obj, k, inequalities=op_ge, moments=tr_ge)
-    end
+    pcpop(obj, k; tr_ge=tr_ge, op_ge=op_ge,primal=primal)
 end
 
 function entropy_bound(m::Int, γ, k::Int)
@@ -141,7 +137,7 @@ op_ge =[α - z[1]*za[1], α - za[1]*z[1],
 
 # Full semidefinite program
 println("Solving SDP relaxation...")
-ov,model,_=pcpop!(obj, 2; op_ge=op_ge, tr_ge=tr_ge)
+ov,model,_=pcpop(obj, 2; op_ge=op_ge, tr_ge=tr_ge)
 println("Termination status: ", termination_status(model))
 println("Objective value: ", objective_value(model))
 
@@ -149,6 +145,6 @@ Jordan reduction semidefinite program
 println("Solving Jordan reduced SDP relaxation...")
 k = 2
 diagonalize=false
-model=pcpop!(obj, k; op_ge=op_ge, tr_ge=tr_ge,reduce=true)
+model=pcpop(obj, k; op_ge=op_ge, tr_ge=tr_ge,reduce=true)
 println("Termination status: ", termination_status(model))
 println("Objective value: ", objective_value(model))

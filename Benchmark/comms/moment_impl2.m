@@ -1,4 +1,4 @@
-function [setup_time, solve_time, obj_val] = polygon_bell(n, mm_level,optm)
+function [setup_time, solve_time, obj_val,mm] = polygon_bell(n, mm_level,optm)
     tic;
     % to generate the matrix of Operatornames, where each row corresponds to names for variables in a vertex of polygon 
     vars_M = arrayfun(@(i,j) sprintf("X%d%d", i, j), repmat((1:n)', 1, 2), repmat(1:2, n, 1), 'UniformOutput', false);
@@ -25,7 +25,7 @@ function [setup_time, solve_time, obj_val] = polygon_bell(n, mm_level,optm)
             end
         end
     end
-    setting.Complete(300);
+    setting.Complete(200);
     % vars_A is row-major: ops(2k-1)=row k col1, ops(2k)=row k col2
     % Here it gives warning of "Supplied ruleset was not completed."
     ops = setting.getAll();
@@ -40,7 +40,7 @@ function [setup_time, solve_time, obj_val] = polygon_bell(n, mm_level,optm)
     end
 
     % Here it gives error of some Symbol X... not found in Symbols table.
-    mm = setting.MomentMatrix(mm_level);
+    mm = setting.MomentMatrix(mm_level)
 
     yalmip('clear');
 
@@ -70,18 +70,18 @@ function [setup_time, solve_time, obj_val] = polygon_bell(n, mm_level,optm)
     obj_val = value(objective);
 end
 
-function [avgsetuptime,avgsolvetime] = avg_time(t_runs,n,mm_level)
+function [avgsetuptime,avgsolvetime] = avg_time(t_runs,n,mm_level,optm)
     total_setup_time = 0;
     total_solve_time = 0;
     for run = 1:t_runs
-        [setup_time,solve_time,val] = polygon_bell(n,mm_level);
+        [setup_time,solve_time,val] = polygon_bell(n,mm_level,optm);
         total_setup_time = total_setup_time + setup_time;
         total_solve_time = total_solve_time + solve_time;
     end
     avgsetuptime = total_setup_time/t_runs;
     avgsolvetime = total_solve_time/t_runs;
 end
-%[avgsetuptime,avgsolvetime] = avg_time(3,10,2);
+%[avgsetuptime,avgsolvetime] = avg_time(5,5,4,0);
 %fprintf('Average setup time: %.4f seconds\n', avgsetuptime);
 %fprintf('Average solve time: %.4f seconds\n', avgsolvetime);
-[setup_time, solve_time, obj_val] = polygon_bell(11, 2,0)
+[setup_time, solve_time, obj_val,m] = polygon_bell(5,3,1)

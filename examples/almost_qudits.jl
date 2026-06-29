@@ -33,6 +33,6 @@ tr_ge = [[ρ[1]*P[1], 1 - ϵ],
 # Level of semidefinite relaxation
 k = 3
 # Optimization of the semidefinite relaxation
-val,model,_= pcpop!(obj,k;tr_eq=tr_eq, tr_ge=tr_ge, min=false, tracial=true, normalize=false)
+val,model,_= pcpop(obj,k;tr_eq=tr_eq, tr_ge=tr_ge, min=false, tracial=true, normalize=false)
 println("Termination status ", termination_status(model))
 println("Optimal value      ", val)

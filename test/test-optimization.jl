@@ -9,16 +9,10 @@
 
     f = a*c + a*d + b*c - b*d
     
-    sos_model = pcpop(f, 1)
-    set_optimizer(sos_model, Mosek.Optimizer)
-    set_silent(sos_model)
-    optimize!(sos_model)
+    val,sos_model,_ = pcpop(f, 1)
     @test termination_status(sos_model) == MOI.TerminationStatusCode(1)
 
-    sos_model = pcpop(f, 2)
-    set_optimizer(sos_model, Mosek.Optimizer)
-    set_silent(sos_model)
-    optimize!(sos_model);
+    val,sos_model,_ = pcpop(f, 2)
     @test termination_status(sos_model) == MOI.TerminationStatusCode(1)
     @test abs(2-objective_value(sos_model)) <= 1e-6
     

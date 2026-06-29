@@ -68,10 +68,7 @@ end
 
     f = a*c + a*d + b*c - b*d
 
-    sos_model = pcpop(f, 1, tracial=true)
-    set_optimizer(sos_model, Mosek.Optimizer)
-    set_silent(sos_model)
-    optimize!(sos_model)
+    val,sos_model,_ = pcpop(f, 1; tracial=true)
     @test termination_status(sos_model) == MOI.TerminationStatusCode(1)
 
     @pcmonoid M a b c d
@@ -81,10 +78,7 @@ end
 
     f = a*c + a*d + b*c - b*d
 
-    sos_model = pcpop(f, 2, tracial=true)
-    set_optimizer(sos_model, Mosek.Optimizer)
-    set_silent(sos_model)
-    optimize!(sos_model)
+    val,sos_model,_ = pcpop(f, 2; tracial=true)
     @test termination_status(sos_model) == MOI.TerminationStatusCode(1)
     @test abs(objective_value(sos_model) - 2) <= 1e-6
 

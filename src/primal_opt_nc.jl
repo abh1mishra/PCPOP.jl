@@ -1,4 +1,4 @@
-function cyclic_npa_moments_block_nc(list_monomials::Vector{M},model;cPoly=1,unique_mons=[],unique_vars=[],eq=false) where M<:AbstractMonomial
+function cyclic_npa_moments_block_nc(list_monomials::Vector{M},model;cPoly=1,mons_D=Dict([]),eq=false) where M<:AbstractMonomial
 
     # Get the number of monomials
     num_monomials = length(list_monomials)
@@ -20,16 +20,16 @@ function cyclic_npa_moments_block_nc(list_monomials::Vector{M},model;cPoly=1,uni
                 if m1==0 || m2==0
                     continue
                 end
-                m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
-                if m_i !== nothing
+                if haskey(mons_D,m1) || haskey(mons_D,m2)
                     # Use the existing JuMP variable
-                    moments_matrix[i, j] += c*unique_vars[m_i]
+                    var = haskey(mons_D,m1) ? mons_D[m1] : mons_D[m2]
+                    # Use the existing JuMP variable
+                    moments_matrix[i, j] += c*var
                 else
                     # Create a new JuMP variable
                     new_var = @variable(model)
                     # Store the new variable in the dictionary
-                    push!(unique_mons, m1)
-                    push!(unique_vars, new_var)
+                    mons_D[m1] = new_var
                     # Use the new variable in the matrix
                     moments_matrix[i, j] += c*new_var
                 end
@@ -46,7 +46,7 @@ function cyclic_npa_moments_block_nc(list_monomials::Vector{M},model;cPoly=1,uni
     return moments_matrix, unique_mons, unique_vars
 end
 
-function npa_moments_block_nc(list_monomials::Vector{M},model;cPoly=1,unique_mons=[],unique_vars=[],eq=false) where M<:AbstractMonomial
+function npa_moments_block_nc(list_monomials::Vector{M},model;cPoly=1,mons_D=Dict([]),eq=false) where M<:AbstractMonomial
 
     # Get the number of monomials
     num_monomials = length(list_monomials)
@@ -63,16 +63,15 @@ function npa_moments_block_nc(list_monomials::Vector{M},model;cPoly=1,unique_mon
             moments_matrix[i, j] = 0.0
             for (m,c) in monomial_product
                 # Check if the product already exists in the dictionary
-                m_i=findfirst(x->(x==m),unique_mons)
-                if m_i !== nothing
+                
+                if haskey(mons_D, m)
                     # Use the existing JuMP variable
-                    moments_matrix[i, j] += c*unique_vars[m_i]
+                    moments_matrix[i, j] += c*mons_D[m]
                 else
                     # Create a new JuMP variable
                     new_var = @variable(model)
                     # Store the new variable in the dictionary
-                    push!(unique_mons, m)
-                    push!(unique_vars, new_var)
+                    mons_D[m] = new_var
                     # Use the new variable in the matrix
                     moments_matrix[i, j] += c*new_var
                 end
@@ -87,7 +86,7 @@ function npa_moments_block_nc(list_monomials::Vector{M},model;cPoly=1,unique_mon
     else
         @constraint(model, moments_matrix .== 0)
     end
-    return moments_matrix, unique_mons, unique_vars
+    return moments_matrix, mons_D
 end
 
 function npa_nc(obj, ops,ops_principal;
@@ -102,7 +101,7 @@ function npa_nc(obj, ops,ops_principal;
     
     println("Number of operators in the principal moment matrix: ", length(ops_principal))
 
-    principal_moments_matrix, unique_mons, unique_vars = tracial ? cyclic_npa_moments_block_nc(ops_principal,model) : npa_moments_block_nc(ops_principal,model)
+    principal_moments_matrix, mons_D = tracial ? cyclic_npa_moments_block_nc(ops_principal,model) : npa_moments_block_nc(ops_principal,model)
     # Add the constraints for the principal moment matrix
     if !isempty(tr_eq)
         for i in 1:length(tr_eq)
@@ -110,14 +109,14 @@ function npa_nc(obj, ops,ops_principal;
             if tracial
                 for (m,c) in Polynomial(tr_eq[i][1])
                     m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
-                    m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
-                    tr_eq_p+=c*unique_vars[m_i]
+                    var = haskey(mons_D,m1) ? mons_D[m1] : mons_D[m2]
+                    tr_eq_p += c*var
                 end
             else
                 tr_eq_poly=real_rep(Polynomial(Polynomial(tr_eq[i][1])))
                 for (m,c) in tr_eq_poly
-                    m_i=findfirst(x->x==m,unique_mons)
-                    tr_eq_p+=c*unique_vars[m_i]
+                    var = mons_D[m]
+                    tr_eq_p+=c*var
                 end
             end
             @constraint(model, tr_eq_p == tr_eq[i][2])
@@ -129,14 +128,14 @@ function npa_nc(obj, ops,ops_principal;
             if tracial
                 for (m,c) in Polynomial(tr_ge[i][1])
                     m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
-                    m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
-                    tr_ge_p+=c*unique_vars[m_i]
+                    var = haskey(mons_D,m1) ? mons_D[m1] : mons_D[m2]
+                    tr_eq_p += c*var
                 end
             else
                 tr_ge_poly=real_rep(Polynomial(Polynomial(tr_ge[i][1])))
                 for (m,c) in tr_ge_poly
-                    m_i=findfirst(x->x==m,unique_mons)
-                    tr_ge_p+=c*unique_vars[m_i]
+                    var = mons_D[m]
+                    tr_ge_p+=c*var
                 end
             end
             @constraint(model, tr_ge_p >= tr_ge[i][2])
@@ -145,19 +144,19 @@ function npa_nc(obj, ops,ops_principal;
     if !isempty(op_ge)
         for i in 1:length(op_ge)
             if tracial
-                cyclic_npa_moments_block_nc(ops,model; cPoly=op_ge[i],unique_mons=unique_mons, unique_vars=unique_vars) 
+                cyclic_npa_moments_block_nc(ops,model; cPoly=op_ge[i],mons_D=mons_D) 
             else
-                npa_moments_block_nc(ops,model; cPoly=op_ge[i], unique_mons=unique_mons, unique_vars=unique_vars) 
+                npa_moments_block_nc(ops,model; cPoly=op_ge[i], mons_D=mons_D) 
             end
         end
     end
     if !isempty(op_eq)
         for i in 1:length(op_eq)
             if tracial
-                cyclic_npa_moments_block_nc(ops,model; cPoly=op_eq[i],unique_mons=unique_mons, unique_vars=unique_vars,eq=true) 
+                cyclic_npa_moments_block_nc(ops,model; cPoly=op_eq[i],mons_D=mons_D,eq=true) 
 
             else
-                npa_moments_block_nc(ops,model; cPoly=op_eq[i], unique_mons=unique_mons, unique_vars=unique_vars,eq=true) 
+                npa_moments_block_nc(ops,model; cPoly=op_eq[i], mons_D=mons_D,eq=true) 
 
             end
         end
@@ -166,9 +165,9 @@ function npa_nc(obj, ops,ops_principal;
         id_elem=one(first(ops_principal))
         if tracial
             id_elem=cyclic_reduce(id_elem)
-            @constraint(model,unique_vars[findfirst(check->check==id_elem,unique_mons)]==1.0)
+            @constraint(model,mons_D[id_elem]==1.0)
         else
-            @constraint(model,unique_vars[findfirst(check->check==id_elem,unique_mons)]==1.0)
+            @constraint(model,mons_D[id_elem]==1.0)
         end
     end
     if !is_number(obj)
@@ -176,26 +175,20 @@ function npa_nc(obj, ops,ops_principal;
         if tracial
             for (m,c) in Polynomial(obj)
                 m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
-                m_i=findfirst(x->(x==m1 || x==m2),unique_mons)
-                if m_i==nothing
-                    throw(ArgumentError("level not enough"))
-                end
-                obj_p+=c*unique_vars[m_i]
+                var = haskey(mons_D,m1) ? mons_D[m1] : mons_D[m2]
+                obj_p += c*var
             end
         else
             obj_poly=real_rep(Polynomial(Polynomial(obj)))
             for (m,c) in obj_poly
-                m_i=findfirst(x->x==m,unique_mons)
-                if m_i==nothing
-                    throw(ArgumentError("level not enough"))
-                end
-                obj_p+=c*unique_vars[m_i]
+                var = mons_D[m]
+                obj_p+=c*var
             end
         end
         
         min ? @objective(model, Min, obj_p) : @objective(model, Max, obj_p)
     end
 
-    return model,Dict(zip(unique_mons,unique_vars)),principal_moments_matrix
+    return model,mons_D,principal_moments_matrix
 
 end
