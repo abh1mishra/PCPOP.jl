@@ -7,14 +7,14 @@ Unipotent.(M.vertices)
 @comms a b c
 build(M)
 k = 2
-TM = make_trace_monoid(M, 2*k+2, tracial=false) 
+TM = make_trace_monoid(M, 2*k, tracial=false) 
 # Objective function.
 p = a[2]*b[1]*c[1] + a[1]*b[2]*c[1] + a[1]*b[1]*c[2] - a[2]*b[2]*c[2]
 p = state(p, TM)
 # Equality constraints
-basis = union(trace_monomials(TM, 0:k), [state(a[i]*b[1]*c[j], TM) for i in 1:2 for j in 1:2])
-wα = mons_at_level(a, k-1)
-wγ = mons_at_level(c, k-1)
+basis = trace_monomials(TM, 0:k)
+wα = mons_at_level(a, k)
+wγ = mons_at_level(c, k)
 R = [state(u*v, TM) - state(u, TM)*state(v, TM) for u in wα for v in wγ]
 R = unique([r for r in R if !(r==0)])
 println("Building model...")

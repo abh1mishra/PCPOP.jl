@@ -15,11 +15,16 @@ build(M)
 p = σ*(a[2]*b[1]*c[1] + a[1]*b[2]*c[1] + a[1]*b[1]*c[2] - a[2]*b[2]*c[2])
 # Constraints
 S = []
+
+d = 8
+
 T = [[σ, 1],
-     [ρ[1]-ρ[2], 0]]
-d = 2
+     [ρ[1], 1],
+     [ρ[2], 1]]
+
 U = [[-ρ[1], -d],
      [-ρ[2], -d]]
+U = []
 
 # Optimize semidefinite relaxation
 val,model,_ = pcpop!(p,3, min=false,
