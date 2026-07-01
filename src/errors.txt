@@ -1,1 +1,0 @@
-sum([a[1],b[1]]) not working

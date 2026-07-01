@@ -1,4 +1,5 @@
 # Python virtual environments
+ncp/
 Benchmark/chsh/ncp/
 Benchmark/BFF/pythonimp/
 
@@ -12,6 +13,20 @@ __pycache__/
 *.pyo
 *.pyd
 .Python
+
+# LaTeX build artifacts
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.bbl
+*.blg
+*.toc
+
+# Documenter build output
+docs/build/
 
 # macOS
 .DS_Store
