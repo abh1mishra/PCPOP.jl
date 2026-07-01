@@ -35,7 +35,7 @@ end
     G = PG.PermGroup(p1, p2)
 
     sa_model = pcpop(f, 2, G, action)
-    set_optimizer(sa_model, Mosek.Optimizer)
+    set_optimizer(sa_model, default_solver())
     set_silent(sa_model)
     optimize!(sa_model);
     @test termination_status(sa_model) == MOI.TerminationStatusCode(1)
@@ -82,7 +82,7 @@ end
     @test SU == [5,3,3,2]
     
     blk_model = pcpop(f, 2, G, action, diagonalize=true)
-    set_optimizer(blk_model, Mosek.Optimizer)
+    set_optimizer(blk_model, default_solver())
     set_silent(blk_model)
     optimize!(blk_model);
     @test termination_status(blk_model) == MOI.TerminationStatusCode(1)

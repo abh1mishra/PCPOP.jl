@@ -30,14 +30,14 @@ end
     f = a*c + a*d + b*c - b*d
 
     model = pcpop(f)
-    set_optimizer(model, Mosek.Optimizer)
+    set_optimizer(model, default_solver())
     set_silent(model)
     optimize!(model)
   
     @test termination_status(model) == MOI.TerminationStatusCode(2)
   
     model_localized = pcpop(f, equalities = G)
-    set_optimizer(model_localized, Mosek.Optimizer)
+    set_optimizer(model_localized, default_solver())
     set_silent(model_localized)
     optimize!(model_localized)
   
@@ -54,7 +54,7 @@ end
     f = a*c + a*d + b*c - b*d
     
     model_pc = pcpop(f, 1)
-    set_optimizer(model_pc, Mosek.Optimizer)
+    set_optimizer(model_pc, default_solver())
     set_silent(model_pc)
     optimize!(model_pc)
     @test termination_status(model_pc) == MOI.TerminationStatusCode(1)
@@ -67,7 +67,7 @@ end
     G = [a*c - c*a, a*d - d*a, b*c - c*b, b*d - d*b]
     f = a*c + a*d + b*c - b*d
     global model_localized = pcpop(f, 2, equalities = G)
-    set_optimizer(model_localized, Mosek.Optimizer)
+    set_optimizer(model_localized, default_solver())
     set_silent(model_localized)
     optimize!(model_localized)
     @test termination_status(model_localized) == MOI.TerminationStatusCode(1)
@@ -79,7 +79,7 @@ end
     build(M)
     f = a*c + a*d + b*c - b*d
     global model_pc = pcpop(f, 2)
-    set_optimizer(model_pc, Mosek.Optimizer)
+    set_optimizer(model_pc, default_solver())
     set_silent(model_pc)
     optimize!(model_pc)
     @test termination_status(model_pc) == MOI.TerminationStatusCode(1)

@@ -94,7 +94,7 @@ end
     f = a*c + a*d + b*c - b*d
 
     sos_model = tpop(f, 1, 0)
-    set_optimizer(sos_model, Mosek.Optimizer)
+    set_optimizer(sos_model, default_solver())
     set_silent(sos_model)
     optimize!(sos_model)
     @test termination_status(sos_model) == MOI.TerminationStatusCode(1)
@@ -102,7 +102,7 @@ end
     f = a*c + a*d + b*c - b*d
 
     sos_model = tpop(f, 2, 1)
-    set_optimizer(sos_model, Mosek.Optimizer)
+    set_optimizer(sos_model, default_solver())
     set_silent(sos_model)
     optimize!(sos_model)
     @test termination_status(sos_model) == MOI.TerminationStatusCode(1)
@@ -119,7 +119,7 @@ end
     f = a*c + a*d + b*c - b*d
 
     sos_model = tpop(f, 1, 0, tracial=true)
-    set_optimizer(sos_model, Mosek.Optimizer)
+    set_optimizer(sos_model, default_solver())
     set_silent(sos_model)
     optimize!(sos_model)
     @test termination_status(sos_model) == MOI.TerminationStatusCode(1)
@@ -127,7 +127,7 @@ end
     f = a*c + a*d + b*c - b*d
 
     sos_model = tpop(f, 1, tracial=true)
-    set_optimizer(sos_model, Mosek.Optimizer)
+    set_optimizer(sos_model, default_solver())
     set_silent(sos_model)
     optimize!(sos_model)
     @test termination_status(sos_model) == MOI.TerminationStatusCode(1)
@@ -135,7 +135,7 @@ end
     f = a*c + a*d + b*c - b*d
 
     sos_model = tpop(f, 2, 1, tracial=true)
-    set_optimizer(sos_model, Mosek.Optimizer)
+    set_optimizer(sos_model, default_solver())
     set_silent(sos_model)
     optimize!(sos_model)
     @test termination_status(sos_model) == MOI.TerminationStatusCode(1)
@@ -157,7 +157,7 @@ end
     basis_psd = trace_monomials(TM, 0:3, tracial=true)
 
     sos_model = tpop(f, TM, basis_psd, tracial=true)
-    set_optimizer(sos_model, Mosek.Optimizer)
+    set_optimizer(sos_model, default_solver())
     set_silent(sos_model)
     optimize!(sos_model)
     @test termination_status(sos_model) == MOI.TerminationStatusCode(1)
@@ -183,7 +183,7 @@ end
     basis = trace_monomials(TM, 0:3, tracial=false)
 
     model = tpop(p, TM, basis, tracial=false)
-    set_optimizer(model, Mosek.Optimizer)
+    set_optimizer(model, default_solver())
     set_silent(model)
     optimize!(model)
     @test termination_status(model) == MOI.TerminationStatusCode(1)
