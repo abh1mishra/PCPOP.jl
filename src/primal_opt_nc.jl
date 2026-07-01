@@ -99,8 +99,6 @@ function npa_nc(obj, ops,ops_principal;
     normalize=true)
     model=Model()
     
-    println("Number of operators in the principal moment matrix: ", length(ops_principal))
-
     principal_moments_matrix, mons_D = tracial ? cyclic_npa_moments_block_nc(ops_principal,model) : npa_moments_block_nc(ops_principal,model)
     # Add the constraints for the principal moment matrix
     if !isempty(tr_eq)

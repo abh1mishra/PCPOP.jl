@@ -1,4 +1,4 @@
-include("../traceGrobner.jl")
+using PCPOP,JuMP
 
 # Build the monoid
 @pcmonoid M a[16,0]

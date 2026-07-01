@@ -1,4 +1,4 @@
-include("../traceGrobner.jl")
+using PCPOP,JuMP
 # Build the monoid
 @pcmonoid M X[9,0]
 Unipotent.(X)

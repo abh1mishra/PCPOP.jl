@@ -1,5 +1,3 @@
-include("pcpop.jl")
-
 struct TraceMonoid <: AbstractMonoid
     state_monoid::AbstractMonoid
     base_monoid::AbstractMonoid
@@ -24,7 +22,7 @@ function Base.show(io::IO, ::MIME"text/plain", tm::TraceMonoid)
 end
 
 # Identity element in TraceMonoid
-one(TM::TraceMonoid) = one(TM.state_monoid)
+Base.one(TM::TraceMonoid) = one(TM.state_monoid)
 
 # Display cyclic words
 function Base.show(io::IO, w::CyclicWord)
@@ -200,10 +198,6 @@ end
     aρa, aρb, bρa, bρb, ρaρa, ρaρb, ρbρb
 
 """
-function trace_monomials(TM::TraceMonoid, k::Int; tracial=false)
-    return trace_monomials(TM, 0:k, tracial=tracial)
-end
-
 function trace_monomials(TM::TraceMonoid, k::Int, t::Int; tracial=false)
     return union(mons_at_level(TM.vertices_free, k), mons_at_level(TM.vertices_states, t))
 end

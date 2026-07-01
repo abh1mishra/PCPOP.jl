@@ -18,7 +18,7 @@ using StatsBase: sample
     or the Jordan algebra reduction method [Permenter & Parrilo 2016]
 
 """
-function jordan_reduce(C, A, b; verbose=false, complex=false, epsilon=Base.rtoldefault(Float64), diagonalize=true, solver=Mosek.Optimizer, optimize=false)
+function jordan_reduce(C, A, b; verbose=false, complex=false, epsilon=Base.rtoldefault(Float64), diagonalize=true, solver=default_solver(), optimize=false)
     if diagonalize
         return jordan_reduce_diagonal(C, A, b; verbose=verbose, complex=complex, epsilon=epsilon)
     else
@@ -41,7 +41,7 @@ function jordan_reduce(C, A, b; verbose=false, complex=false, epsilon=Base.rtold
     end
 end
 
-function jordan_reduce_diagonal(C, A, b; verbose=false, complex=false, epsilon=Base.rtoldefault(Float64), solver=Mosek.Optimizer, optimize=false)
+function jordan_reduce_diagonal(C, A, b; verbose=false, complex=false, epsilon=Base.rtoldefault(Float64), solver=default_solver(), optimize=false)
     # Optimal invariant subspace
     P, blkD = block_diagonal(C, A, b, verbose=verbose, complex=complex, epsilon=epsilon)
     PMat = hcat([sparse(vec(P.matrix .== i)) for i = 1:P.nparts]...)

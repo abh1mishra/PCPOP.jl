@@ -1,4 +1,4 @@
-include("traceGrobner.jl")
+using PCPOP
 include("src/pcpop.jl")
 
 ###########

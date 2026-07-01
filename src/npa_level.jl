@@ -151,7 +151,7 @@ function basis_gen(obj,level,op_eq,op_ge,tr_eq,tr_ge,list_vars,lvl_lm)
     !isempty(op_ge) && (op_ge=sanity_check_op_ge(op_ge))
     !isempty(op_eq) && (op_eq=sanity_check_op_eq(op_eq))
     if all(is_number.(vcat([obj, op_ge..., op_eq...],[tr_ge[i][1] for i in 1:length(tr_ge)], [tr_eq[i][1] for i in 1:length(tr_eq)])))
-        @warn "All the input polynomials are constants. The optimization will be trivial."
+        @warn "All the input polynomials are constants. It is a feasibility problem."
         isempty(list_vars) && throw(ArgumentError("The list of variables is empty. Please provide a non-empty list of variables."))
     end
     # at this pont, op_ge and op_eq constaints non-trivial polynomials or zero.

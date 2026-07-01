@@ -284,7 +284,6 @@ Base.:+(x::Number,p::Polynomial)=add_poly(Polynomial(one(p.monoid),x),p)
 Base.:-(p::Polynomial,x::Number)=p+(-x)
 Base.:-(x::Number,p::Polynomial)=(-p)+x
 Base.:-(p::Polynomial)=-1*p
-Base.one(p::Polynomial)=one(p.monoid)
 
 MA.promote_operation(::F,::Type{Number},::Type{N}) where {F<:Function,N<:Number} =Number
 MA.promote_operation(::F,::Type{N},::Type{Number}) where {F<:Function,N<:Number} =Number

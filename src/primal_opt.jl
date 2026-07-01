@@ -8,7 +8,6 @@ function cyclic_npa_moments_block!(list_monomials::Vector{M},X,tsize,model;cPoly
     # Iterate over the list of monomials to fill the matrix
     for i in 1:num_monomials
         for j in i:num_monomials
-            println("i: ", i, " j: ", j)
             if cPoly == 1
                 m = list_monomials[i]'* list_monomials[j]
                 m1,m2 = cyclic_reduce(m),cyclic_reduce(m')
@@ -131,8 +130,6 @@ function npa(obj, ops, ops_principal;
     extra_zeros=false
     )
 
-    println("Number of operators in the principal moment matrix: ", length(ops_principal))
-
     model=Model()
     tsize=sum([[length(ops_principal)];[length(ops) for i in 1:length(op_ge)];[2*length(ops) for i in 1:length(op_eq)]])
 
@@ -182,11 +179,8 @@ function npa(obj, ops, ops_principal;
                 tr_eq_p += c*X[upi,upj]
             end
         end
-        try
-            @constraint(model, tr_eq_p - tr_eq[i][2] == 0)
-        catch e
-            println("error",tr_eq_p, " ", tr_eq[i][2])
-        end
+        @constraint(model, tr_eq_p - tr_eq[i][2] == 0)
+
     end
 
     for i in 1:length(tr_ge)

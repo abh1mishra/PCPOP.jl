@@ -140,7 +140,7 @@ Base.:/(w::NCWord,v::Variable) = (w.monoid==v.parent_monoid[]) ? w/monomial(v) :
 Base.:/(v::Variable,w::NCWord) = (w.monoid==v.parent_monoid[]) ? monomial(v)/w : throw(ArgumentError("Cannot divide words from different monoids"))
 
 Base.hash(m::NCWord, h::UInt) = hash(m.monoid, hash(m.word, hash(0x7d6979235cb005d0, h)))
-one(nc::NCMonoid)=NCWord(nc,AbstractAlgebra.one(nc.base_ring))
+Base.one(nc::NCMonoid)=NCWord(nc,AbstractAlgebra.one(nc.base_ring))
 Base.show(io::IO, mime::MIME"text/plain", m::NCWord) = show(io,m)
 Base.show(io::IO, mime::MIME"text/print", m::NCWord)=show(io,m)
 Base.show(io::IO,m::NCWord)=print(io,m.word)

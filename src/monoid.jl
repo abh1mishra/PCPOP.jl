@@ -288,7 +288,7 @@ end
 # Defined in PCMonomial.jl
 
 # one() for nested GraphProductMonoid (e.g., GraphProductMonoid{NCMonoid}) returns GraphProductWord
-function one(M::GraphProductMonoid{T}) where T<:AbstractMonoid
+function Base.one(M::GraphProductMonoid{T}) where T<:AbstractMonoid
     t = package_types[T]
     return GraphProductWord(M, Base.RefValue{AbstractMonomial}(), Vector{Vector{t}}([[] for i in 1:length(M.cliques)]), Set{t}(), Set{t}())
 end

@@ -217,7 +217,7 @@ end
 
 Returns the identity element of the monoid as a PCMonomial.
 """
-function one(M::GraphProductMonoid{Variable})
+function Base.one(M::GraphProductMonoid{Variable})
     n_cliques = length(M.cliques)
     return PCMonomial(
         M,
@@ -228,7 +228,7 @@ function one(M::GraphProductMonoid{Variable})
     )
 end
 
-one(m::PCMonomial) = one(m.monoid)
+Base.one(m::PCMonomial) = one(m.monoid)
 
 function is_identity(m::PCMonomial)
     @inbounds for ci in m.clique_words

@@ -65,7 +65,7 @@ Base.:<(m::GraphProductWord,n::GraphProductWord)=less_or_not(m,n)
 
 
 
-one(w::W) where W <:AbstractMonomial = one(w.monoid)
+Base.one(w::W) where W <:AbstractMonomial = one(w.monoid)
 is_identity(x::X) where X<:AbstractMonomial=one(x)==x
 
 

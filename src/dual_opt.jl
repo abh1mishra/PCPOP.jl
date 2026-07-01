@@ -80,8 +80,6 @@ function npa_dual(obj, ops,ops_principal;
     normalize=true,
     change_objective=false)
 
-    println("Number of operators in the principal moment matrix: ", length(ops_principal))
-
     model=Model()
 
     Id = one(first(ops_principal))
@@ -128,7 +126,7 @@ function npa_dual(obj, ops,ops_principal;
     obj_poly = sum(Zmeq[i]*tr_eq[i][2] for i in 1:length(tr_eq); init=0)
     obj_poly += sum(-s*Zmge[i]*tr_ge[i][2] for i in 1:length(tr_ge); init=0)
 
-    if !iszero(Polynomial(obj))
+    if !(obj isa Number) && !iszero(Polynomial(obj))
         if tracial
             obj = trace_mons_reduce(mons,[obj])[1]
         else
@@ -148,6 +146,6 @@ function npa_dual(obj, ops,ops_principal;
         return model,S,V,mons,LMI
     end
 
-    return model, LMI,Zs
+    return model, LMI[1],Zs
 
 end

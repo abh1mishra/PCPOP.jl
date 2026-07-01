@@ -1,4 +1,4 @@
-include("../traceGrobner.jl")
+using PCPOP,JuMP
 
 #Parameters
 d = 2

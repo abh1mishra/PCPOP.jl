@@ -1,9 +1,8 @@
 using SymbolicWedderburn
 using AbstractPermutations
-using PermutationGroups
+import PermutationGroups   # only used via the `PG` alias below; `import` avoids a `degree` name clash
 using GroupsCore
 
-using SymbolicWedderburn.Characters
 using SymbolicWedderburn.StarAlgebras
 
 const PG = PermutationGroups

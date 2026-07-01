@@ -3,7 +3,7 @@
 # var2num(x::Variable)=x.value
 # var2num(x::Array{Variable})=var2num.(x)
 reverse_dict(dict)=Dict(value => key for (key, value) in dict)
-Base.sort(dict::Dict)=sort(collect(dict), by = x->x[1])
+sort_dict(dict::Dict)=sort(collect(dict), by = x->x[1])
 IndexMap_rev= reverse_dict(IndexMap)
 
 """

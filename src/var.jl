@@ -91,7 +91,7 @@ Base.conj(v::Variable)=isnothing(v.conj[]) ? v : v.conj[]
 Base.adjoint(v::Variable)=conj(v)
 is_herm(v::Variable)=!isnothing(v.conj[]) ? false : true
 
-one(v::Variable)=one(v.parent_monoid[])
+Base.one(v::Variable)=one(v.parent_monoid[])
 is_identity(v::V) where V<:Variable=false
 
 exponents(v::Variable)=Tuple([v==i ? 1 : 0 for i in v.parent_monoid[].vertices])

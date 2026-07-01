@@ -1,4 +1,4 @@
-include("../traceGrobner.jl")
+using PCPOP,JuMP,Mosek,MosekTools
 using PolyChaos: radau, rm_jacobi
 
 """
@@ -78,7 +78,7 @@ model = bff(t[2], α[2], γ, 2, primal=true)[2]
 println("Termination Status :", termination_status(model))
 println("Objective Value    :", objective_value(model))
 
-sos_model = bff(t[2], α[2], γ, 1, primal=false)
+sos_model = bff(t[2], α[2], γ, 1, primal=false)[2]
 set_optimizer(sos_model, Mosek.Optimizer)
 optimize!(sos_model)
 println("Termination Status :", termination_status(sos_model))

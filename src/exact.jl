@@ -1,8 +1,3 @@
-using JuMP
-using ClusteredLowRankSolver
-using Mosek, MosekTools
-using LinearAlgebra
-
 function exact_solve(model::JuMP.Model, filename::AbstractString; T=Float64)
     # Write JuMP model to SDPA-sparse .dat-s
     file = filename * ".dat-s"

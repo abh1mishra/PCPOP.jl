@@ -3,6 +3,50 @@
 ##  OPTIMIZATION METHODS  ##
 ############################
 
+# Cached result of the Mosek license probe: `nothing` = not yet checked.
+const _MOSEK_OK = Ref{Union{Nothing,Bool}}(nothing)
+
+"""
+    mosek_available(; recheck=false) -> Bool
+
+Return `true` if Mosek is usable, i.e. its libraries load without error *and* a
+valid license is present.
+
+Mosek and MosekTools are installed alongside PCPOP, but a Mosek license is not.
+This probes Mosek once by solving a trivial LP and caches the outcome, so
+repeated calls are free. Any failure — missing/expired license or an error in
+the Mosek libraries — counts as "not available". Pass `recheck=true` to force a
+fresh probe, e.g. after installing a license mid-session.
+"""
+function mosek_available(; recheck::Bool=false)::Bool
+    if recheck || _MOSEK_OK[] === nothing
+        _MOSEK_OK[] = try
+            probe = JuMP.Model(Mosek.Optimizer)
+            JuMP.set_silent(probe)
+            JuMP.@variable(probe, _x >= 0)
+            JuMP.@objective(probe, Min, _x)
+            # Silence Mosek's license diagnostics during the probe.
+            redirect_stderr(devnull) do
+                JuMP.optimize!(probe)
+            end
+            JuMP.termination_status(probe) == JuMP.MOI.OPTIMAL
+        catch
+            false
+        end
+    end
+    return _MOSEK_OK[]
+end
+
+"""
+    default_solver()
+
+SDP optimizer used when none is passed explicitly: `Mosek.Optimizer` when a
+working Mosek license is detected (see [`mosek_available`](@ref)), otherwise the
+open-source `Clarabel.Optimizer`. Tests and examples can call this to run with
+whichever solver is available.
+"""
+default_solver() = mosek_available() ? Mosek.Optimizer : Clarabel.Optimizer
+
 function pcpop(p, k;
     min=false,
     op_eq = [],
@@ -13,7 +57,7 @@ function pcpop(p, k;
     list_vars=[],
     normalize = true,
     tracial = false,
-    solver = Mosek.Optimizer,
+    solver = default_solver(),
     optimize = true,
     reduce = false,
     block_diag = false,
@@ -89,7 +133,7 @@ function pcpop(p, basis, basis_principal;
     tr_ge = [],
     normalize = true,
     tracial = false,
-    solver = Mosek.Optimizer,
+    solver = default_solver(),
     optimize = true,
     reduce = false,
     block_diag = false,
@@ -140,15 +184,6 @@ function pcpop(p, basis, basis_principal;
             tr_ge = tr_ge,
             normalize = normalize,
             tracial = tracial)
-        # model = sos(p, basis;
-        #                     min = min,
-        #                    op_eq = op_eq,
-        #                    op_ge = op_ge,
-        #                    tr_eq = tr_eq,
-        #                    tr_ge = tr_ge,
-        #                    normalize = normalize,
-        #                    tracial = tracial,
-        #                    block_diag = block_diag)
     end
 
     if optimize
@@ -158,9 +193,9 @@ function pcpop(p, basis, basis_principal;
             set_optimizer_attribute(model,flag,val)
         end
         optimize!(model)
-        return objective_value(model), model,basis, basis_principal
+        return objective_value(model), model,Γ,basis, basis_principal
     end
-    return model, basis, basis_principal
+    return model, Γ,basis, basis_principal
 end
 
 """
@@ -335,7 +370,7 @@ function moments(p::Polynomial, basis;
             tr_ge = [],
             normalize = true, 
             tracial = false,
-            solver = Mosek.Optimizer,
+            solver = default_solver(),
             optimize = false)
 
     cores_zero = Polynomial.(op_eq)

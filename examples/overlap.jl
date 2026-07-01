@@ -1,4 +1,5 @@
-include("traceGrobner.jl")
+using PCPOP,JuMP,Mosek,MosekTools
+
 # Initialize local monoids
 @ncmonoid A a1 a2
 @ncmonoid B b1 b2
@@ -18,8 +19,6 @@ p += a1*(x1 + x2) + a2*(x1 - x2)
 val,model,_ = pcpop(p,2;min=false) 
 println("Termination status ", termination_status(model))
 println("Optimal value is   ", val)
-sos_model= pcpop(p, 2)
-set_optimizer(sos_model, Mosek.Optimizer)
-optimize!(sos_model)
+val,sos_model,_= pcpop(p, 2)
 println("Termination status ", termination_status(sos_model))
 println("Optimal value is   ", objective_value(sos_model))

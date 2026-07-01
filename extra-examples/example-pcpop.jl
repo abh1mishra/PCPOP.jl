@@ -1,4 +1,4 @@
-include("../traceGrobner.jl")
+using PCPOP
 
 # CHSH setting
 M=Monoid()

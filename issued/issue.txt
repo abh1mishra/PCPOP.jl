@@ -1,0 +1,19 @@
+have or not 
+# TODO:
+# 1,2 MP.one(a*b)+2 ✓
+# 3. Normal forms trace-words
+# 4. Adj matrix input (dep/indep)
+# 5. print cb ✓
+# 6. First build ✓
+# 7. Filter last letters
+# 8. a*b = c Gröbner
+# 9. Non hermitian
+# 10. Check a*b*c issue (a,c) commute ✓
+# 11. Moment matrix
+# March 8th
+# 12. MP.one(a*b+2)
+# 13. Why clique (d, c) ?
+# 14. display a*b + 1 vs 1
+# 15. print(polynomial) ERROR
+# 16. one*a not working
+# 17. Separate monoid.jl wout MP
