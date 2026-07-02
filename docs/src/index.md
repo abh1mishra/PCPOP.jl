@@ -19,10 +19,14 @@ using Pkg
 Pkg.add(url = "https://github.com/abh1mishra/PCPOP.jl.git", rev = "main")
 ```
 
-!!! note "Solver requirement"
-    PCPOP builds semidefinite relaxations solved with
-    [Mosek](https://www.mosek.com/) via `MosekTools`. A valid Mosek license is
-    required to run the optimization routines.
+!!! note "Solver"
+    PCPOP selects an SDP solver automatically: it uses
+    [Mosek](https://www.mosek.com/) when a working installation with a valid
+    license is detected, and otherwise falls back to the open-source
+    [Clarabel](https://github.com/oxfordcontrol/Clarabel.jl) solver. **No Mosek
+    license is required** to install or use the package. Query or override the
+    choice with [`default_solver`](@ref) / [`mosek_available`](@ref), or pass
+    `solver = ...` to the optimization routines.
 
 ## Quick start
 
