@@ -38,3 +38,15 @@ docs/manual/
 *.jl.cov
 *.jl.*.cov
 *.jl.mem
+
+# Development / research material not needed to run PCPOP
+benchmarks/
+extra-examples/
+issued/
+legacy_code/
+network_models/
+traceGrobner.jl
+src/tbd.txt
+
+# Package convention: consumers resolve from Project.toml + [compat]
+/Manifest.toml
