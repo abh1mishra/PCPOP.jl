@@ -174,6 +174,7 @@ The maximal quantum value of a non-linear Bell inequality corresponds with the o
 
 
 ```julia
+using JuMP,Mosek,MosekTools
 # Initialize partially-commutative monoid with 4 variables
 @pcmonoid M a[2,0] b[2,0]
 # Set variables to projectors
@@ -231,6 +232,7 @@ As an example of a contextuality scenario, consider the magic square game [peres
 
 ```julia
 # Build the monoid
+using JuMP
 @pcmonoid M X[9,0]
 Unipotent.(X)
 x = reshape(X,(3,3))
@@ -276,10 +278,11 @@ A *contextuality hypergraph* $H=(V, E)$ represents a measurement scenario with o
     & P_{00|1y} +  P_{10|1y} +  P_{01|0y} +  P_{11|0y} = \mathbf{1}\, . 
 \end{align}
 ```
- This value can be attained with the second level semidefinite relaxation of the corresponding polynomial optimization problem. The implementation in `PCPOP` is shown below.
+ This value can be attained with the semidefinite relaxation of the corresponding polynomial optimization problem, where level 1 for the localizing matrix is used. The implementation in `PCPOP` is shown below.
 
 
 ```julia
+using JuMP
 # Build the monoid
 @pcmonoid M a[16,0]
 Projector.(a)
@@ -309,7 +312,7 @@ append!(R, [one(M) - sum(A[1:2,3:4])])
 append!(R, [one(M) - sum(A[3:4,1:2])])
 append!(R, [one(M) - sum(A[3:4,3:4])])
 # Semidefinite relaxation
-val, model, _ = pcpop(p, 2, op_eq=R)
+val, model, _, _ = pcpop(p, 1; min = false, op_eq = R)
 println("Termination status ", termination_status(model))
 println("Optimal value is   ", objective_value(model))
 ```
@@ -339,7 +342,8 @@ end
 build(M)
 # Optimize semidefinite relaxation
 obj= sum(x[i]*x[(i%5)+1] for i in 1:5)
-model,_ = pcpop(obj, 2; min=true)
+val,_ = pcpop(obj, 2; min=true)
+println("Optimal value", val)
 ```
 
 
@@ -368,6 +372,7 @@ build(M)
 # Optimize semidefinite relaxation
 obj = sum([let (a, b) = (x[i,:], x[(i%n)+1,:]); (1-2*a[1])*(1-2*b[1]) + (1-2*a[1])*(1-2*b[2]) + (1-2*a[2])*(1-2*b[1]) - (1-2*a[2])*(1-2*b[2]) end for i in 1:n])
 val,model,_ = pcpop(obj, 2; min=false, primal=true)
+printlb("Optimla value", val)
 ```
 
 
@@ -398,6 +403,20 @@ H(A|x=0,E) \geq \sum_{i=0}^{m-1} \frac{w_i}{t_i \ln 2} (1+V_i) \, .
 
 
 ```julia
+using JuMP,Mosek,MosekTools,FastGaussQuadrature
+function gaussradau(m)
+    x, v = FastGaussQuadrature.gaussradau(m);
+    t = 0.5*(1 .- x);
+    w = 0.5*v;
+
+    return (t, w)
+end
+
+k=2
+m=8
+t, w = gaussradau(m)
+t = t[2:end]
+w = w[2:end]
 f(A,z,t) = A * (z + conj(z) + (1-t)*conj(z)*z) + t*z*conj(z)
 γ = 2*(sqrt(2))
 # Build monoid
@@ -432,6 +451,7 @@ for i in 2:length(t)
     old_obj = obj
     H += w[i]/(t[i]*log(2))*(1 + ovi)
 end
+println("Conditional entropy : ",H)
 ```
 
 
@@ -452,6 +472,7 @@ s.t. \ \
 
 
 ```julia
+using JuMP
 # Build the monoid
 @pcmonoid M a[2,0] b[2,0] c[2,0]
 Unipotent.(M.vertices)
@@ -504,6 +525,7 @@ c & 0 & 0 & c
 
 
 ```julia
+using JuMP
 # Build base monoid in variables x, y, z
 @pcmonoid M x y z
 Unipotent.([x, y, z])
@@ -549,36 +571,44 @@ The framework proposed in [pauwels2022almost](@cite) allows to quantify the effe
 
 
 ```julia
-# Build the monoid
-@pcmonoid M ρ[4,0] B[2,0] P[1,0]
+using JuMP
+
+#Parameters
+d = 2
+ϵ = 0.01
+c = 2*(2+sqrt(2))
+
+# Build monoid
+@pcmonoid M ρ[4, 0] B[2, 0] P[1, 0]
 Projector.(ρ)
 Projector.(B)
 Projector.(P)
 build(M)
+
 # Objective function
 obj = ρ[1]*B[1]
 # Random access code
-rac  = ρ[1]*B[1] + ρ[2]*B[1] + ρ[3]*(1-B[1]) + ρ[4]*(1-B[1])
+rac = ρ[1]*B[1] + ρ[2]*B[1] + ρ[3]*(1-B[1]) + ρ[4]*(1-B[1])
 rac += ρ[1]*B[2] + ρ[2]*(1-B[2]) + ρ[3]*B[2] + ρ[4]*(1-B[2])
 # Linear equalities on the moments
-tr_eq = [[ρ[1], 1],
-         [ρ[2], 1],
-         [ρ[3], 1],
-         [ρ[4], 1],
-         [P[1], d],
-         [rac, c]]
+tr_eq = [[ρ[1], 1], [ρ[2], 1], [ρ[3], 1], [ρ[4], 1], [P[1], d], [rac, c]]
 # Linear inequalities on the moments
-tr_ge = [[ρ[1]*P[1], 1 - ϵ],
-         [ρ[2]*P[1], 1 - ϵ],
-         [ρ[3]*P[1], 1 - ϵ],
-         [ρ[4]*P[1], 1 - ϵ]]
+tr_ge = [[ρ[1]*P[1], 1 - ϵ], [ρ[2]*P[1], 1 - ϵ], [ρ[3]*P[1], 1 - ϵ], [ρ[4]*P[1], 1 - ϵ]]
+
+# Level of semidefinite relaxation
+k = 3
 # Optimization of the semidefinite relaxation
-val, _ =pcpop(obj,2;min=false,
-                  tr_eq=tr_eq,
-                  tr_ge=tr_ge,
-                  tracial=true,
-                  normalize=false)
-println("Optimal value is ", val)
+val, model, _ = pcpop(
+    obj,
+    k;
+    tr_eq = tr_eq,
+    tr_ge = tr_ge,
+    min = false,
+    tracial = true,
+    normalize = false,
+)
+println("Termination status ", termination_status(model))
+println("Optimal value      ", val)
 ```
 
 
