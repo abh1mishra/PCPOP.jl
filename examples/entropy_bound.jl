@@ -1,3 +1,5 @@
+# Requires PolyChaos (not a PCPOP dependency) for Gauss-Radau quadrature:
+#   Pkg.add("PolyChaos")
 using PCPOP, JuMP, Mosek, MosekTools
 using PolyChaos: radau, rm_jacobi
 

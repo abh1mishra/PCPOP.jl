@@ -1,5 +1,4 @@
 using LinearAlgebra
-using SDPA
 using PCPOP, JuMP, Mosek, MosekTools
 
 function bb84_correlations(a, b, x, y; obs = false)
