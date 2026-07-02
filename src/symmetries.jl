@@ -1,12 +1,9 @@
 using SymbolicWedderburn
-using AbstractPermutations
-import PermutationGroups   # only used via the `PG` alias below; `import` avoids a `degree` name clash
+import AbstractPermutations as AP
+import PermutationGroups   as PG
 using GroupsCore
 
 using SymbolicWedderburn.StarAlgebras
-
-const PG = PermutationGroups
-const AP = AbstractPermutations
 
 """
     Structure OnLetters <: SymbolicWedderburn.ByPermutations.
