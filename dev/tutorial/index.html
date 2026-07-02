@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial · PCPOP.jl</title><meta name="title" content="Tutorial · PCPOP.jl"/><meta property="og:title" content="Tutorial · PCPOP.jl"/><meta property="twitter:title" content="Tutorial · PCPOP.jl"/><meta name="description" content="Documentation for PCPOP.jl."/><meta property="og:description" content="Documentation for PCPOP.jl."/><meta property="twitter:description" content="Documentation for PCPOP.jl."/><meta property="og:url" content="https://abh1mishra.github.io/PCPOP.jl/tutorial/"/><meta property="twitter:url" content="https://abh1mishra.github.io/PCPOP.jl/tutorial/"/><link rel="canonical" href="https://abh1mishra.github.io/PCPOP.jl/tutorial/"/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">PCPOP.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../background/">Theoretical Background</a></li><li class="is-active"><a class="tocitem" href>Tutorial</a><ul class="internal"><li><a class="tocitem" href="#Installation"><span>Installation</span></a></li><li><a class="tocitem" href="#Building-the-polynomial-algebras"><span>Building the polynomial algebras</span></a></li><li><a class="tocitem" href="#Non-commutative-polynomial-optimization"><span>Non-commutative polynomial optimization</span></a></li><li><a class="tocitem" href="#Partially-commutative-polynomial-optimization"><span>Partially commutative polynomial optimization</span></a></li><li><a class="tocitem" href="#Commutative-polynomial-optimization"><span>Commutative polynomial optimization</span></a></li><li><a class="tocitem" href="#Tracial-polynomial-optimization"><span>Tracial polynomial optimization</span></a></li><li><a class="tocitem" href="#State-polynomial-optimization"><span>State polynomial optimization</span></a></li><li><a class="tocitem" href="#Trace-polynomial-optimization"><span>Trace polynomial optimization</span></a></li><li><a class="tocitem" href="#Symmetry-reductions"><span>Symmetry reductions</span></a></li><li><a class="tocitem" href="#Jordan-algebra-reductions"><span>Jordan algebra reductions</span></a></li></ul></li><li><a class="tocitem" href="../examples/">Examples</a></li><li><a class="tocitem" href="../api/">API</a></li><li><a class="tocitem" href="../references/">References</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Tutorial</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Tutorial</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/abh1mishra/PCPOP.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/abh1mishra/PCPOP.jl/blob/main/docs/src/tutorial.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Tutorial"><a class="docs-heading-anchor" href="#Tutorial">Tutorial</a><a id="Tutorial-1"></a><a class="docs-heading-anchor-permalink" href="#Tutorial" title="Permalink"></a></h1><h2 id="Installation"><a class="docs-heading-anchor" href="#Installation">Installation</a><a id="Installation-1"></a><a class="docs-heading-anchor-permalink" href="#Installation" title="Permalink"></a></h2><p><code>PCPOP</code> can be readily installed with julia in-built package manager:</p><pre><code class="language-julia hljs">import Pkg
+Pkg.add(&quot;PCPOP&quot;)</code></pre><p>After installation, it can be imported and readily used:</p><pre><code class="language-julia hljs">using PCPOP</code></pre><h2 id="Building-the-polynomial-algebras"><a class="docs-heading-anchor" href="#Building-the-polynomial-algebras">Building the polynomial algebras</a><a id="Building-the-polynomial-algebras-1"></a><a class="docs-heading-anchor-permalink" href="#Building-the-polynomial-algebras" title="Permalink"></a></h2><pre><code class="language-julia hljs"># Initialize non-commutative monoid with 2 variables
+@ncmonoid M x[2,0]
+# Set variables to projectors
+Projector.(x)
+# Build the monoid
+build(M)
+# Arithmetical computations in M
+p = x[1]*x[1] + x[2]*x[2]</code></pre><pre><code class="language-julia hljs"># Initialize partially-commutative monoid with 4 variables
+@pcmonoid M a[2,0] b[2,0]
+# Set variables to unitaries
+Unipotent.([a;b])
+# Set commutation relations
+@comms a b
+# Build the monoid
+build(M)
+# Arithmetical computations in M
+p = a[1]*b[1] + a[1]*b[2] + a[2]*b[1] - a[2]*b[2]</code></pre><p><strong>Building polynomial optimization relaxations.</strong></p><h2 id="Non-commutative-polynomial-optimization"><a class="docs-heading-anchor" href="#Non-commutative-polynomial-optimization">Non-commutative polynomial optimization</a><a id="Non-commutative-polynomial-optimization-1"></a><a class="docs-heading-anchor-permalink" href="#Non-commutative-polynomial-optimization" title="Permalink"></a></h2><p>Consider the following non-commutative polynomial optimization problem: </p><p class="math-container">\[\begin{align}
+    \sup \quad &amp; a_1 b_1 + a_1 b_2 + a_2 b_1 - a_2 b_2  \\
+    \operatorname{s.t.} \quad &amp; a_0^2 = 1 &amp; a_0 b_0 = b_0 a_0 \, , &amp; &amp; &amp; &amp;  \\
+    &amp; a_1^2 = 1 &amp; a_1 b_0 = b_0 a_1 \, , &amp; &amp; &amp; &amp; \\
+    &amp; b_0^2 = 1 &amp; a_0 b_1 = b_1 a_0 \, , &amp; &amp; &amp; &amp;  \\
+    &amp; b_1^2 = 1 &amp; a_1 b_1 = b_1 a_1 \, . &amp; &amp; &amp; &amp; 
+\end{align}\]</p><p>The first level relaxation is indexed with the degree one monomials <span>$(\mathbf{1}, a_0, a_1, b_0, b_1)$</span>: </p><p class="math-container">\[\begin{align}
+    \sup \quad &amp; L(a_1 b_1) + L(a_1 b_2) + L(a_2 b_1) - L(a_2 b_2)  \\
+    \operatorname{s.t.} \quad &amp;  
+    \begin{pmatrix}
+    1 &amp; * &amp; *  &amp; *  &amp; * \\
+      &amp; 1 &amp; * &amp; L(a_0b_0) &amp; L(a_0b_1) \\
+      &amp;   &amp; 1 &amp; L(a_1b_0) &amp; L(a_1b_1) \\
+      &amp;   &amp;   &amp; 1 &amp; * \\
+      &amp;   &amp;   &amp;   &amp; 1 
+    \end{pmatrix} \geq 0
+    \, . 
+\end{align}\]</p><p>The optimal value of the semidefinite relaxation in Equation <a href="#eq:chsh_level_1">[eq:chsh<em>level</em>1]</a> is <span>$2.8284...$</span>, which gives an upper bound to the optimal value of Problem <a href="#eq:ncpop_chsh">[eq:ncpop_chsh]</a>. In this case, the bound is already tight up to numerical precision. The implementation in <code>PCPOP</code> is shown below.</p><pre><code class="language-julia hljs"># Initialize non-commutative monoid with 4 variables
+@ncmonoid M a[2,0] b[2,0]
+# Internal equality constraints
+R = [a[1]^2 - 1,
+     a[2]^2 - 1,
+     b[1]^2 - 1,
+     b[2]^2 - 1,
+     a[1]*b[1] - b[1]*a[1],
+     a[1]*b[2] - b[2]*a[1],
+     a[2]*b[1] - b[1]*a[2],
+     a[2]*b[2] - b[2]*a[2]]
+add_relations!(R)
+# Build monoid
+build(M)
+# Objective function
+p = a[1]*b[1] + a[1]*b[2] + a[2]*b[1] - a[2]*b[2]
+# Optimization of the semidefinite relaxation
+val, model, _ = pcpop(p, 1) 
+println(&quot;Optimal value is &quot;, val)</code></pre><h2 id="Partially-commutative-polynomial-optimization"><a class="docs-heading-anchor" href="#Partially-commutative-polynomial-optimization">Partially commutative polynomial optimization</a><a id="Partially-commutative-polynomial-optimization-1"></a><a class="docs-heading-anchor-permalink" href="#Partially-commutative-polynomial-optimization" title="Permalink"></a></h2><p>We now consider the non-commutative polynomial optimization problem in Equation <a href="#eq:ncpop_chsh">[eq:ncpop_chsh]</a> as a partially-commutative polynomial optimization problem. In this scenario, the commutation relations and the unipotent constraints are internally implemented at the level of arithmetical computations within the partially-commutative monoid instead of through reductions. The implementation in <code>PCPOP</code> is shown below.</p><pre><code class="language-julia hljs"># Initialize partially-commutative monoid with 4 variables
+@pcmonoid M a[2,0] b[2,0]
+# Set variables to unitaries
+Unipotent.([a;b])
+# Set commutation relations
+@comms a b
+# Build the monoid
+build(M)
+# Objective function
+p = a[1]*b[1] + a[1]*b[2] + a[2]*b[1] - a[2]*b[2]
+# Optimization of the semidefinite relaxation
+val, model, _ = pcpop(p, 1) 
+println(&quot;Optimal value is &quot;, val)</code></pre><h2 id="Commutative-polynomial-optimization"><a class="docs-heading-anchor" href="#Commutative-polynomial-optimization">Commutative polynomial optimization</a><a id="Commutative-polynomial-optimization-1"></a><a class="docs-heading-anchor-permalink" href="#Commutative-polynomial-optimization" title="Permalink"></a></h2><p>Commutative polynomial optimization problems can be recovered as a special case of partially-commutative polynomial optimization problems, in which all variables commute. In this scenario, the dependence graph has no edges and each vertex forms a maximal clique. Therefore, our clique or graph representations simply count the number of occurrences of each letter, which is the standard exponent represention for commutative monomials. Consider the following commutative polynomial optimization problem from [@lasserre2001global Example 5]. </p><p class="math-container">\[\begin{align}
+    \inf \quad &amp; - (a - 1)^2 - (a - b)^2 - (b - 3)^2
+ \\
+    \operatorname{s.t.} \quad &amp; 1-(a - 1)^2 \geq 0 \, ,  \\
+    &amp; 1-(a - b)^2 \geq 0 \, ,  \\
+    &amp; 1-(b - 3)^2 \geq 0 \, . 
+\end{align}\]</p><p>The optimal value <span>$-2$</span> is attained with the second level semidefinite relaxation. The implementation in <code>PCPOP</code> is shown below.</p><pre><code class="language-julia hljs"># Build commutative monoid with 2 variables
+@pcmonoid M a b
+@comms a b
+build(M)
+# Objective function
+p = - (a - 1)^2 - (a - b)^2 - (b - 3)^2 + 10
+# Inequality constraints
+S = [1 - (a - 1)^2, 1 - (a - b)^2, 1 - (b - 3)^2]
+# Optimization of the semidefinite relaxation
+val, model, _ = pcpop(p, 2, op_ge=S)
+println(&quot;Optimal value is   &quot;, val)</code></pre><h2 id="Tracial-polynomial-optimization"><a class="docs-heading-anchor" href="#Tracial-polynomial-optimization">Tracial polynomial optimization</a><a id="Tracial-polynomial-optimization-1"></a><a class="docs-heading-anchor-permalink" href="#Tracial-polynomial-optimization" title="Permalink"></a></h2><p>Consider the following example of tracial non-commutative polynomial optimization from [@burgdorf2016optimization Example 5.14]. The optimal value is <span>$0$</span>, we obtain a lower bound <span>$-0.00096$</span> with the level <span>$3$</span> semidefinite relaxation that matches the lower bound obtained in [<a href="../references/#burgdorf2016optimization">5</a>]. </p><p class="math-container">\[\begin{align}
+    \inf \quad &amp; (1-a^2)(1-b^2) + (1-b^2)(1-a^2)
+ \\
+    \operatorname{s.t.} \quad &amp; \mathbf{1}- a^2 \geq 0 \, ,  \\
+    &amp; \mathbf{1}- b^2 \geq 0 \, . 
+\end{align}\]</p><pre><code class="language-julia hljs"># Build partially-commutative monoid with 2 variables
+@pcmonoid M a b
+build(M)
+# Objective function
+p = (1 - a^2)*(1 - b^2) + (1 - b^2)*(1 - a^2)
+# Inequality constraints
+S = [1 - a^2, 1 - b^2]
+# Optimization of the semidefinite relaxation
+val, model, _ = pcpop(p, 4, op_ge=S, tracial=true)
+println(&quot;Optimal value is &quot;, val)</code></pre><h2 id="State-polynomial-optimization"><a class="docs-heading-anchor" href="#State-polynomial-optimization">State polynomial optimization</a><a id="State-polynomial-optimization-1"></a><a class="docs-heading-anchor-permalink" href="#State-polynomial-optimization" title="Permalink"></a></h2><p>Consider the example of state polynomial optimization from [@klep2024state Example 7.2.1], which corresponds with the quadratic Bell inequality proposed in [<a href="../references/#uffink2002quadratic">38</a>]. Namely, </p><p class="math-container">\[\begin{align}
+    \sup \quad &amp; (\rho(a_1 b_2) + \rho(a_2 b_1))^2 + (\rho(a_1 b_1) - \rho(a_2 b_2))^2 
+ \\
+    \operatorname{s.t.} \quad &amp; a_0^2 = 1 \, , \hspace{3em} a_0 b_0 = b_0 a_0 \, ,  \\
+    &amp; a_1^2 = 1 \, , \hspace{3em} a_1 b_0 = b_0 a_1 \, ,  \\
+    &amp; b_0^2 = 1 \, , \hspace{3em}  a_0 b_1 = b_1 a_0 \, ,  \\
+    &amp; b_1^2 = 1 \, , \hspace{3em} a_1 b_1 = b_1 a_1 \, . 
+\end{align}\]</p><p>We obtain the optimal value <span>$4$</span> at level three relaxation up to numerical precision. The implementation in <code>PCPOP</code> is shown below.</p><pre><code class="language-julia hljs"># Initialize partially-commutative monoid with 4 variables
+@pcmonoid M a[2,0] b[2,0]
+# Set variables to projectors
+Unipotent.(a)
+Unipotent.(b)
+@comms a b
+# Build the monoid
+build(M)
+# Build new monoid with state monomials up to degree 6
+TM = make_trace_monoid(M, 6, tracial=false)
+# Objective function
+p  = (state(a[1]*b[2], TM) + state(a[2]*b[1], TM))^2 
+p += (state(a[1]*b[1], TM) - state(a[2]*b[2], TM))^2
+# Basis for the semidefinite relaxation
+basis = trace_monomials(TM, 0:3)
+# Build sum of squares relaxation
+sos_model = tpop(p, TM, basis)
+# Optimization of the semidefinite relaxation
+set_optimizer(sos_model, Mosek.Optimizer)
+optimize!(sos_model)
+println(&quot;Optimal value is &quot;, objective_value(sos_model))</code></pre><h2 id="Trace-polynomial-optimization"><a class="docs-heading-anchor" href="#Trace-polynomial-optimization">Trace polynomial optimization</a><a id="Trace-polynomial-optimization-1"></a><a class="docs-heading-anchor-permalink" href="#Trace-polynomial-optimization" title="Permalink"></a></h2><p>Consider the example of trace polynomial optimization from [@klep2022optimization Example 6.1]. </p><p class="math-container">\[\begin{align}
+    \sup \quad &amp; \rho(abc) + \rho(ab)\rho(c)
+ \\
+    \operatorname{s.t.} \quad &amp; a^2 = a \, ,  \\
+    &amp; b^2 = b \, ,  \\
+    &amp; c^2 = c \, . 
+\end{align}\]</p><p>The optimal value <span>$-1/32$</span> is attained at the level three semidefinite relaxation up to numerical precision. The implementation in <code>PCPOP</code> is shown below.</p><pre><code class="language-julia hljs"># Initialize partially-commutative monoid with 3 variables
+@pcmonoid M a b c
+# Set variables to projectors
+Projector(a)
+Projector(b)
+Projector(c)
+# Build the monoid
+build(M)
+# Build new monoid with trace monomials up to degree 6
+TM = make_trace_monoid(M, 6, tracial=true)
+# Objective function
+p = - state(a*b*c, TM) - state(a*b, TM)*state(c, TM)
+# Basis for the semidefinite relaxation
+basis = trace_monomials(TM, 0:3, tracial=true)
+# Build sum of squares relaxation
+model = tpop(p, TM, basis, tracial=true)
+# Optimization of the semidefinite relaxation
+set_optimizer(model, Mosek.Optimizer)
+optimize!(model)
+println(&quot;Optimal value is &quot;, objective_value(model))</code></pre><h2 id="Symmetry-reductions"><a class="docs-heading-anchor" href="#Symmetry-reductions">Symmetry reductions</a><a id="Symmetry-reductions-1"></a><a class="docs-heading-anchor-permalink" href="#Symmetry-reductions" title="Permalink"></a></h2><p>As we discussed in Section <a href="#sec:symmetries">1.9</a>, when a polynomial optimization problem has symmetries, it is possible to reduce to problem to an invariant subspace. Consider, for instance, Problem <a href="#eq:ncpop_chsh">[eq:ncpop_chsh]</a> corresponding to the quantum value of CHSH inequality </p><p class="math-container">\[\begin{align}
+    \sup \quad &amp; a_1 b_1 + a_1 b_2 + a_2 b_1 - a_2 b_2  \\
+    \operatorname{s.t.} \quad &amp; a_0^2 = 1 &amp; a_0 b_0 = b_0 a_0 \, , &amp; &amp; &amp; &amp;  \\
+    &amp; a_1^2 = 1 &amp; a_1 b_0 = b_0 a_1 \, , &amp; &amp; &amp; &amp; \\
+    &amp; b_0^2 = 1 &amp; a_0 b_1 = b_1 a_0 \, , &amp; &amp; &amp; &amp;  \\
+    &amp; b_1^2 = 1 &amp; a_1 b_1 = b_1 a_1 \, . &amp; &amp; &amp; &amp; 
+\end{align}\]</p><p>This problem is invariant under the exchange of the two parties (among other symmetries). Therefore, it is invariant under the group <span>$G = \langle \mathbf{1}, \pi\rangle$</span> with transformations </p><p class="math-container">\[\begin{align}
+    &amp; \mathbf{1}:(a_0, a_1, b_0, b_1) \to (a_0, a_1, b_0, b_1) \, . \\
+    &amp; \pi :(a_0, a_1, b_0, b_1) \to (b_0, b_1, a_0, a_1) \, . 
+\end{align}\]</p><p>The symmetrized first level relaxation has <span>$16$</span> variables and <span>$9$</span> constraints, while the non-symmetrized relaxation in Equation </p><pre><code class="language-julia hljs"># Build monoid
+@pcmonoid M a b c d
+@comms [a, b] [c, d]
+Unipotent.([a,b,c,d])
+build(M)
+# Group action
+action = OnLetters()
+π = PG.perm&quot;(1,3)(2,4)&quot;
+G = PG.PermGroup(π)
+# Optimize symmetrized semidefinite relaxation
+p = a*c + a*d + b*c - b*d
+model = pcpop(p, 1, G, action)
+set_optimizer(model, Mosek.Optimizer)
+set_silent(model)
+optimize!(model);
+println(&quot;Objective value is  &quot;, objective_value(model))</code></pre><p>The symmetry reduction considers the constraints internally set in the monoid, which include commutations, projections, unitaries, unipotents and orthogonalities. Although symmetry reductions can be extended to polynomial optimization problems with additional constraints without significant complications, these are not currently implemented.</p><h2 id="Jordan-algebra-reductions"><a class="docs-heading-anchor" href="#Jordan-algebra-reductions">Jordan algebra reductions</a><a id="Jordan-algebra-reductions-1"></a><a class="docs-heading-anchor-permalink" href="#Jordan-algebra-reductions" title="Permalink"></a></h2><p>Finding the symmetries of a polynomial optimization problem may be a challenging problem in itself. Jordan algebra reductions provide alternative axiomatic reductions without explicitly considering the symmetries [<a href="../references/#permenter2020dimension">8</a>, <a href="../references/#brosch2022jordan">9</a>]. As an example, consider again the polynomial optimization problem corresponding with the maximal quantum value of the CHSH that we discussed in Sections <a href="#sec:ncpop">1.3</a> and <a href="#sec:symmetries">1.9</a>. The first level semidefinite relaxation in Equation <a href="#eq:ncpop_chsh">[eq:ncpop_chsh]</a> involves <span>$13$</span> different monomials. Jordan algebra reduction provides an invariant subspace spanned by <span>$7$</span> variables without explicitly specifying any symmetries. The implementation in <code>PCPOP</code> with <code>SDPSymmetryReduction</code> is shown below, which requires formatting the semidefinite program in vectorized canonical form.</p><pre><code class="language-julia hljs"># Build monoid
+@pcmonoid M a b c d
+@comms [a, b] [c, d]
+Unipotent.([a,b,c,d])
+build(M)
+# Objective function
+p = a*c + a*d + b*c - b*d
+# Canonical form of semidefinite relaxation
+C, A, b = npa_canonical(p, 1)
+# Jordan algebra reduction
+model, _ = reduce_jordan(C, A, b, diagonalize=false)
+println(&quot;Objective value is  &quot;, objective_value(model))</code></pre><p>Although the first level is already tight, for the purpose of comparison let us consider the second level relaxation, which is spanned by <span>$13$</span> monomials. The primal implementation has <span>$91$</span> variables, <span>$61$</span> linear constraints and one semidefinitze constraint of size <span>$13$</span>. The Jordan reduction has <span>$97$</span> variables , <span>$61$</span> linear constraints and one semidefinite constraints of size <span>$13$</span>. After block-diagonalization, two semidefinite constraints of size <span>$9$</span> and <span>$4$</span> instead.</p><pre><code class="language-julia hljs"># Block diagonalization of Jordan reduction
+C, A, b = npa_canonical(p, 2)
+model, _ = reduce_jordan(C, A, b, diagonalize=true)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../background/">« Theoretical Background</a><a class="docs-footer-nextpage" href="../examples/">Examples »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Thursday 2 July 2026 02:54">Thursday 2 July 2026</span>. Using Julia version 1.10.11.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
