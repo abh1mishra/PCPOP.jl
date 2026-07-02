@@ -1,7 +1,7 @@
-using PCPOP,JuMP
+using PCPOP, JuMP
 
 # Build the monoid
-@pcmonoid M ρ[2,0] a[2,0] b[2,0] c[2,0]
+@pcmonoid M ρ[2, 0] a[2, 0] b[2, 0] c[2, 0]
 Unipotent.([a b c])
 Projector.(ρ)
 @comms a b c
@@ -18,21 +18,22 @@ S = []
 
 d = 8
 
-T = [[σ, 1],
-     [ρ[1], 1],
-     [ρ[2], 1]]
+T = [[σ, 1], [ρ[1], 1], [ρ[2], 1]]
 
-U = [[-ρ[1], -d],
-     [-ρ[2], -d]]
+U = [[-ρ[1], -d], [-ρ[2], -d]]
 U = []
 
 # Optimize semidefinite relaxation
-val,model,_ = pcpop!(p,3, min=false,
-					   op_ge = S,
-					   tr_eq = T,
-                       tr_ge = U,
-					   normalize=false,
-					   tracial=true,
-                       lvl_lm=1) 
+val, model, _ = pcpop!(
+    p,
+    3,
+    min = false,
+    op_ge = S,
+    tr_eq = T,
+    tr_ge = U,
+    normalize = false,
+    tracial = true,
+    lvl_lm = 1,
+)
 println("Termination status ", termination_status(model))
 println("Optimal value is   ", val)

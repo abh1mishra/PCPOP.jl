@@ -3,53 +3,55 @@ struct Polynomial{C_T, M <: AbstractMonomial}
     coeffs::Vector{C_T}
     monoid::AbstractMonoid
     coeff_type::Type{C_T}
-        # Constructor to filter zero coefficients
-        function Polynomial(monomials::Vector{M}, coeffs::Vector{C_T}, monoid::AbstractMonoid) where {C_T, M <: AbstractMonomial}
-            # Filter out zero coefficients and corresponding monomials
-            filtered = filter(x -> x[2] != 0, collect(zip(monomials, coeffs)))
-            new_monomials = [x[1] for x in filtered]
-            new_coeffs = [x[2] for x in filtered]
-            new{C_T, M}(new_monomials, new_coeffs, monoid,C_T)
-        end
+    # Constructor to filter zero coefficients
+    function Polynomial(
+        monomials::Vector{M},
+        coeffs::Vector{C_T},
+        monoid::AbstractMonoid,
+    ) where {C_T, M <: AbstractMonomial}
+        # Filter out zero coefficients and corresponding monomials
+        filtered = filter(x -> x[2] != 0, collect(zip(monomials, coeffs)))
+        new_monomials = [x[1] for x in filtered]
+        new_coeffs = [x[2] for x in filtered]
+        new{C_T, M}(new_monomials, new_coeffs, monoid, C_T)
+    end
 end
 
 function Polynomial(m::AbstractMonoid)
     monomial_type=typeof(one(m))
-    return Polynomial(Vector{monomial_type}(),Vector{Int64}(),m)
+    return Polynomial(Vector{monomial_type}(), Vector{Int64}(), m)
 end
-function Polynomial{C_T}(m::AbstractMonoid) where C_T
+function Polynomial{C_T}(m::AbstractMonoid) where {C_T}
     monomial_type=typeof(one(m))
-    return Polynomial(Vector{monomial_type}(),Vector{C_T}(),m)
+    return Polynomial(Vector{monomial_type}(), Vector{C_T}(), m)
 end
 
-    
-function Polynomial(m::AbstractMonomial,n)
-    p=Polynomial([m],[n],m.monoid)
+function Polynomial(m::AbstractMonomial, n)
+    p=Polynomial([m], [n], m.monoid)
     return p
 end
 function Polynomial(m::AbstractMonomial)
-    p=Polynomial([m],[1],m.monoid)
+    p=Polynomial([m], [1], m.monoid)
     return p
 end
 
+Polynomial(p::Polynomial) = p
+Polynomial(v::Variable) = Polynomial(monomial(v))
+Polynomial(v::Variable, n) = Polynomial(monomial(v), n)
+Base.hash(p::Polynomial, h::UInt) =
+    hash(p.monoid, hash(p.monomials, hash(p.coeffs, hash(0x7d6979235cb005d0, h))))
+Base.zero(p::Polynomial) = Polynomial(p.monoid)
 
-
-Polynomial(p::Polynomial)=p
-Polynomial(v::Variable)=Polynomial(monomial(v))
-Polynomial(v::Variable,n)=Polynomial(monomial(v),n)
-Base.hash(p::Polynomial, h::UInt)=hash(p.monoid, hash(p.monomials, hash(p.coeffs,hash(0x7d6979235cb005d0, h))))
-Base.zero(p::Polynomial)=Polynomial(p.monoid)
-
-Base.iterate(p::Polynomial)=iterate(zip(p.monomials,p.coeffs))
-Base.iterate(p::Polynomial, state)=iterate(zip(p.monomials,p.coeffs),state)
-Base.length(p::Polynomial)=length(p.monomials)
+Base.iterate(p::Polynomial) = iterate(zip(p.monomials, p.coeffs))
+Base.iterate(p::Polynomial, state) = iterate(zip(p.monomials, p.coeffs), state)
+Base.length(p::Polynomial) = length(p.monomials)
 function Base.show(io::IO, mime::MIME"text/plain", p::Polynomial)
     return _show(io, mime, p)
 end
 function Base.show(io::IO, mime::MIME"text/print", p::Polynomial)
     return _show(io, mime, p)
 end
-Base.print(p::Polynomial)=_show(stdout,MIME"text/plain",p)
+Base.print(p::Polynomial) = _show(stdout, MIME"text/plain", p)
 function _show(io::IO, mime, p::Polynomial)
     if p==0
         print(io, "0")
@@ -59,18 +61,18 @@ function _show(io::IO, mime, p::Polynomial)
         coeff = p.coeffs[i]
         # Convert rational coefficients to float and format to 4 decimal points
         coeff = coeff isa Rational ? Float64(coeff) : coeff
-        coeff = coeff isa Float64 ? round(coeff, digits=5) : coeff
+        coeff = coeff isa Float64 ? round(coeff, digits = 5) : coeff
 
         if i == 1
             # For the first term, handle the sign explicitly
-            if coeff isa Real 
+            if coeff isa Real
                 if coeff < 0
                     print(io, "-", abs(coeff), p.monomials[i])
                 else
                     print(io, coeff, p.monomials[i])
                 end
             else
-                print(io, "(",coeff, ")" ,p.monomials[i])
+                print(io, "(", coeff, ")", p.monomials[i])
             end
         else
             # For subsequent terms, include "+" or "-" as appropriate
@@ -87,7 +89,7 @@ function _show(io::IO, mime, p::Polynomial)
     end
 end
 
-monomials(p::Polynomial)=p.monomials
+monomials(p::Polynomial) = p.monomials
 
 function is_number(p::Polynomial)
     return iszero(p) || (length(p.monomials) == 1 && is_identity(p.monomials[1]))
@@ -114,36 +116,36 @@ end
 #     return zip(p.coeffs,p.monomials)
 # end
 
-function Base.:(==)(p::Polynomial,q::Polynomial)
+function Base.:(==)(p::Polynomial, q::Polynomial)
     if (p.monoid!=q.monoid)
-        p,q=get_root_polynomials(p,q)
-        return ==(p,q)
+        p, q=get_root_polynomials(p, q)
+        return ==(p, q)
     end
     return (p.monomials==q.monomials) && (p.coeffs==q.coeffs)
 end
-Base.:(==)(p::Polynomial,m::AbstractMonomial)= ==(p,Polynomial(m))
-Base.:(==)(m::AbstractMonomial,p::Polynomial)= ==(Polynomial(m),p)
-Base.:(==)(p::Polynomial,q::Number)=((q==0) && iszero(p)) || (!iszero(p) && is_number(p) && p.coeffs[1]==q)
-Base.:(==)(q::Number,p::Polynomial)= p==q
+Base.:(==)(p::Polynomial, m::AbstractMonomial) = ==(p, Polynomial(m))
+Base.:(==)(m::AbstractMonomial, p::Polynomial) = ==(Polynomial(m), p)
+Base.:(==)(p::Polynomial, q::Number) =
+    ((q==0) && iszero(p)) || (!iszero(p) && is_number(p) && p.coeffs[1]==q)
+Base.:(==)(q::Number, p::Polynomial) = p==q
 
-
-function Base.conj(p::Polynomial{C_T}) where C_T
-    T=MA.promote_operation(conj,C_T)
+function Base.conj(p::Polynomial{C_T}) where {C_T}
+    T=MA.promote_operation(conj, C_T)
     q=Polynomial{T}(p.monoid)
     for i in 1:length(p.monomials)
-        push!(q.monomials,conj(p.monomials[i]))
-        push!(q.coeffs,conj(p.coeffs[i]))
+        push!(q.monomials, conj(p.monomials[i]))
+        push!(q.coeffs, conj(p.coeffs[i]))
     end
     return q
 end
-Base.adjoint(p::Polynomial{C_T}) where C_T = Base.conj(p)
-Base.:*(x,m::AbstractMonomial)=x==0 ? zero(Polynomial(m,x)) : Polynomial(m,x)
-Base.:*(m::AbstractMonomial,x)=x*m
+Base.adjoint(p::Polynomial{C_T}) where {C_T} = Base.conj(p)
+Base.:*(x, m::AbstractMonomial) = x==0 ? zero(Polynomial(m, x)) : Polynomial(m, x)
+Base.:*(m::AbstractMonomial, x) = x*m
 
-function Base.:+(x::C_T_X, p::Polynomial{C_T_P,M}) where {C_T_X,C_T_P,M}
-    T=MA.promote_operation(*,C_T_X,C_T_P)
-    scaled_poly = Polynomial(M[],T[],p.monoid)  # Create a new Polynomial with the same monoid
-  # Create a new Polynomial with the same monoid
+function Base.:+(x::C_T_X, p::Polynomial{C_T_P, M}) where {C_T_X, C_T_P, M}
+    T=MA.promote_operation(*, C_T_X, C_T_P)
+    scaled_poly = Polynomial(M[], T[], p.monoid)  # Create a new Polynomial with the same monoid
+    # Create a new Polynomial with the same monoid
     for index in 1:length(p.coeffs)
         res_coeff = T(1) * p.coeffs[index]  # Scale the coefficient by x
         res_coeff == 0 && continue  # Skip if the coefficient is zero
@@ -153,9 +155,9 @@ function Base.:+(x::C_T_X, p::Polynomial{C_T_P,M}) where {C_T_X,C_T_P,M}
     return scaled_poly + x*one(p.monoid)
 end
 
-function Base.:*(x::C_T_X, p::Polynomial{C_T_P,M}) where {C_T_X,C_T_P,M}
-    T=MA.promote_operation(*,C_T_X,C_T_P)
-    scaled_poly = Polynomial(M[],T[],p.monoid)  # Create a new Polynomial with the same monoid
+function Base.:*(x::C_T_X, p::Polynomial{C_T_P, M}) where {C_T_X, C_T_P, M}
+    T=MA.promote_operation(*, C_T_X, C_T_P)
+    scaled_poly = Polynomial(M[], T[], p.monoid)  # Create a new Polynomial with the same monoid
     for index in 1:length(p.coeffs)
         res_coeff = x * p.coeffs[index]  # Scale the coefficient by x
         res_coeff == 0 && continue  # Skip if the coefficient is zero
@@ -165,23 +167,23 @@ function Base.:*(x::C_T_X, p::Polynomial{C_T_P,M}) where {C_T_X,C_T_P,M}
     return scaled_poly
 end
 
-Base.:+(p::Polynomial,x)=x+p
+Base.:+(p::Polynomial, x) = x+p
 
-Base.:*(p::Polynomial,x)=x*p
+Base.:*(p::Polynomial, x) = x*p
 
-Base.:/(p::Polynomial,f::FE) where {FE<:Number}= (1/f)*p
-    
+Base.:/(p::Polynomial, f::FE) where {FE <: Number} = (1/f)*p
 
-Base.:+(p::Polynomial,q::Polynomial)=add_poly(p,q)      
+Base.:+(p::Polynomial, q::Polynomial) = add_poly(p, q)
 
-general_add(m::AbstractMonomial,n::AbstractMonomial)=Polynomial(m)+Polynomial(n)
+general_add(m::AbstractMonomial, n::AbstractMonomial) = Polynomial(m)+Polynomial(n)
 
-    
-
-function add_poly(p::Polynomial{C_T_1,M1}, q::Polynomial{C_T_2,M2}) where {M1,M2,C_T_1,C_T_2}
+function add_poly(
+    p::Polynomial{C_T_1, M1},
+    q::Polynomial{C_T_2, M2},
+) where {M1, M2, C_T_1, C_T_2}
     if p.monoid == q.monoid
-        T=MA.promote_operation(+,C_T_1,C_T_2)
-        r = Polynomial(M1[],T[],p.monoid)  # Create a new polynomial with the same monoid
+        T=MA.promote_operation(+, C_T_1, C_T_2)
+        r = Polynomial(M1[], T[], p.monoid)  # Create a new polynomial with the same monoid
 
         i, j = 1, 1  # Pointers for p and q
 
@@ -230,11 +232,11 @@ function add_poly(p::Polynomial{C_T_1,M1}, q::Polynomial{C_T_2,M2}) where {M1,M2
     end
 end
 
-function mult_poly(p::Polynomial{C_T_1}, q::Polynomial{C_T_2}) where {C_T_1,C_T_2}
+function mult_poly(p::Polynomial{C_T_1}, q::Polynomial{C_T_2}) where {C_T_1, C_T_2}
     if q==0 || p==0
         return zero(p)
     end
-    T= MA.promote_operation(*,C_T_1,C_T_2)
+    T = MA.promote_operation(*, C_T_1, C_T_2)
     res_vec = Vector{Polynomial{T}}()  # Vector to store monic polynomials
     # Multiply all monomials in p with all monomials in q
     for i in 1:length(p.monomials)
@@ -246,7 +248,7 @@ function mult_poly(p::Polynomial{C_T_1}, q::Polynomial{C_T_2}) where {C_T_1,C_T_
             (new_coeff==0 || new_monomial==0) && continue  # Skip if coefficient is zero
             # Create a monic polynomial for the result
             if isa(new_monomial, Polynomial)
-                push!(res_vec,new_coeff*new_monomial)
+                push!(res_vec, new_coeff*new_monomial)
             else
                 monic_poly = Polynomial{T}(new_monomial.monoid)
                 push!(monic_poly.monomials, new_monomial)
@@ -259,42 +261,45 @@ function mult_poly(p::Polynomial{C_T_1}, q::Polynomial{C_T_2}) where {C_T_1,C_T_
     end
 
     # Sum all the monic polynomials in the result vector
-    return sum(res_vec;init=Polynomial{T}(p.monoid))
+    return sum(res_vec; init = Polynomial{T}(p.monoid))
 end
-Base.one(p::Polynomial)=one(p.monoid)
+Base.one(p::Polynomial) = one(p.monoid)
 
-Base.:+(M::AbstractMonomial,n::Number)=+(M,n*one(M))
-Base.:+(n::Number,M::AbstractMonomial)=+(n*one(M),M)
-Base.:+(m1::AbstractMonomial,m2::AbstractMonomial)=1*m1+1*m2
+Base.:+(M::AbstractMonomial, n::Number) = +(M, n*one(M))
+Base.:+(n::Number, M::AbstractMonomial) = +(n*one(M), M)
+Base.:+(m1::AbstractMonomial, m2::AbstractMonomial) = 1*m1+1*m2
 
-Base.:-(m1::AbstractMonomial,m2::AbstractMonomial)=Polynomial(m1)-Polynomial(m2)
-Base.:-(m::AbstractMonomial,n::Number)=m-n*one(m)
-Base.:-(n::Number,m::AbstractMonomial)=n*one(m)-m
+Base.:-(m1::AbstractMonomial, m2::AbstractMonomial) = Polynomial(m1)-Polynomial(m2)
+Base.:-(m::AbstractMonomial, n::Number) = m-n*one(m)
+Base.:-(n::Number, m::AbstractMonomial) = n*one(m)-m
 
-Base.:*(p::Polynomial,q::Polynomial)=mult_poly(p,q)
-Base.:*(p::Polynomial,x::AbstractMonomial)=mult_poly(p,Polynomial(x))
-Base.:*(x::AbstractMonomial,p::Polynomial)=mult_poly(Polynomial(x),p)
-Base.:+(p::Polynomial,x::AbstractMonomial)=add_poly(p,Polynomial(x))
-Base.:+(x::AbstractMonomial,p::Polynomial)=add_poly(Polynomial(x),p)
-Base.:-(p::Polynomial,q::Polynomial)=p+(-q)
-Base.:-(p::Polynomial,x::AbstractMonomial)=p+(-x)
-Base.:-(x::AbstractMonomial,p::Polynomial)=(-p)+x
-Base.:+(p::Polynomial,x::Number)=add_poly(p,Polynomial(one(p.monoid),x))
-Base.:+(x::Number,p::Polynomial)=add_poly(Polynomial(one(p.monoid),x),p)
-Base.:-(p::Polynomial,x::Number)=p+(-x)
-Base.:-(x::Number,p::Polynomial)=(-p)+x
-Base.:-(p::Polynomial)=-1*p
+Base.:*(p::Polynomial, q::Polynomial) = mult_poly(p, q)
+Base.:*(p::Polynomial, x::AbstractMonomial) = mult_poly(p, Polynomial(x))
+Base.:*(x::AbstractMonomial, p::Polynomial) = mult_poly(Polynomial(x), p)
+Base.:+(p::Polynomial, x::AbstractMonomial) = add_poly(p, Polynomial(x))
+Base.:+(x::AbstractMonomial, p::Polynomial) = add_poly(Polynomial(x), p)
+Base.:-(p::Polynomial, q::Polynomial) = p+(-q)
+Base.:-(p::Polynomial, x::AbstractMonomial) = p+(-x)
+Base.:-(x::AbstractMonomial, p::Polynomial) = (-p)+x
+Base.:+(p::Polynomial, x::Number) = add_poly(p, Polynomial(one(p.monoid), x))
+Base.:+(x::Number, p::Polynomial) = add_poly(Polynomial(one(p.monoid), x), p)
+Base.:-(p::Polynomial, x::Number) = p+(-x)
+Base.:-(x::Number, p::Polynomial) = (-p)+x
+Base.:-(p::Polynomial) = -1*p
 
-MA.promote_operation(::F,::Type{Number},::Type{N}) where {F<:Function,N<:Number} =Number
-MA.promote_operation(::F,::Type{N},::Type{Number}) where {F<:Function,N<:Number} =Number
-MA.promote_operation(::F, ::Type{Number}, ::Type{Number}) where F<:Function = Number
+MA.promote_operation(::F, ::Type{Number}, ::Type{N}) where {F <: Function, N <: Number} =
+    Number
+MA.promote_operation(::F, ::Type{N}, ::Type{Number}) where {F <: Function, N <: Number} =
+    Number
+MA.promote_operation(::F, ::Type{Number}, ::Type{Number}) where {F <: Function} = Number
 
-variables(p::Polynomial)=Vector{Variable}(reduce(union, [variables(i) for i in p.monomials];init=Variable[]))
+variables(p::Polynomial) =
+    Vector{Variable}(reduce(union, [variables(i) for i in p.monomials]; init = Variable[]))
 
-function real_rep(p::Polynomial{C_T}) where C_T
+function real_rep(p::Polynomial{C_T}) where {C_T}
     result = Polynomial{C_T}(p.monoid)
 
-    for (m,c) in p
+    for (m, c) in p
         (rm, s, im) = conj_minmax(m)
         result+=real(c)*rm
         result+=s*imag(c)*im
@@ -309,4 +314,5 @@ function degree(p::Polynomial)
     return maximum([degree(m) for m in p.monomials])
 end
 
-Base.:^(e::A,p::Int) where {A<: Union{AbstractMonomial,Polynomial}}= e==0 ? one(e) : prod([e for _ in 1:p])
+Base.:^(e::A, p::Int) where {A <: Union{AbstractMonomial, Polynomial}} =
+    e==0 ? one(e) : prod([e for _ in 1:p])

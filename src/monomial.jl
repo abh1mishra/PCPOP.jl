@@ -2,6 +2,8 @@
     GraphProductWord <: AbstractMonomial
 
     Structure `GraphProductWord`
+    # Notes
+    Structure for monomials in a partially commuting monoid. 
 
     #Fields:
     - `monoid` : Parent monoid of the monomial.
@@ -20,7 +22,7 @@
     - m.edge_l = {a, b}
     - m.edge_r = {c}
 """
-struct GraphProductWord{T<:AbstractMonomial} <: AbstractMonomial
+struct GraphProductWord{T <: AbstractMonomial} <: AbstractMonomial
     monoid::GraphProductMonoid
     monomial::Base.RefValue{AbstractMonomial}
     clique_words::Vector{Vector{T}}
@@ -28,70 +30,90 @@ struct GraphProductWord{T<:AbstractMonomial} <: AbstractMonomial
     edge_r::Set{T}
 end
 
-
 # Iterations
 Base.length(m::GraphProductWord) = length(m.clique_words)
 Base.iterate(m::GraphProductWord) = iterate(m.clique_words)
-Base.iterate(m::GraphProductWord, state) = iterate(m.clique_words, state) 
+Base.iterate(m::GraphProductWord, state) = iterate(m.clique_words, state)
 Base.getindex(m::GraphProductWord, i::Int64) = m.clique_words[i]
 
-Base.copy(m::GraphProductWord)=GraphProductWord(m.monoid,m.monomial,copy(m.clique_words),copy(edge_l),copy(edge_r))
+Base.copy(m::GraphProductWord) =
+    GraphProductWord(m.monoid, m.monomial, copy(m.clique_words), copy(edge_l), copy(edge_r))
+
 # Arithmetic
-Base.:/(m::GraphProductWord,n::GraphProductWord)=divides(m,n)
-Base.:*(m::GraphProductWord,n::GraphProductWord)=multiply(m,n)
+Base.:/(m::GraphProductWord, n::GraphProductWord) = divides(m, n)
+Base.:*(m::GraphProductWord, n::GraphProductWord) = multiply(m, n)
 
 # General Arithmetic
 
-Base.:/(m1::AbstractMonomial,m2::AbstractMonomial)=general_divide(m1,m2)
+Base.:/(m1::AbstractMonomial, m2::AbstractMonomial) = general_divide(m1, m2)
 # Base.:/(v::Variable,m::AbstractMonomial)=general_divide(v,m)
 # Base.:/(m::AbstractMonomial,v::Variable)=general_divide(m,v)
 
-Base.:*(m1::AbstractMonomial,m2::AbstractMonomial)=general_mult(m1,m2)
+Base.:*(m1::AbstractMonomial, m2::AbstractMonomial) = general_mult(m1, m2)
 
-Base.:(==)(m1::AbstractMonomial,m2::AbstractMonomial)=general_equals(m1,m2)
+Base.:(==)(m1::AbstractMonomial, m2::AbstractMonomial) = general_equals(m1, m2)
 
 # Display
-Base.show(io::IO, mime::MIME"text/plain", m::GraphProductWord) = show(io,m)
-Base.show(io::IO, mime::MIME"text/print", m::GraphProductWord)=show(io,m)
-Base.show(io::IO,m::GraphProductWord)=show_monomial(io,m)
+Base.show(io::IO, mime::MIME"text/plain", m::GraphProductWord) = show(io, m)
+Base.show(io::IO, mime::MIME"text/print", m::GraphProductWord) = show(io, m)
+Base.show(io::IO, m::GraphProductWord) = show_monomial(io, m)
 
 # Hashing and comparison
-Base.hash(m::GraphProductWord, h::UInt)=hash(m.monoid, hash(m.clique_words, hash(0x7d6979235cb005d0, h))) 
-Base.:(==)(m::GraphProductWord,n::GraphProductWord)=m.monoid == n.monoid ? (m.clique_words==n.clique_words) : general_equals(m,n)
-Base.:(==)(m::GraphProductWord,n::Number)=n==1 && one(m)==m
-Base.:(==)(n::Number,m::GraphProductWord)=n==1 && one(m)==m
-Base.isless(m::GraphProductWord,n::GraphProductWord)=less_or_not(m,n)
-Base.:<(m::GraphProductWord,n::GraphProductWord)=less_or_not(m,n)
+Base.hash(m::GraphProductWord, h::UInt) =
+    hash(m.monoid, hash(m.clique_words, hash(0x7d6979235cb005d0, h)))
+Base.:(==)(m::GraphProductWord, n::GraphProductWord) =
+    m.monoid == n.monoid ? (m.clique_words==n.clique_words) : general_equals(m, n)
+Base.:(==)(m::GraphProductWord, n::Number) = n==1 && one(m)==m
+Base.:(==)(n::Number, m::GraphProductWord) = n==1 && one(m)==m
+Base.isless(m::GraphProductWord, n::GraphProductWord) = less_or_not(m, n)
+Base.:<(m::GraphProductWord, n::GraphProductWord) = less_or_not(m, n)
+
+Base.one(w::W) where {W <: AbstractMonomial} = one(w.monoid)
+is_identity(x::X) where {X <: AbstractMonomial} = one(x)==x
 
 
+"""
+    monomial(w::W) where {W <: AbstractMonomial}
 
-Base.one(w::W) where W <:AbstractMonomial = one(w.monoid)
-is_identity(x::X) where X<:AbstractMonomial=one(x)==x
+    # Notes
+    Returns the monomial representation of a variable or a monomial in its parent partially commutative monoid.
 
+    # Arguments
+    - `w`: A variable or a monomial in a partially commuting monoid.
 
-function monomial(w::W) where W<:AbstractMonomial
-    if isdefined(w.monomial,:x)
+    # Returns
+    - The monomial representation of `w` in its parent monoid.
+
+"""
+function monomial(w::W) where {W <: AbstractMonomial}
+    # Sometimes the monomial representation is already defined, in this case just return it.
+    if isdefined(w.monomial, :x)
         return w.monomial[]
     end
     monoid=nothing
-    if isa(w,Variable) && isa(w.parent_monoid[],GraphProductMonoid)
+    if isa(w, Variable) && isa(w.parent_monoid[], GraphProductMonoid)
         try
             monoid=w.parent_monoid[]
         catch e
             throw(ArgumentError("Parent monoid not defined"))
         end
-    elseif isa(w.monoid.parent_monoid[],GraphProductMonoid)
+    elseif isa(w.monoid.parent_monoid[], GraphProductMonoid)
         try
             monoid=w.monoid.parent_monoid[]
         catch e
             throw(ArgumentError("Parent monoid not defined"))
         end
     else
-        throw(ArgumentError("Cannot convert to monomial, parent monoid is not a GraphProductMonoid"))
+        throw(
+            ArgumentError(
+                "Cannot convert to monomial, parent monoid is not a GraphProductMonoid",
+            ),
+        )
     end
-    w.monomial[]=words_to_monomial(monoid,[w])
+    w.monomial[]=words_to_monomial(monoid, [w])
     return w.monomial[]
 end
+
 """
     variables(monomial::GraphProductWord)
 
@@ -103,14 +125,27 @@ end
     # Returns
     - A sorted list of unique variables present in the clique words of the monomial.
 """
-variables(m::GraphProductWord)=Vector{Variable}(variables(m.clique_words))
 
-monomials(m::AbstractMonomial)=[m]
+"""
+    variables(m::GraphProductWord) = Vector{Variable}(variables(m.clique_words))
 
-function variables(m_words::Vector{Vector{W}}) where W<:AbstractMonomial
-    return  union(vcat(variables.(union(m_words...))...))
+    # Notes
+    This function extracts the variables from the clique words of a GraphProductWord monomial.
+
+    # Arguments
+    - `m`: A GraphProductWord object.
+
+    # Returns
+    - A vector of unique variables present in the clique words of the monomial.
+"""
+variables(m::GraphProductWord) = Vector{Variable}(variables(m.clique_words))
+
+monomials(m::AbstractMonomial) = [m]
+
+function variables(m_words::Vector{Vector{W}}) where {W <: AbstractMonomial}
+    return union(vcat(variables.(union(m_words...))...))
 end
-variables(v::Variable)=[v]
+variables(v::Variable) = [v]
 # exponents(m::GraphProductWord)=[i[2] for i in Exponents(m)]
 
 """
@@ -131,12 +166,29 @@ function exponents(m::GraphProductWord{Variable})
     vertices=m.monoid.vertices
     expo=[]
     for vertex in vertices
-        push!(expo,length(clique_projector(m.clique_words[vertex.clique_indices[1]],[vertex])))
+        push!(
+            expo,
+            length(clique_projector(m.clique_words[vertex.clique_indices[1]], [vertex])),
+        )
     end
-    return Dict{Variable,Int}(zip(vertices,expo))
+    return Dict{Variable, Int}(zip(vertices, expo))
     # return Dict(sort(Base.reduce(merge,[exponents(word) for word in expo],init=Dict{Variable,Int}())))
 end
 
+"""
+    Exponents(m::GraphProductWord{V}) where V
+
+    computes the exponent of variables in monomial `m`.
+
+    #Arguments
+    - `m` : monomial in monoid `M`.
+
+    #Returns
+    - dictionary of variables and their exponents.
+
+    #Example
+    Take the monoid M = < a, b, c : ab = ba >. The Exponents of m = a*b*a*b^2*c^3 is {a:3, b:3, c:3}
+"""
 function exponents(m::GraphProductWord)
     vertices=m.monoid.vertices
     if is_identity(m)
@@ -144,23 +196,25 @@ function exponents(m::GraphProductWord)
     end
     expo=[]
     for vertex in vertices
-        push!(expo,exponents.(clique_projector(m.clique_words[vertex.clique_indices[1]],[vertex]))...)
+        push!(
+            expo,
+            exponents.(
+                clique_projector(m.clique_words[vertex.clique_indices[1]], [vertex]),
+            )...,
+        )
     end
     return merge(expo...)
     # return Dict(sort(Base.reduce(merge,[exponents(word) for word in expo],init=Dict{Variable,Int}())))
 end
 degree(x::Number) = !iszero(x) ? 0 : -Inf
 
+# degree(m::GraphProductWord)=sum(values(exponents(m)))
 """
     degree(m::GraphProductWord{V}) where {V}
 
     Computes the degree (total number of variables) of monomial `m`.
 """
-
-# degree(m::GraphProductWord)=sum(values(exponents(m)))
-degree(m::GraphProductWord)=sum(values(exponents(m));init=0)
-
-
+degree(m::GraphProductWord) = sum(values(exponents(m)); init = 0)
 
 function show_monomial(io::IO, m::GraphProductWord)
     if all(isempty.(m.clique_words))
@@ -170,41 +224,38 @@ function show_monomial(io::IO, m::GraphProductWord)
     show_level = m.monoid.show_level[]
     if show_level == 1
         for j in m
-            print(io,"($(join([k for k in j],",")))")
+            print(io, "($(join([k for k in j],",")))")
         end
     elseif show_level == 2
         for j in m
             if !isempty(j)
-                print(io,"($(join([k for k in j],",")))")
+                print(io, "($(join([k for k in j],",")))")
             end
         end
     else
-        print(io,monomial_to_word(m))
+        print(io, monomial_to_word(m))
     end
 end
 
-function general_mult(m1,m2)
-    x1,x2=get_root_monomials(m1,m2)
+function general_mult(m1, m2)
+    x1, x2=get_root_monomials(m1, m2)
     return x1*x2
 end
 
-function general_divide(m1,m2)
-    x1,x2=get_root_monomials(m1,m2)
+function general_divide(m1, m2)
+    x1, x2=get_root_monomials(m1, m2)
     return x1/x2
 end
 
-
-
-function general_equals(m1,m2)
+function general_equals(m1, m2)
     m1==1 && m2==1 && return true
-    x1,x2=get_root_monomials(m1,m2)
+    x1, x2=get_root_monomials(m1, m2)
     return x1==x2
 end
 
-
-function simple_mult(m::GraphProductWord{Variable},n::GraphProductWord{Variable})
+function simple_mult(m::GraphProductWord{Variable}, n::GraphProductWord{Variable})
     if m.monoid!=n.monoid
-        return general_mult(m,n)
+        return general_mult(m, n)
     end
 
     parent_monoid=m.monoid
@@ -212,19 +263,25 @@ function simple_mult(m::GraphProductWord{Variable},n::GraphProductWord{Variable}
     m_words = m.clique_words
     n_words = n.clique_words
 
-    res_clique_words=merge(m_words,n_words)
+    res_clique_words=merge(m_words, n_words)
     # edge_l=get_edge_variables(res_clique_words,:first)
     # edge_r=get_edge_variables(res_clique_words,:last)
-    res=GraphProductWord(parent_monoid,Base.RefValue{AbstractMonomial}(),res_clique_words,Set{Variable}(),Set{Variable}())
+    res=GraphProductWord(
+        parent_monoid,
+        Base.RefValue{AbstractMonomial}(),
+        res_clique_words,
+        Set{Variable}(),
+        Set{Variable}(),
+    )
     return res
 end
 
-
-
-
-function multiply(m::GraphProductWord{W},n::GraphProductWord{W}) where W<: AbstractMonomial
+function multiply(
+    m::GraphProductWord{W},
+    n::GraphProductWord{W},
+) where {W <: AbstractMonomial}
     if m.monoid!=n.monoid
-        return general_mult(m,n)
+        return general_mult(m, n)
     end
 
     parent_monoid=m.monoid
@@ -236,16 +293,16 @@ function multiply(m::GraphProductWord{W},n::GraphProductWord{W}) where W<: Abstr
     n_l=copy(n.edge_l)
     n_r=copy(n.edge_r)
 
-    prods=product(m_r,n_l)
+    prods=product(m_r, n_l)
 
-    middle_list=Vector{Union{W,Polynomial}}()
+    middle_list=Vector{Union{W, Polynomial}}()
 
-    for (i,j) in prods
+    for (i, j) in prods
         if i.monoid==j.monoid
             M=i.monoid
             clique_indices=M.clique_indices
             res=i*j
-            push!(middle_list,res)
+            push!(middle_list, res)
             for k in clique_indices
                 pop!(m_words[k])
                 popfirst!(n_words[k])
@@ -253,35 +310,50 @@ function multiply(m::GraphProductWord{W},n::GraphProductWord{W}) where W<: Abstr
         end
     end
 
-    if(isempty(middle_list))
-        res_clique_words=merge(m_words,n_words)
-        m_l=get_edge_variables(res_clique_words,:first)
-        n_r=get_edge_variables(res_clique_words,:last)
-        return GraphProductWord(parent_monoid,Base.RefValue{AbstractMonomial}(),
-        res_clique_words,m_l,n_r)
+    if (isempty(middle_list))
+        res_clique_words=merge(m_words, n_words)
+        m_l=get_edge_variables(res_clique_words, :first)
+        n_r=get_edge_variables(res_clique_words, :last)
+        return GraphProductWord(
+            parent_monoid,
+            Base.RefValue{AbstractMonomial}(),
+            res_clique_words,
+            m_l,
+            n_r,
+        )
     else
-        m_l=get_edge_variables(m_words,:first)
-        n_r=get_edge_variables(n_words,:last)
-        m_r=get_edge_variables(m_words,:last)
-        n_l=get_edge_variables(n_words,:first)
-        m_=GraphProductWord(parent_monoid,Base.RefValue{AbstractMonomial}(),m_words,m_l,m_r)
-        n_=GraphProductWord(parent_monoid,Base.RefValue{AbstractMonomial}(),n_words,n_l,n_r)
+        m_l=get_edge_variables(m_words, :first)
+        n_r=get_edge_variables(n_words, :last)
+        m_r=get_edge_variables(m_words, :last)
+        n_l=get_edge_variables(n_words, :first)
+        m_=GraphProductWord(
+            parent_monoid,
+            Base.RefValue{AbstractMonomial}(),
+            m_words,
+            m_l,
+            m_r,
+        )
+        n_=GraphProductWord(
+            parent_monoid,
+            Base.RefValue{AbstractMonomial}(),
+            n_words,
+            n_l,
+            n_r,
+        )
         middle_prod=prod(middle_list)
         return m_*middle_prod*n_
     end
 end
 
-
-
-function multiply(m::GraphProductWord{Variable},n::GraphProductWord{Variable})
+function multiply(m::GraphProductWord{Variable}, n::GraphProductWord{Variable})
     # return simple_mult(m,n)
     if m.monoid!=n.monoid
-        return general_mult(m,n)
+        return general_mult(m, n)
     end
 
     parent_monoid=m.monoid
     if !parent_monoid.has_relations[]
-        return simple_mult(m,n)
+        return simple_mult(m, n)
     end
     m_words = copy(m.clique_words)
     n_words = copy(n.clique_words)
@@ -290,21 +362,21 @@ function multiply(m::GraphProductWord{Variable},n::GraphProductWord{Variable})
     n_l=copy(n.edge_l)
     n_r=copy(n.edge_r)
 
-    prods=product(m_r,n_l)
+    prods=product(m_r, n_l)
 
     middle_list=Vector{}()
 
-    for (i,j) in prods
+    for (i, j) in prods
         if j in i.ortho_conj
             return Polynomial(parent_monoid)
         end
-        if(i==j && i.mult_type[]==:Projector)
+        if (i==j && i.mult_type[]==:Projector)
             clique_indices=i.clique_indices
             for index in clique_indices
                 pop!(m_words[index])
                 popfirst!(n_words[index])
             end
-            push!(middle_list,i)
+            push!(middle_list, i)
         end
         # unitary and unipotent
         if (i==j && i.mult_type[]==:Unipotent) || (i'==j && i.mult_type[]==:Unitary)
@@ -313,28 +385,44 @@ function multiply(m::GraphProductWord{Variable},n::GraphProductWord{Variable})
                 pop!(m_words[index])
                 popfirst!(n_words[index])
             end
-            push!(middle_list,one(i))
+            push!(middle_list, one(i))
         end
     end
 
-    if(isempty(middle_list))
-        res_clique_words=merge(m_words,n_words)
-        m_l=get_edge_variables(res_clique_words,:first)
-        n_r=get_edge_variables(res_clique_words,:last)
-        return GraphProductWord(parent_monoid,Base.RefValue{AbstractMonomial}(),
-        res_clique_words,m_l,n_r)
+    if (isempty(middle_list))
+        res_clique_words=merge(m_words, n_words)
+        m_l=get_edge_variables(res_clique_words, :first)
+        n_r=get_edge_variables(res_clique_words, :last)
+        return GraphProductWord(
+            parent_monoid,
+            Base.RefValue{AbstractMonomial}(),
+            res_clique_words,
+            m_l,
+            n_r,
+        )
     else
-        m_l=get_edge_variables(m_words,:first)
-        n_r=get_edge_variables(n_words,:last)
-        m_r=get_edge_variables(m_words,:last)
-        n_l=get_edge_variables(n_words,:first)
-        m_=GraphProductWord(parent_monoid,Base.RefValue{AbstractMonomial}(),m_words,m_l,m_r)
-        n_=GraphProductWord(parent_monoid,Base.RefValue{AbstractMonomial}(),n_words,n_l,n_r)
+        m_l=get_edge_variables(m_words, :first)
+        n_r=get_edge_variables(n_words, :last)
+        m_r=get_edge_variables(m_words, :last)
+        n_l=get_edge_variables(n_words, :first)
+        m_=GraphProductWord(
+            parent_monoid,
+            Base.RefValue{AbstractMonomial}(),
+            m_words,
+            m_l,
+            m_r,
+        )
+        n_=GraphProductWord(
+            parent_monoid,
+            Base.RefValue{AbstractMonomial}(),
+            n_words,
+            n_l,
+            n_r,
+        )
         middle_prod=prod(middle_list)
         return m_*middle_prod*n_
     end
 end
-
 
 """
     Base.conj(m::GraphProductWord{V}) where V
@@ -344,7 +432,6 @@ end
 
 """
 function conjugate(m::GraphProductWord)
-
     is_identity(m) && return m
     edge_type=typeof(m.edge_l)
     edge_l = edge_type(Set(conj.(m.edge_r)))
@@ -352,18 +439,22 @@ function conjugate(m::GraphProductWord)
     cw_=typeof(m.clique_words)([])
     for words in m.clique_words
         if isempty(words)
-            push!(cw_,words)
+            push!(cw_, words)
         else
-            push!(cw_,conj.(reverse(words)))
+            push!(cw_, conj.(reverse(words)))
         end
     end
 
-    return GraphProductWord(m.monoid,Base.RefValue{AbstractMonomial}(),cw_,edge_l,edge_r)
-
+    return GraphProductWord(
+        m.monoid,
+        Base.RefValue{AbstractMonomial}(),
+        cw_,
+        edge_l,
+        edge_r,
+    )
 end
-Base.conj(m::GraphProductWord{W}) where W<:AbstractMonomial=conjugate(m)
-Base.adjoint(m::GraphProductWord)=Base.conj(m)
-
+Base.conj(m::GraphProductWord{W}) where {W <: AbstractMonomial} = conjugate(m)
+Base.adjoint(m::GraphProductWord) = Base.conj(m)
 
 function Base.conj(m::GraphProductWord{Variable})
     is_identity(m) && return m
@@ -371,8 +462,6 @@ function Base.conj(m::GraphProductWord{Variable})
     w=monomial_to_word(m)
     return prod(conj.(reverse(w)))
 end
-
-
 
 """
     less_or_not(m::GraphProductWord, n::GraphProductWord)
@@ -389,11 +478,14 @@ Determines if a monomial is less than or not equal to another monomial.
 # Notes
 The function first checks if `m` and `n` belong to the same monoid. If not, it throws an error. It then checks if `m` is equal to `n`. If they are equal, it returns false. It then checks the degrees of `m` and `n`. If the degree of `m` is less than the degree of `n`, it returns true. If the degree of `m` is greater than the degree of `n`, it returns false. It then iterates over the cliques in the monoid. If the clique word of `m` is equal to the clique word of `n`, it continues to the next iteration. Otherwise, it returns true if the length of the clique word of `m` is less than the length of the clique word of `n`, or if they have the same length and the clique word of `m` is less than the clique word of `n`.
 """
-function less_or_not(m::GraphProductWord,n::GraphProductWord)
-    (m.monoid!=n.monoid) && m.monoid.parent_monoid[]!=n.monoid.parent_monoid[] && throw(ArgumentError("NOT YET IMPLEMENTED"))
-    if(m.monoid!=n.monoid)
+function less_or_not(m::GraphProductWord, n::GraphProductWord)
+    (m.monoid!=n.monoid) &&
+        m.monoid.parent_monoid[]!=n.monoid.parent_monoid[] &&
+        throw(ArgumentError("NOT YET IMPLEMENTED"))
+    if (m.monoid!=n.monoid)
         vertices=m.monoid.parent_monoid[].vertices
-        return findfirst(item -> item == m.monoid, vertices) < findfirst(item -> item == n.monoid, vertices)
+        return findfirst(item -> item == m.monoid, vertices) <
+               findfirst(item -> item == n.monoid, vertices)
     end
     (m==n) && return false
     degree(m)<degree(n) && return true
@@ -401,15 +493,18 @@ function less_or_not(m::GraphProductWord,n::GraphProductWord)
 
     for i in 1:length(m.monoid.cliques)
         m.clique_words[i]==n.clique_words[i] && continue
-        tot_length_m=sum(degree.(m.clique_words[i]),init=0)
-        tot_length_n=sum(degree.(n.clique_words[i]),init=0)
-        return ((tot_length_m<tot_length_n) || ((tot_length_m==tot_length_n) && (vcat(m.clique_words[i])<vcat(n.clique_words[i])))) 
+        tot_length_m=sum(degree.(m.clique_words[i]), init = 0)
+        tot_length_n=sum(degree.(n.clique_words[i]), init = 0)
+        return (
+            (tot_length_m<tot_length_n) || (
+                (tot_length_m==tot_length_n) &&
+                (vcat(m.clique_words[i])<vcat(n.clique_words[i]))
+            )
+        )
     end
 end
 
-
 function compare(m, n)
-
     if m < n
         return -1
     elseif m > n
@@ -419,7 +514,6 @@ function compare(m, n)
         return 0
     end
 end
-
 
 """
     divide(m::GraphProductWord{V}, n::GraphProductWord{V}; all=false) where V
@@ -443,15 +537,16 @@ end
     - The time complexity is O(N^2), where N is the number of clique words in `m`.
     - The space complexity is O(N), due to the creation of `potential_factors` and `left_and_right_potential_monomial_factors`.
 """
-function divide(m::GraphProductWord,n::GraphProductWord;all=false)
-
-    m==n && return true, (one(m),one(n))
+function divide(m::GraphProductWord, n::GraphProductWord; all = false)
+    m==n && return true, (one(m), one(n))
 
     # clique_potential_factors ith element contains all potential tuples of left_and_right_word_factors for ith clique of m
     clique_potential_factors=[]
-    for (index,clique_word) in enumerate(m.clique_words)
-        ith_left_and_right_word_factors=subsequence(n.clique_words[index],clique_word)
-        ith_left_and_right_word_factors!=false ? push!(clique_potential_factors,ith_left_and_right_word_factors) : return false,(nothing,nothing)
+    for (index, clique_word) in enumerate(m.clique_words)
+        ith_left_and_right_word_factors=subsequence(n.clique_words[index], clique_word)
+        ith_left_and_right_word_factors!=false ?
+        push!(clique_potential_factors, ith_left_and_right_word_factors) :
+        return false, (nothing, nothing)
     end
 
     #= potential_factors is a vector of tuples of tuples, 
@@ -460,25 +555,57 @@ function divide(m::GraphProductWord,n::GraphProductWord;all=false)
     =#
     potential_factors=collect(Base.Iterators.product(clique_potential_factors...))
 
-    dummy_edge_set=(eltype(m.monoid.vertices)<:AbstractMonoid) ? Set{AbstractMonomial}() : Set{Variable}()
+    dummy_edge_set=(eltype(m.monoid.vertices)<:AbstractMonoid) ? Set{AbstractMonomial}() :
+                   Set{Variable}()
     left_and_right_potential_monomial_factors=[]
     for i in potential_factors
-        left_monomial=GraphProductWord(m.monoid,Base.RefValue{AbstractMonomial}(),[j[1] for j in i ],copy(dummy_edge_set),copy(dummy_edge_set))
-        right_monomial=GraphProductWord(m.monoid,Base.RefValue{AbstractMonomial}(),[j[2] for j in i ],copy(dummy_edge_set),copy(dummy_edge_set))
-        left_and_right_potential_monomial_factors=push!(left_and_right_potential_monomial_factors,(left_monomial,right_monomial))
+        left_monomial=GraphProductWord(
+            m.monoid,
+            Base.RefValue{AbstractMonomial}(),
+            [j[1] for j in i],
+            copy(dummy_edge_set),
+            copy(dummy_edge_set),
+        )
+        right_monomial=GraphProductWord(
+            m.monoid,
+            Base.RefValue{AbstractMonomial}(),
+            [j[2] for j in i],
+            copy(dummy_edge_set),
+            copy(dummy_edge_set),
+        )
+        left_and_right_potential_monomial_factors=push!(
+            left_and_right_potential_monomial_factors,
+            (left_monomial, right_monomial),
+        )
     end
     # left_and_right_potential_monomial_factors=[(GraphProductWord(m.monoid,m.monomial,[j[1] for j in i ],dummy_edge_set,dummy_edge_set),GraphProductWord(m.monoid,m.monomial,[j[2] for j in i ],dummy_edge_set,dummy_edge_set)) for i in potential_factors]
     result=[]
-    for (left_potential_monomial_factor,right_potential_monomial_factor) in left_and_right_potential_monomial_factors
-        if is_reconstructible(left_potential_monomial_factor) & is_reconstructible(right_potential_monomial_factor)
+    for (left_potential_monomial_factor, right_potential_monomial_factor) in
+        left_and_right_potential_monomial_factors
+
+        if is_reconstructible(left_potential_monomial_factor) &
+           is_reconstructible(right_potential_monomial_factor)
             left_factor=left_potential_monomial_factor
             right_factor=right_potential_monomial_factor
             clique_indices=collect(1:length(left_factor.clique_words))
-            union!(left_factor.edge_l,get_edge_variables(left_factor.clique_words,:first,clique_indices))
-            union!(right_factor.edge_r,get_edge_variables(right_factor.clique_words,:last,clique_indices))
-            union!(left_factor.edge_r,get_edge_variables(left_factor.clique_words,:last,clique_indices))
-            union!(right_factor.edge_l,get_edge_variables(right_factor.clique_words,:first,clique_indices))
-            all ? push!(result,(left_factor,right_factor)) : return true,(left_factor,right_factor)
+            union!(
+                left_factor.edge_l,
+                get_edge_variables(left_factor.clique_words, :first, clique_indices),
+            )
+            union!(
+                right_factor.edge_r,
+                get_edge_variables(right_factor.clique_words, :last, clique_indices),
+            )
+            union!(
+                left_factor.edge_r,
+                get_edge_variables(left_factor.clique_words, :last, clique_indices),
+            )
+            union!(
+                right_factor.edge_l,
+                get_edge_variables(right_factor.clique_words, :first, clique_indices),
+            )
+            all ? push!(result, (left_factor, right_factor)) :
+            return true, (left_factor, right_factor)
         end
     end
     if isempty(result)
@@ -487,5 +614,5 @@ function divide(m::GraphProductWord,n::GraphProductWord;all=false)
         return true, result
     end
 end
-divides(a::GraphProductWord,b::GraphProductWord) = divide(a,b)[1]
-Base.zero(m::GraphProductWord)=0
+divides(a::GraphProductWord, b::GraphProductWord) = divide(a, b)[1]
+Base.zero(m::GraphProductWord) = 0

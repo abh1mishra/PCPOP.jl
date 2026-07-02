@@ -2,9 +2,9 @@
 # num_to_var(x::Array{Int64},M::Base.RefValue{Monoid})=num_to_var.(x,M)
 # var2num(x::Variable)=x.value
 # var2num(x::Array{Variable})=var2num.(x)
-reverse_dict(dict)=Dict(value => key for (key, value) in dict)
-sort_dict(dict::Dict)=sort(collect(dict), by = x->x[1])
-IndexMap_rev= reverse_dict(IndexMap)
+reverse_dict(dict) = Dict(value => key for (key, value) in dict)
+sort_dict(dict::Dict) = sort(collect(dict), by = x->x[1])
+IndexMap_rev = reverse_dict(IndexMap)
 
 """
     check_exponents_consistency(monomial::Monomial{VariableType}) where VariableType
@@ -21,12 +21,15 @@ IndexMap_rev= reverse_dict(IndexMap)
     # Notes
     The function first extracts the variables from the monoid of the monomial. Then, for each variable, it calculates the exponents of the variable in each of its cliques. If the exponents are not all the same, it returns `false`. If it has checked all variables and all their exponents are consistent, it returns the exponents of the monomial.
 """
-function check_exponents_consistency(w::GraphProductWord{T}) where {T<:AbstractMonomial}
-    
+function check_exponents_consistency(w::GraphProductWord{T}) where {T <: AbstractMonomial}
     vertices=w.monoid.vertices
-    exponents = T<:Variable ? Dict{Variable,Vector{Variable}}([]) : Dict{AbstractMonoid,Vector{AbstractMonomial}}([])
+    exponents =
+        T<:Variable ? Dict{Variable, Vector{Variable}}([]) :
+        Dict{AbstractMonoid, Vector{AbstractMonomial}}([])
     for vertex in vertices
-        exponent=[clique_projector(w.clique_words[i],[vertex]) for i in vertex.clique_indices]
+        exponent=[
+            clique_projector(w.clique_words[i], [vertex]) for i in vertex.clique_indices
+        ]
         if length(unique(exponent))!=1
             return false
         end
@@ -35,11 +38,16 @@ function check_exponents_consistency(w::GraphProductWord{T}) where {T<:AbstractM
     return exponents
 end
 
-function get_clique_indices(monoid::m,cliques::Vector{<:Vector}) where {m<:Union{AbstractMonoid,Variable}}
-    return [clique_index for (clique_index,clique) in enumerate(cliques) if monoid in clique]
+function get_clique_indices(
+    monoid::m,
+    cliques::Vector{<:Vector},
+) where {m <: Union{AbstractMonoid, Variable}}
+    return [
+        clique_index for (clique_index, clique) in enumerate(cliques) if monoid in clique
+    ]
 end
 
-function merge(x::Vector{Vector{w}},y::Vector{Vector{w}}) where w<: Any
+function merge(x::Vector{Vector{w}}, y::Vector{Vector{w}}) where {w <: Any}
     n = length(x)
     result = Vector{w}[]
     @inbounds for i in 1:n
@@ -48,17 +56,20 @@ function merge(x::Vector{Vector{w}},y::Vector{Vector{w}}) where w<: Any
     return result
 end
 
-function merge(x::Dict{w,Int},y::Dict{w,Int}) where w<:AbstractMonomial
-
-    result=Dict{w,Int}(x)
-    for (key,value) in y
-        result[key]=get(result,key,0)+value
+function merge(x::Dict{w, Int}, y::Dict{w, Int}) where {w <: AbstractMonomial}
+    result=Dict{w, Int}(x)
+    for (key, value) in y
+        result[key]=get(result, key, 0)+value
     end
     return result
 end
 
 # Iterative merge for Dict{w,Int}
-function merge(x::Dict{w,Int}, y::Dict{w,Int}, z::Dict{w,Int}...) where w<:AbstractMonomial
+function merge(
+    x::Dict{w, Int},
+    y::Dict{w, Int},
+    z::Dict{w, Int}...,
+) where {w <: AbstractMonomial}
     result = merge(x, y)
     for arg in z
         result = merge(result, arg)
@@ -66,7 +77,7 @@ function merge(x::Dict{w,Int}, y::Dict{w,Int}, z::Dict{w,Int}...) where w<:Abstr
     return result
 end
 
-merge(x::Dict{w,Int}) where w<:AbstractMonomial = x
+merge(x::Dict{w, Int}) where {w <: AbstractMonomial} = x
 
 """
     subsequence(A::Vector{V}, B::Vector{V}) where V
@@ -89,34 +100,33 @@ merge(x::Dict{w,Int}) where w<:AbstractMonomial = x
     # Notes
     This function uses a sliding window approach to check for subsequences.
 """
-Base.copy(w::NCWord)=NCWord(w.monoid,copy(w.word),w.monomial)
-function subsequence(A::Vector,B::Vector)
-
-    indices_to_check_in_B=1:length(B)-length(A)+1
+Base.copy(w::NCWord) = NCWord(w.monoid, copy(w.word), w.monomial)
+function subsequence(A::Vector, B::Vector)
+    indices_to_check_in_B=1:(length(B) - length(A) + 1)
     # for subsequence check, A==B[index:index+length(A)-1] for some index
-    left_and_right_factors=[(B[1:index-1],B[index+length(A):end]) for index in indices_to_check_in_B if B[index:index+length(A)-1] == A]
+    left_and_right_factors=[
+        (B[1:(index - 1)], B[(index + length(A)):end]) for
+        index in indices_to_check_in_B if B[index:(index + length(A) - 1)] == A
+    ]
     return length(left_and_right_factors)>0 ? left_and_right_factors : false
 end
 
-function check_base(x,y)
-
+function check_base(x, y)
     x==0||y==0 && return nothing
     x.monoid!=y.monoid && throw("Different monoids")
 end
 
-function Base.copy(v::Vector{Vector{V}}) where V<:AbstractMonomial
-
-    z=Vector{Vector{V}}(undef,length(v))
-    for (i,j) in enumerate(v)
+function Base.copy(v::Vector{Vector{V}}) where {V <: AbstractMonomial}
+    z=Vector{Vector{V}}(undef, length(v))
+    for (i, j) in enumerate(v)
         z[i]=copy(j)
     end
     return z
 end
 
-Base.:!(x::Vector)=length(x)==0 ? true : false
+Base.:!(x::Vector) = length(x)==0 ? true : false
 
-vars_to_str(x::Vector)=join([i.name for i in x],",")
-
+vars_to_str(x::Vector) = join([i.name for i in x], ",")
 
 """
     index_elements(clique_words::Vector{Vector{V}}, position::Symbol, clique_indices::Vector{Int}) where V
@@ -131,8 +141,15 @@ vars_to_str(x::Vector)=join([i.name for i in x],",")
     # Returns
     - A vector of variables at the `position` in the `clique_words` of the monomial
 """
-function index_elements(clique_words::Vector{Vector{m}}, position::Symbol, clique_indices::Vector{Int}) where m<:AbstractMonomial
-    return Vector{m}([eval(:($position($clique_words[$clique_index]))) for clique_index in clique_indices if !isempty(clique_words[clique_index])])
+function index_elements(
+    clique_words::Vector{Vector{m}},
+    position::Symbol,
+    clique_indices::Vector{Int},
+) where {m <: AbstractMonomial}
+    return Vector{m}([
+        eval(:($position($clique_words[$clique_index]))) for
+        clique_index in clique_indices if !isempty(clique_words[clique_index])
+    ])
 end
 
 """
@@ -148,11 +165,16 @@ end
     # Returns
     - `true` if the variable forms an edge, `false` otherwise.
 """
-function is_edge(var::m, clique_words::Vector{Vector{m}}, position::Symbol) where m <: AbstractMonomial
-    clique_indices=isa(var,Variable) ? var.clique_indices : var.monoid.clique_indices
+function is_edge(
+    var::m,
+    clique_words::Vector{Vector{m}},
+    position::Symbol,
+) where {m <: AbstractMonomial}
+    clique_indices=isa(var, Variable) ? var.clique_indices : var.monoid.clique_indices
 
     for clique_index in clique_indices
-        if isempty(clique_words[clique_index]) || (eval(:($position($clique_words[$clique_index]))) != var)
+        if isempty(clique_words[clique_index]) ||
+           (eval(:($position($clique_words[$clique_index]))) != var)
             return false
         end
     end
@@ -172,14 +194,22 @@ Gets the edges in the clique words.
 # Returns
 - A set of edges.
 """
-function get_edge_variables(clique_words::Vector{Vector{m}}, position::Symbol, clique_indices::Vector{Int}) where m <: AbstractMonomial
-
+function get_edge_variables(
+    clique_words::Vector{Vector{m}},
+    position::Symbol,
+    clique_indices::Vector{Int},
+) where {m <: AbstractMonomial}
     potential_edge_variables=Set(index_elements(clique_words, position, clique_indices))
-    return filter(variable -> is_edge(variable, clique_words, position), potential_edge_variables)
+    return filter(
+        variable -> is_edge(variable, clique_words, position),
+        potential_edge_variables,
+    )
 end
 
-function get_edge_variables(clique_words::Vector{Vector{m}}, position::Symbol) where m<: AbstractMonomial
-
+function get_edge_variables(
+    clique_words::Vector{Vector{m}},
+    position::Symbol,
+) where {m <: AbstractMonomial}
     return get_edge_variables(clique_words, position, collect(1:length(clique_words)))
 end
 """
@@ -197,38 +227,42 @@ Filters elements based on their presence in a given clique.
 # Notes
 The function uses the `filter` function to keep only the elements in `elements` that are also present in `clique`.
 """
-clique_projector(word::Vector{W},monoids::Vector{M}) where {W<: AbstractMonomial,M<: AbstractMonoid} =filter(i->i.monoid in monoids, word)
-clique_projector(word::Vector{Variable},monoids::Vector{Variable}) =filter(i->i in monoids, word)
+clique_projector(
+    word::Vector{W},
+    monoids::Vector{M},
+) where {W <: AbstractMonomial, M <: AbstractMonoid} = filter(i->i.monoid in monoids, word)
+clique_projector(word::Vector{Variable}, monoids::Vector{Variable}) =
+    filter(i->i in monoids, word)
 
-function get_root_monomials(m1::AbstractMonomial,m2::AbstractMonomial)
-    if isa(m1,Variable)
+function get_root_monomials(m1::AbstractMonomial, m2::AbstractMonomial)
+    if isa(m1, Variable)
         m1=m1.monomial[]
     end
-    if isa(m2,Variable)
+    if isa(m2, Variable)
         m2=m2.monomial[]
     end
 
-    n1,n2=Base.RefValue(m1),Base.RefValue(m2)
+    n1, n2=Base.RefValue(m1), Base.RefValue(m2)
 
     while true
         while true
             if n1[].monoid==n2[].monoid
-                return n1[],n2[]
+                return n1[], n2[]
             end
-            !isdefined(n2[].monoid.parent_monoid,:x) && break
+            !isdefined(n2[].monoid.parent_monoid, :x) && break
             # isdefined(n2[].monomial,:x) ? (n2=n2[].monomial) : (n2[].monomial[]=words_to_monomial(n2[].monoid.parent_monoid[],[n2[]]);n2=n2[].monomial)
             n2=Base.RefValue(monomial(n2[]))
         end
         n2=Base.RefValue(m2)
-        !isdefined(n1[].monoid.parent_monoid,:x) && break
+        !isdefined(n1[].monoid.parent_monoid, :x) && break
         # isdefined(n1[].monomial,:x) ? (n1=n1[].monomial) : (n1[].monomial[]=words_to_monomial(n1[].monoid.parent_monoid[],[n1[]]);n1=n1[].monomial)
         n1=Base.RefValue(monomial(n1[]))
     end
     throw("No common root_monoid")
 end
-        
-function raise_monomial(m::AbstractMonomial,M::AbstractMonoid)
-    if isa(m,Variable)
+
+function raise_monomial(m::AbstractMonomial, M::AbstractMonoid)
+    if isa(m, Variable)
         m=monomial(m)
         m.monoid==M && return m
     end
@@ -238,69 +272,73 @@ function raise_monomial(m::AbstractMonomial,M::AbstractMonoid)
     end
 end
 
-
-function get_root_polynomials(p::Polynomial,q::Polynomial)
+function get_root_polynomials(p::Polynomial, q::Polynomial)
     if p.monoid==q.monoid
-        return (p,q)
+        return (p, q)
     end
-    f_m_p,f_m_q=(one(p.monoid),one(q.monoid))
-    f_m_p_,f_m_q_=get_root_monomials(f_m_p,f_m_q)
+    f_m_p, f_m_q=(one(p.monoid), one(q.monoid))
+    f_m_p_, f_m_q_=get_root_monomials(f_m_p, f_m_q)
 
     if f_m_p.monoid==f_m_p_.monoid && f_m_q.monoid!=f_m_q_.monoid
         Mon=p.monoid
         q_=Polynomial{q.coeff_type}(Mon)
         for i in 1:length(q.monomials)
-            push!(q_.monomials,raise_monomial(q.monomials[i],Mon))
-            push!(q_.coeffs,q.coeffs[i])
+            push!(q_.monomials, raise_monomial(q.monomials[i], Mon))
+            push!(q_.coeffs, q.coeffs[i])
         end
-        return (p,q_)
+        return (p, q_)
     elseif f_m_p.monoid!=f_m_p_.monoid && f_m_q.monoid==f_m_q_.monoid
         Mon=q.monoid
         p_=Polynomial{p.coeff_type}(Mon)
         for i in 1:length(p.monomials)
-            push!(p_.monomials,raise_monomial(p.monomials[i],Mon))
-            push!(p_.coeffs,p.coeffs[i])
+            push!(p_.monomials, raise_monomial(p.monomials[i], Mon))
+            push!(p_.coeffs, p.coeffs[i])
         end
-        return (p_,q)
+        return (p_, q)
     else
         Mon=f_m_p_.monoid
         p_=Polynomial(Mon)
         q_=Polynomial(Mon)
         for i in 1:length(p.monomials)
-            push!(p_.monomials,raise_monomial(p.monomials[i],Mon))
-            push!(p_.coeffs,p.coeffs[i])
+            push!(p_.monomials, raise_monomial(p.monomials[i], Mon))
+            push!(p_.coeffs, p.coeffs[i])
         end
         for i in 1:length(q.monomials)
-            push!(q_.monomials,raise_monomial(q.monomials[i],Mon))
-            push!(q_.coeffs,q.coeffs[i])
+            push!(q_.monomials, raise_monomial(q.monomials[i], Mon))
+            push!(q_.coeffs, q.coeffs[i])
         end
-        return (p_,q_)
+        return (p_, q_)
     end
 end
 
-get_root_polynomials(p::Polynomial,m::M) where M<:AbstractMonomial=get_root_polynomials(p,Polynomial(m))
-get_root_polynomials(m::M,p::Polynomial) where M<:AbstractMonomial=get_root_polynomials(Polynomial(m),p)
+get_root_polynomials(p::Polynomial, m::M) where {M <: AbstractMonomial} =
+    get_root_polynomials(p, Polynomial(m))
+get_root_polynomials(m::M, p::Polynomial) where {M <: AbstractMonomial} =
+    get_root_polynomials(Polynomial(m), p)
 
-function get_root_monomials(m::NCWord,n::AbstractMonomial)
+function get_root_monomials(m::NCWord, n::AbstractMonomial)
     if n isa Variable && n.parent_monoid == m.monoid
-        return (m,monomial(n))
+        return (m, monomial(n))
     end
-    check_ncword_is_poly(m) ? get_root_polynomials(ncword_to_poly(m),n) : Base.invoke(get_root_monomials,Tuple{AbstractMonomial,AbstractMonomial},m,n)
+    check_ncword_is_poly(m) ? get_root_polynomials(ncword_to_poly(m), n) :
+    Base.invoke(get_root_monomials, Tuple{AbstractMonomial, AbstractMonomial}, m, n)
 end
 
-get_root_monomials(n::N,m::NCWord) where N<:AbstractMonomial = reverse(get_root_monomials(m,n))
+get_root_monomials(n::N, m::NCWord) where {N <: AbstractMonomial} =
+    reverse(get_root_monomials(m, n))
 
-function get_root_monomials(m::NCWord,n::NCWord)
+function get_root_monomials(m::NCWord, n::NCWord)
     if m.monoid==n.monoid
-        return (m,n)
+        return (m, n)
     end
-    check_ncword_is_poly(m) || check_ncword_is_poly(n) ? get_root_polynomials(ncword_to_poly(m),ncword_to_poly(n)) : Base.invoke(get_root_monomials,Tuple{AbstractMonomial,AbstractMonomial},m,n)
+    check_ncword_is_poly(m) || check_ncword_is_poly(n) ?
+    get_root_polynomials(ncword_to_poly(m), ncword_to_poly(n)) :
+    Base.invoke(get_root_monomials, Tuple{AbstractMonomial, AbstractMonomial}, m, n)
 end
 
 function is_identity(x)
     return x == Base.one(x)
 end
-
 
 function ncword_to_poly(m::NCWord)
     if m==0
@@ -308,8 +346,8 @@ function ncword_to_poly(m::NCWord)
     end
     p=Polynomial{Float64}(m.monoid)
     for i in 1:length(m.word)
-        push!(p.monomials,NCWord(m.monoid,AbstractAlgebra.monomial(m.word,i)))
-        push!(p.coeffs,m.word.coeffs[i])
+        push!(p.monomials, NCWord(m.monoid, AbstractAlgebra.monomial(m.word, i)))
+        push!(p.coeffs, m.word.coeffs[i])
     end
     return p
 end
@@ -322,42 +360,39 @@ function check_ncword_is_poly(m::NCWord)
         return false
     end
     return true
- end
+end
 
 function transform_ncword(w::NCWord)
-    res=check_ncword_is_poly(w) ? ncword_to_poly(w) :  w
+    res=check_ncword_is_poly(w) ? ncword_to_poly(w) : w
 end
 
 function sort_polynomial(p::Polynomial)
     # Zip the monomials and coefficients
     zipped = zip(p.monomials, p.coeffs)
-    
+
     # Sort the zipped pairs based on the monomials
     sorted_zipped = sort(zipped, by = x -> x[1])
-    
+
     # Unzip the sorted result into two vectors
     sorted_monomials, sorted_coeffs = unzip(sorted_zipped)
-    
+
     # Create a new polynomial with the sorted monomials and coefficients
     q = Polynomial(p.monoid)
     return Polynomial(sorted_monomials, sorted_coeffs, p.monoid)
 end
 
-
-function comms_system(G::GraphProductMonoid,M::Vector{NCMonoid})
-    for (i,j) in collect(combinations(M,2))
-        if isempty(intersect(i.name,j.name))
-            push!(G.commutations,(i,j))
+function comms_system(G::GraphProductMonoid, M::Vector{NCMonoid})
+    for (i, j) in collect(combinations(M, 2))
+        if isempty(intersect(i.name, j.name))
+            push!(G.commutations, (i, j))
         end
     end
 end
 
-
 function extract_string_before_number(s::String)
     for i in 1:length(s)
-
         if haskey(IndexMap_rev, s[i]) || isdigit(s[i])
-            return s[1:i-1]
+            return s[1:(i - 1)]
         end
     end
     return s  # Return the whole string if no number is found
@@ -365,15 +400,14 @@ end
 
 function extract_index(s::String)
     for i in 1:length(s)
-
         if haskey(IndexMap_rev, s[i]) || isdigit(s[i])
             ind_str=s[i:end]
-            res=tryparse(Int,ind_str)
+            res=tryparse(Int, ind_str)
             if res !== nothing
                 return res
             else
-                res= map(c -> IndexMap_rev[c],ind_str)
-                return parse(Int,res)
+                res = map(c -> IndexMap_rev[c], ind_str)
+                return parse(Int, res)
             end
         end
     end
@@ -381,17 +415,17 @@ function extract_index(s::String)
 end
 
 function parse_range(s::String)
-    res= split(s,":")
-    ind_start = parse(Int,res[1])
-    ind_end = parse(Int,res[2])
-    return collect(ind_start : ind_end)
+    res = split(s, ":")
+    ind_start = parse(Int, res[1])
+    ind_end = parse(Int, res[2])
+    return collect(ind_start:ind_end)
 end
 # function prmt_terms_coeff(t1::Term,t2::Term,S)
 #     a,b=S(t1.coefficient)*t1.monomial,S(t2.coefficient)*t2.monomial
 #     return a,b
 # end
 # Inbuilt unique() does not work with new types
-function unique_array(G::AbstractArray{T}) where T
+function unique_array(G::AbstractArray{T}) where {T}
     result = T[]
     for x in G
         if all(y -> !(x == y), result)
@@ -425,16 +459,16 @@ function conj_minmax(O::AbstractMonomial)
 end
 
 function sanity_check_op_ge(op_ge::Vector)
-    for (i,p) in enumerate(op_ge)
+    for (i, p) in enumerate(op_ge)
         if is_number(p) && p isa Polynomial
-            deleteat!(op_ge,i)
+            deleteat!(op_ge, i)
 
-            if p isa Polynomial && coefficient(p,one(p.monoid)) < 0
+            if p isa Polynomial && coefficient(p, one(p.monoid)) < 0
                 throw(ArgumentError("Negative constant term in op_ge is not allowed"))
             end
         end
     end
-        if isempty(op_ge)
+    if isempty(op_ge)
         return 0
     else
         return op_ge
@@ -442,10 +476,10 @@ function sanity_check_op_ge(op_ge::Vector)
 end
 
 function sanity_check_op_eq(op_eq::Vector)
-    for (i,p) in enumerate(op_eq)
+    for (i, p) in enumerate(op_eq)
         if is_number(p)
-            deleteat!(op_eq,i)
-            if p isa Polynomial && coefficient(p,one(p.monoid)) != 0
+            deleteat!(op_eq, i)
+            if p isa Polynomial && coefficient(p, one(p.monoid)) != 0
                 throw(ArgumentError("non-zero constant in op_eq is not allowed"))
             end
         end
@@ -457,7 +491,7 @@ function sanity_check_op_eq(op_eq::Vector)
     end
 end
 
-function close_graph!(g,D,m,E)
+function close_graph!(g, D, m, E)
     n = nv(g)
     h = SimpleDiGraph(n * 2)
 
@@ -469,8 +503,8 @@ function close_graph!(g,D,m,E)
         add_edge!(h, src(e) + n, dst(e) + n)
     end
 
-    pairs = [(w[end],w[1]) for w in m if length(w) > 1]
-    pairs = [(D[(p[1],E[p[1]])] , D[(p[2],1)]+n) for p in pairs]
+    pairs = [(w[end], w[1]) for w in m if length(w) > 1]
+    pairs = [(D[(p[1], E[p[1]])], D[(p[2], 1)]+n) for p in pairs]
 
     for pair in pairs
         add_edge!(h, pair...)
@@ -485,7 +519,6 @@ function close_graph!(g,D,m,E)
     end
 end
 
-
 function trace_mons_reduce(mons::Set, tr_pols::Vector)
     # `tr_pols` may be:
     #   (a) a vector of (poly, value) tuples,
@@ -498,10 +531,16 @@ function trace_mons_reduce(mons::Set, tr_pols::Vector)
     # plain-polynomial branch and crash.
     if !isempty(tr_pols) && all(x -> x isa Tuple, tr_pols)
         just_pols = [x[1] for x in tr_pols]
-        return [(pol, tr_pols[i][2]) for (i, pol) in enumerate(trace_mons_reduce(mons, just_pols))]
+        return [
+            (pol, tr_pols[i][2]) for
+            (i, pol) in enumerate(trace_mons_reduce(mons, just_pols))
+        ]
     elseif !isempty(tr_pols) && all(x -> x isa AbstractVector, tr_pols)
         just_pols = [x[1] for x in tr_pols]
-        return [[pol, tr_pols[i][2]] for (i, pol) in enumerate(trace_mons_reduce(mons, just_pols))]
+        return [
+            [pol, tr_pols[i][2]] for
+            (i, pol) in enumerate(trace_mons_reduce(mons, just_pols))
+        ]
     end
 
     # Plain polynomials.
@@ -509,20 +548,28 @@ function trace_mons_reduce(mons::Set, tr_pols::Vector)
     for i in 1:length(tr_pols)
         tr_polsi = Polynomial(tr_pols[i])
         if iszero(tr_polsi)
-            throw(ArgumentError("$i -th polynomial is a constant polynomial, which is not allowed. It will be ignored."))
+            throw(
+                ArgumentError(
+                    "$i -th polynomial is a constant polynomial, which is not allowed. It will be ignored.",
+                ),
+            )
         end
         tr_polsci=0
-        for (m,c) in tr_polsi
-            m1,m2= (cyclic_reduce(m),cyclic_reduce(m'))
+        for (m, c) in tr_polsi
+            m1, m2 = (cyclic_reduce(m), cyclic_reduce(m'))
             if m1 in mons
                 tr_polsci+=c*m1
             elseif m2 in mons
                 tr_polsci+=c*m2
             else
-                throw(ArgumentError("Monomial $m in tr_pols constraint is not present in any of the LMIs."))
+                throw(
+                    ArgumentError(
+                        "Monomial $m in tr_pols constraint is not present in any of the LMIs.",
+                    ),
+                )
             end
         end
-        push!(tr_polsc,tr_polsci)
+        push!(tr_polsc, tr_polsci)
     end
     return tr_polsc
 end

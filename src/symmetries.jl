@@ -21,9 +21,8 @@ function SymbolicWedderburn.action(
     # perm::AbstractPermutations.AbstractPermutation,
     word::Variable,
 )
-
     vertices = monomial(word).monoid.vertices
-    return vertices[findfirst(isequal(word), vertices)^perm]
+    return vertices[findfirst(isequal(word), vertices) ^ perm]
 end
 
 function SymbolicWedderburn.action(
@@ -55,5 +54,8 @@ function SymbolicWedderburn.action(
     # perm::AbstractPermutations.AbstractPermutation,
     word::Polynomial,
 )
-    return sum([coef*SymbolicWedderburn.action(OnLetters(), perm, mono) for (coef, mono) in zip(word.coeffs, word.monomials)])
+    return sum([
+        coef*SymbolicWedderburn.action(OnLetters(), perm, mono) for
+        (coef, mono) in zip(word.coeffs, word.monomials)
+    ])
 end

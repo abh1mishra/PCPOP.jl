@@ -34,13 +34,16 @@ function PCMonoid_generator(GM::GraphProductMonoid)
         ncmon = NCMonoid("$name$index", value)
         push!(monoids, ncmon)
     end
-    
+
     monoid_comms = Vector{Tuple{NCMonoid, NCMonoid}}()
     for (i, j) in combinations(monoids, 2)
-        edges = map(((l, r),) -> (findfirst(isequal(l), vars), findfirst(isequal(r), vars)), product(i.vertices, j.vertices))
+        edges = map(
+            ((l, r),) -> (findfirst(isequal(l), vars), findfirst(isequal(r), vars)),
+            product(i.vertices, j.vertices),
+        )
         any(k -> has_edge(graph, k), edges) || push!(monoid_comms, (i, j))
     end
-    res = GraphProductMonoid{NCMonoid}(name, monoids; commutations=monoid_comms)
+    res = GraphProductMonoid{NCMonoid}(name, monoids; commutations = monoid_comms)
     build(res)
     return res
 end

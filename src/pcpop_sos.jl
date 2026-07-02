@@ -1,10 +1,8 @@
 # Compatibility issue dot() in julia1.11
-dot_vars(C, iv::SparseVector{<:Number}) =
-    sum(iv[i] * C[i] for i in iv.nzind)
-
+dot_vars(C, iv::SparseVector{<:Number}) = sum(iv[i] * C[i] for i in iv.nzind)
 
 # Remove unidentified duplicates
-function reduce_duplicates(matrix::Matrix{T}) where T
+function reduce_duplicates(matrix::Matrix{T}) where {T}
     seen = T[]
     reps = T[]
 
@@ -30,12 +28,11 @@ function reduce_duplicates(matrix::Matrix{T}) where T
     return reduced
 end
 
-
 function variables(M::AbstractMonoid)
     return union(variables.(M.vertices)...)
 end
 
-function tracial_reduce(word::AbstractMonomial; tracial=false)
+function tracial_reduce(word::AbstractMonomial; tracial = false)
     if tracial
         return cyclic_reduce(word)
     else
@@ -43,21 +40,25 @@ function tracial_reduce(word::AbstractMonomial; tracial=false)
     end
 end
 
-function tracial_reduce(p::Polynomial; tracial=false)
-    sum([c*tracial_reduce(m, tracial=tracial) for (c, m) in zip(p.coeffs, p.monomials)])
+function tracial_reduce(p::Polynomial; tracial = false)
+    sum([c*tracial_reduce(m, tracial = tracial) for (c, m) in zip(p.coeffs, p.monomials)])
 end
-
 
 ##########################
 ##  SYMMETRY REDUCTION  ##
 ##########################
 
-function pcpop(poly::Polynomial, k::Int, G::GroupsCore.Group, action::SymbolicWedderburn.Action; diagonalize=false)
+function pcpop(
+    poly::Polynomial,
+    k::Int,
+    G::GroupsCore.Group,
+    action::SymbolicWedderburn.Action;
+    diagonalize = false,
+)
     M = poly.monoid
-    basis_psd = mons_at_level(M,k)
-    basis_constraints = StarAlgebras.Basis{UInt64}(
-              unique([x'*y for x in basis_psd, y in basis_psd]),
-    )
+    basis_psd = mons_at_level(M, k)
+    basis_constraints =
+        StarAlgebras.Basis{UInt64}(unique([x'*y for x in basis_psd, y in basis_psd]))
     if diagonalize
         wedderburn = SymbolicWedderburn.WedderburnDecomposition(
             Float64,
@@ -65,37 +66,36 @@ function pcpop(poly::Polynomial, k::Int, G::GroupsCore.Group, action::SymbolicWe
             action,
             basis_constraints,
             basis_psd,
-            semisimple=true,
+            semisimple = true,
         )
-        
+
         return pcpop(poly, wedderburn, basis_psd)
     else
-        
-    tbl = SymbolicWedderburn.CharacterTable(Rational{Int}, G)
-    invariant_vs = invariant_vectors(tbl, action, basis_constraints)
-    
-    Γ = [basis_constraints[x'*y] for x in basis_psd, y in basis_psd]
+        tbl = SymbolicWedderburn.CharacterTable(Rational{Int}, G)
+        invariant_vs = invariant_vectors(tbl, action, basis_constraints)
 
-    sos_model = JuMP.Model()
-    JuMP.@variable sos_model t
-    JuMP.@objective sos_model Min t
-    n = length(basis_psd)
-    P = JuMP.@variable sos_model P[1:n, 1:n] Symmetric
-    JuMP.@constraint sos_model P in PSDCone()
+        Γ = [basis_constraints[x' * y] for x in basis_psd, y in basis_psd]
 
-    # preallocating
-    Γ_orb = similar(Γ, Float64)
+        sos_model = JuMP.Model()
+        JuMP.@variable sos_model t
+        JuMP.@objective sos_model Min t
+        n = length(basis_psd)
+        P = JuMP.@variable sos_model P[1:n, 1:n] Symmetric
+        JuMP.@constraint sos_model P in PSDCone()
 
-    C = coefficient(t*one(M)-poly, basis_constraints)
+        # preallocating
+        Γ_orb = similar(Γ, Float64)
 
-    for iv in invariant_vs
-        c = dot_vars(C, iv)
-        # average Γs into Γ_orb with weights given by iv
-        Γ_orb = invariant_constraint!(Γ_orb, Γ, iv)
-        JuMP.@constraint sos_model dot(Γ_orb, P) == c
-    end
+        C = coefficient(t*one(M)-poly, basis_constraints)
 
-    return sos_model
+        for iv in invariant_vs
+            c = dot_vars(C, iv)
+            # average Γs into Γ_orb with weights given by iv
+            Γ_orb = invariant_constraint!(Γ_orb, Γ, iv)
+            JuMP.@constraint sos_model dot(Γ_orb, P) == c
+        end
+
+        return sos_model
     end
 end
 
@@ -194,9 +194,9 @@ function pcpop(
 )
     model = JuMP.Model()
     M = poly.monoid
-    
+
     Γ = let basis_constraints = SymbolicWedderburn.basis(wedderburn)
-        [basis_constraints[x'*y] for x in basis_psd, y in basis_psd]
+        [basis_constraints[x' * y] for x in basis_psd, y in basis_psd]
     end
 
     JuMP.@variable model t
@@ -212,10 +212,7 @@ function pcpop(
     # Γπs = zeros.(eltype(wedderburn), size.(psds))
     Γ_orb = similar(Γ, eltype(wedderburn))
 
-    C = coefficient(
-        t*one(M)-poly,
-        SymbolicWedderburn.basis(wedderburn),
-    )
+    C = coefficient(t*one(M)-poly, SymbolicWedderburn.basis(wedderburn))
     for iv in invariant_vectors(wedderburn)
         c = dot_vars(C, iv)
         Γ_orb = invariant_constraint!(Γ_orb, Γ, iv)

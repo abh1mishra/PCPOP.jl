@@ -37,7 +37,7 @@ Convert a Variable to its UInt32 index in monoid.vertices.
 Uses cached dictionary for O(1) lookup if available (after build()).
 Falls back to linear search during construction or if dictionary not available.
 """
-@inline function var_to_index( var::Variable)::UInt32
+@inline function var_to_index(var::Variable)::UInt32
     # Fast path: use cached dictionary (O(1) lookup)
     monoid = var.parent_monoid[]
     dict = monoid.var_index_dict[]
@@ -85,13 +85,13 @@ function build_conj_indices(monoid::GraphProductMonoid{Variable})
     if cached !== nothing
         return cached
     end
-    
+
     n = length(monoid.vertices)
     conj_indices = Vector{UInt32}(undef, n)
-    
+
     # Use var_index_dict for O(1) lookup if available
     dict = monoid.var_index_dict[]
-    
+
     @inbounds for i in 1:n
         v = monoid.vertices[i]
         cv = conj(v)
@@ -125,7 +125,7 @@ Convert a GraphProductWord{Variable} to PCMonomial.
 function PCMonomial(m::GraphProductWord{Variable})
     monoid = m.monoid
     n_cliques = length(m.clique_words)
-    
+
     # Convert clique_words
     clique_words = Vector{Vector{UInt32}}(undef, n_cliques)
     @inbounds for i in 1:n_cliques
@@ -133,12 +133,18 @@ function PCMonomial(m::GraphProductWord{Variable})
         ci = var_to_index.(cw)
         clique_words[i] = ci
     end
-    
+
     # Convert edge sets
     edge_l = Set{UInt32}(var_to_index(v) for v in m.edge_l)
     edge_r = Set{UInt32}(var_to_index(v) for v in m.edge_r)
-    
-    return PCMonomial(monoid, Base.RefValue{AbstractMonomial}(), clique_words, edge_l, edge_r)
+
+    return PCMonomial(
+        monoid,
+        Base.RefValue{AbstractMonomial}(),
+        clique_words,
+        edge_l,
+        edge_r,
+    )
 end
 
 """
@@ -149,7 +155,7 @@ Convert a PCMonomial back to GraphProductWord{Variable}.
 function GraphProductWord(m::PCMonomial)
     monoid = m.monoid
     n_cliques = length(m.clique_words)
-    
+
     # Convert clique_words back to clique_words
     clique_words = Vector{Vector{Variable}}(undef, n_cliques)
     @inbounds for i in 1:n_cliques
@@ -160,14 +166,19 @@ function GraphProductWord(m::PCMonomial)
         end
         clique_words[i] = cw
     end
-    
+
     # Convert edge sets
     edge_l = Set{Variable}(index_to_var(monoid, idx) for idx in m.edge_l)
     edge_r = Set{Variable}(index_to_var(monoid, idx) for idx in m.edge_r)
-    
-    return GraphProductWord(monoid, Base.RefValue{AbstractMonomial}(), clique_words, edge_l, edge_r)
-end
 
+    return GraphProductWord(
+        monoid,
+        Base.RefValue{AbstractMonomial}(),
+        clique_words,
+        edge_l,
+        edge_r,
+    )
+end
 
 # ============================================================================
 # Basic Operations
@@ -204,7 +215,7 @@ function Base.copy(m::PCMonomial)
         Base.RefValue{AbstractMonomial}(),
         [copy(ci) for ci in m.clique_words],
         copy(m.edge_l),
-        copy(m.edge_r)
+        copy(m.edge_r),
     )
 end
 
@@ -224,7 +235,7 @@ function Base.one(M::GraphProductMonoid{Variable})
         Base.RefValue{AbstractMonomial}(),
         [UInt32[] for _ in 1:n_cliques],
         Set{UInt32}(),
-        Set{UInt32}()
+        Set{UInt32}(),
     )
 end
 
@@ -253,17 +264,19 @@ Base.:(==)(n::Number, m::PCMonomial) = m == n
 # Hashing and Comparison
 # ============================================================================
 
-Base.hash(m::PCMonomial, h::UInt) = hash(m.monoid, hash(m.clique_words, hash(0x8a7b9c3d4e5f6012, h)))
+Base.hash(m::PCMonomial, h::UInt) =
+    hash(m.monoid, hash(m.clique_words, hash(0x8a7b9c3d4e5f6012, h)))
 
 function less_or_not(m::PCMonomial, n::PCMonomial)
-    m.monoid != n.monoid && throw(ArgumentError("Cannot compare monomials from different monoids"))
+    m.monoid != n.monoid &&
+        throw(ArgumentError("Cannot compare monomials from different monoids"))
     m == n && return false
-    
+
     deg_m = degree(m)
     deg_n = degree(n)
     deg_m < deg_n && return true
     deg_m > deg_n && return false
-    
+
     @inbounds for i in 1:length(m.clique_words)
         m.clique_words[i] == n.clique_words[i] && continue
         len_m = length(m.clique_words[i])
@@ -296,7 +309,7 @@ function Base.show(io::IO, m::PCMonomial)
     elseif show_level == 2
         for i in 1:length(m.clique_words)
             vars = get_clique_word(m, i)
-            if !isempty(vars)  
+            if !isempty(vars)
                 print(io, "($(join(vars, ",")))")
             end
         end
@@ -353,14 +366,18 @@ end
 
 Get edge variable indices from clique_words.
 """
-function get_edge_indices(clique_words::Vector{Vector{UInt32}}, position::Symbol, 
-                          clique_idx_list::Vector{Int}, monoid::GraphProductMonoid{Variable})
+function get_edge_indices(
+    clique_words::Vector{Vector{UInt32}},
+    position::Symbol,
+    clique_idx_list::Vector{Int},
+    monoid::GraphProductMonoid{Variable},
+)
     result = Set{UInt32}()
-    
+
     @inbounds for ci in clique_idx_list
         isempty(clique_words[ci]) && continue
         idx = position == :first ? clique_words[ci][1] : clique_words[ci][end]
-        
+
         # Check if this is truly an edge (appears at position in all its cliques)
         var = monoid.vertices[idx]
         is_edge = true
@@ -369,7 +386,8 @@ function get_edge_indices(clique_words::Vector{Vector{UInt32}}, position::Symbol
                 is_edge = false
                 break
             end
-            check_idx = position == :first ? clique_words[var_ci][1] : clique_words[var_ci][end]
+            check_idx =
+                position == :first ? clique_words[var_ci][1] : clique_words[var_ci][end]
             if check_idx != idx
                 is_edge = false
                 break
@@ -380,8 +398,11 @@ function get_edge_indices(clique_words::Vector{Vector{UInt32}}, position::Symbol
     return result
 end
 
-function get_edge_indices(clique_words::Vector{Vector{UInt32}}, position::Symbol, 
-                          monoid::GraphProductMonoid{Variable})
+function get_edge_indices(
+    clique_words::Vector{Vector{UInt32}},
+    position::Symbol,
+    monoid::GraphProductMonoid{Variable},
+)
     return get_edge_indices(clique_words, position, collect(1:length(clique_words)), monoid)
 end
 
@@ -395,16 +416,21 @@ end
 Simple multiplication - just merges clique indices. Used when monoid has no relations.
 """
 function simple_multiply(m::PCMonomial, n::PCMonomial)
-    m.monoid != n.monoid && throw(ArgumentError("Cannot multiply monomials from different monoids"))
+    m.monoid != n.monoid &&
+        throw(ArgumentError("Cannot multiply monomials from different monoids"))
     monoid = m.monoid
     res_clique_words = merge_clique_words(m.clique_words, n.clique_words)
     # edge_l = get_edge_indices(res_clique_words, :first, monoid)
     # edge_r = get_edge_indices(res_clique_words, :last, monoid)
     # return PCMonomial(m.monoid, Base.RefValue{AbstractMonomial}(), 
     #                   res_clique_words, edge_l, edge_r)
-    return PCMonomial(m.monoid, Base.RefValue{AbstractMonomial}(), 
-                    res_clique_words, Set{UInt32}(), Set{UInt32}())
-
+    return PCMonomial(
+        m.monoid,
+        Base.RefValue{AbstractMonomial}(),
+        res_clique_words,
+        Set{UInt32}(),
+        Set{UInt32}(),
+    )
 end
 
 """
@@ -415,7 +441,7 @@ Full multiplication with Projector/Unipotent/Unitary handling.
 function multiply(m::PCMonomial, n::PCMonomial)
     # m.monoid != n.monoid && throw(ArgumentError("Cannot multiply monomials from different monoids"))
     if m.monoid!=n.monoid
-        return general_mult(m,n)
+        return general_mult(m, n)
     end
     monoid = m.monoid
     if !monoid.has_relations[]
@@ -428,7 +454,7 @@ function multiply(m::PCMonomial, n::PCMonomial)
     m_r = copy(m.edge_r)
     n_l = copy(n.edge_l)
     n_r = copy(n.edge_r)
-    
+
     # Check for edge interactions
     middle_list=Vector{}()
     zero_result = false
@@ -436,7 +462,7 @@ function multiply(m::PCMonomial, n::PCMonomial)
         for j_idx in n_l
             i_var = monoid.vertices[i_idx]
             j_var = monoid.vertices[j_idx]
-            
+
             # Check orthogonality
             if j_var in i_var.ortho_conj
                 zero_result = true
@@ -451,7 +477,7 @@ function multiply(m::PCMonomial, n::PCMonomial)
                 end
                 push!(middle_list, i_var)
             end
-            
+
             # Unipotent: U * U = 1
             if i_idx == j_idx && i_var.mult_type[] == :Unipotent
                 var_clique_indices = i_var.clique_indices
@@ -461,7 +487,7 @@ function multiply(m::PCMonomial, n::PCMonomial)
                 end
                 push!(middle_list, one(i_var))
             end
-            
+
             # Unitary: U * U† = 1
             if i_var.mult_type[] == :Unitary
                 conj_i = conj(i_var)
@@ -480,30 +506,45 @@ function multiply(m::PCMonomial, n::PCMonomial)
         end
         zero_result && break
     end
-    
+
     # Return zero polynomial if orthogonal
     zero_result && return Polynomial(monoid)
-    
+
     if isempty(middle_list)
         merge_clique_words!(m_indices, n_indices)
         new_edge_l = get_edge_indices(m_indices, :first, monoid)
         new_edge_r = get_edge_indices(m_indices, :last, monoid)
-        return PCMonomial(monoid, Base.RefValue{AbstractMonomial}(), 
-                          m_indices, new_edge_l, new_edge_r)
+        return PCMonomial(
+            monoid,
+            Base.RefValue{AbstractMonomial}(),
+            m_indices,
+            new_edge_l,
+            new_edge_r,
+        )
     else
         # Recompute edges after modifications
         new_m_edge_l = get_edge_indices(m_indices, :first, monoid)
         new_m_edge_r = get_edge_indices(m_indices, :last, monoid)
         new_n_edge_l = get_edge_indices(n_indices, :first, monoid)
         new_n_edge_r = get_edge_indices(n_indices, :last, monoid)
-        
-        m_ = PCMonomial(monoid, Base.RefValue{AbstractMonomial}(), 
-                        m_indices, new_m_edge_l, new_m_edge_r)
-        n_ = PCMonomial(monoid, Base.RefValue{AbstractMonomial}(), 
-                        n_indices, new_n_edge_l, new_n_edge_r)
-        
+
+        m_ = PCMonomial(
+            monoid,
+            Base.RefValue{AbstractMonomial}(),
+            m_indices,
+            new_m_edge_l,
+            new_m_edge_r,
+        )
+        n_ = PCMonomial(
+            monoid,
+            Base.RefValue{AbstractMonomial}(),
+            n_indices,
+            new_n_edge_l,
+            new_n_edge_r,
+        )
+
         middle_prod=prod(middle_list)
-        
+
         return m_ * middle_prod * n_
     end
 end
@@ -531,10 +572,10 @@ Conjugation using precomputed conjugate indices.
 """
 function conjugate(m::PCMonomial, conj_indices::Vector{UInt32})
     is_identity(m) && return m
-    
+
     n_cliques = length(m.clique_words)
     new_clique_words = Vector{Vector{UInt32}}(undef, n_cliques)
-    
+
     @inbounds for i in 1:n_cliques
         ci = m.clique_words[i]
         if isempty(ci)
@@ -548,18 +589,23 @@ function conjugate(m::PCMonomial, conj_indices::Vector{UInt32})
             new_clique_words[i] = new_ci
         end
     end
-    
+
     # Swap and conjugate edges
     new_edge_l = Set{UInt32}(conj_indices[idx] for idx in m.edge_r)
     new_edge_r = Set{UInt32}(conj_indices[idx] for idx in m.edge_l)
-    
-    return PCMonomial(m.monoid, Base.RefValue{AbstractMonomial}(), 
-                      new_clique_words, new_edge_l, new_edge_r)
+
+    return PCMonomial(
+        m.monoid,
+        Base.RefValue{AbstractMonomial}(),
+        new_clique_words,
+        new_edge_l,
+        new_edge_r,
+    )
 end
 
 function conjugate(m::PCMonomial)
     is_identity(m) && return m
-    
+
     # Use cached conj_indices from monoid (built during build())
     # Falls back to building on demand if not cached
     conj_indices = build_conj_indices(m.monoid)
@@ -584,23 +630,23 @@ Base.adjoint(m::PCMonomial) = conj(m)
 Division: find (l, r) such that l * m * r = n.
 Delegates to GraphProductWord division for correctness.
 """
-function divide(m::PCMonomial, n::PCMonomial; all=false)
+function divide(m::PCMonomial, n::PCMonomial; all = false)
     m == n && return true, (one(m.monoid), one(n.monoid))
-    
+
     # Convert to GraphProductWord, use existing division, convert back
     m_gpw = GraphProductWord(m)
     n_gpw = GraphProductWord(n)
-    
-    ok,result_gpw = divide(m_gpw, n_gpw; all=all)
+
+    ok, result_gpw = divide(m_gpw, n_gpw; all = all)
     if !ok
         return false, (nothing, nothing)
     end
     # Convert results back to PCMonomial
     if all
-        return true,[(PCMonomial(l), PCMonomial(r)) for (l, r) in result_gpw]
+        return true, [(PCMonomial(l), PCMonomial(r)) for (l, r) in result_gpw]
     else
         (l, r) = result_gpw
-        return true,(PCMonomial(l), PCMonomial(r))
+        return true, (PCMonomial(l), PCMonomial(r))
     end
 end
 
@@ -612,13 +658,13 @@ divides(a::PCMonomial, b::PCMonomial) = (divide(a, b))[1]
 # ============================================================================
 
 function degree(m::PCMonomial)
-    return sum(values(exponents(m)); init=0)
+    return sum(values(exponents(m)); init = 0)
 end
 
 function exponents(m::PCMonomial)
     monoid = m.monoid
     result = Dict{Variable, Int}()
-    
+
     for (var_idx, var) in enumerate(monoid.vertices)
         if !isempty(var.clique_indices)
             # Count occurrences in first clique this var belongs to
@@ -627,7 +673,7 @@ function exponents(m::PCMonomial)
             result[var] = cnt
         end
     end
-    
+
     return result
 end
 
@@ -645,14 +691,18 @@ function monomial(m::PCMonomial)
     if isdefined(m.monomial, :x)
         return m.monomial[]
     end
-    
+
     monoid = m.monoid
     if isa(monoid.parent_monoid[], GraphProductMonoid)
         parent_monoid = monoid.parent_monoid[]
         m.monomial[] = words_to_monomial(parent_monoid, [m])
         return m.monomial[]
     else
-        throw(ArgumentError("Cannot convert to monomial, parent monoid is not a GraphProductMonoid"))
+        throw(
+            ArgumentError(
+                "Cannot convert to monomial, parent monoid is not a GraphProductMonoid",
+            ),
+        )
     end
 end
 

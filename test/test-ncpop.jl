@@ -11,6 +11,6 @@
     level=2
 
     # To solve the non-commutative polynomial optimization problem
-    ov,model,_=pcpop(obj,level;min=true,op_ge=op_ge,lvl_lm=level-1)
+    ov, model, _=pcpop(obj, level; min = true, op_ge = op_ge, lvl_lm = level-1)
     @test abs(ov+0.7499999767923403) < 1e-6
 end

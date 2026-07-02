@@ -28,6 +28,9 @@ __pycache__/
 # Documenter build output
 docs/build/
 
+# Local LaTeX manual source (staging area for docs/convert_manual.sh)
+docs/manual/
+
 # macOS
 .DS_Store
 

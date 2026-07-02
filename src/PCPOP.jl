@@ -1,13 +1,54 @@
 module PCPOP
 
-export @pcmonoid, @ncmonoid, @subsystem, @comms,@ortho, @pcmonoid_simple, GraphProductMonoid, npa, Projector, Unipotent, Unitary,
-add_relations!, add_mult!,build,monomial,Polynomial,
-get_monomials,mons_at_level, npa_moments_block, cyclic_npa_moments_block,
-cyclic_reduce,real_rep,variables,pcpop!, pcpop, tpop, obj_gen, cons_gen!,model_new_obj, npa_dual, basis_gen,make_trace_monoid,state,trace_monomials,
-default_solver, mosek_available
+export @pcmonoid,
+    @ncmonoid,
+    @subsystem,
+    @comms,
+    @ortho,
+    @pcmonoid_simple,
+    GraphProductMonoid,
+    npa,
+    Projector,
+    Unipotent,
+    Unitary,
+    add_relations!,
+    add_mult!,
+    build,
+    monomial,
+    Polynomial,
+    get_monomials,
+    mons_at_level,
+    npa_moments_block,
+    cyclic_npa_moments_block,
+    cyclic_reduce,
+    real_rep,
+    variables,
+    pcpop!,
+    pcpop,
+    tpop,
+    obj_gen,
+    cons_gen!,
+    model_new_obj,
+    npa_dual,
+    basis_gen,
+    make_trace_monoid,
+    state,
+    trace_monomials,
+    default_solver,
+    mosek_available
 
-using Graphs,Combinatorics,Base.Iterators,
-AbstractAlgebra ,LinearAlgebra, JuMP,SparseArrays, Mosek, MosekTools, Clarabel, StatsBase, ClusteredLowRankSolver
+using Graphs,
+    Combinatorics,
+    Base.Iterators,
+    AbstractAlgebra,
+    LinearAlgebra,
+    JuMP,
+    SparseArrays,
+    Mosek,
+    MosekTools,
+    Clarabel,
+    StatsBase,
+    ClusteredLowRankSolver
 import MutableArithmetics as MA
 include("GM.jl")
 include("var.jl")
@@ -30,12 +71,13 @@ include("pcpop_sos.jl")
 include("tpop.jl")
 include("optimization.jl")
 
-const package_types=Dict([NCMonoid=>NCWord,
-GraphProductMonoid=>GraphProductWord,
-Variable=>PCMonomial,
-AbstractMonoid=>AbstractMonomial,
-GraphProductMonoid{Variable}=>PCMonomial,
-TraceMonoid=>TraceWord])
-
+const package_types=Dict([
+    NCMonoid=>NCWord,
+    GraphProductMonoid=>GraphProductWord,
+    Variable=>PCMonomial,
+    AbstractMonoid=>AbstractMonomial,
+    GraphProductMonoid{Variable}=>PCMonomial,
+    TraceMonoid=>TraceWord,
+])
 
 end
