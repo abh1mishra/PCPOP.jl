@@ -16,7 +16,7 @@ GitHub:
 
 ```julia
 using Pkg
-Pkg.add(url = "https://github.com/abh1mishra/PCPOP.jl.git")
+Pkg.add(url = "https://github.com/abh1mishra/PCPOP.jl.git", rev = "main")
 ```
 
 !!! note "Solver requirement"
