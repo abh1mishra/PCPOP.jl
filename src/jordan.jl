@@ -367,7 +367,7 @@ function npa_canonical(
             [length(ops_principal)];
             [length(ops) for i in 1:length(op_ge)];
             [2*length(ops) for i in 1:length(op_eq)];
-            [1 for i in length(tr_ge)]
+            [1 for i in 1:length(tr_ge)]
         ],
     )
 

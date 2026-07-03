@@ -8,24 +8,8 @@ struct TraceMonoid <: AbstractMonoid
     tracial::Bool
 end
 
-function TraceMonoid(;
-    state_monoid,
-    base_monoid,
-    vertices_free,
-    vertices_states,
-    dict_free,
-    dict_states,
-    tracial,
-)
-    return TraceMonoid(
-        state_monoid,
-        base_monoid,
-        vertices_free,
-        vertices_states,
-        dict_free,
-        dict_states,
-        tracial,
-    )
+function TraceMonoid(; state_monoid, base_monoid, vertices_free, vertices_states, dict_free, dict_states, tracial)
+    return TraceMonoid(state_monoid, base_monoid, vertices_free, vertices_states, dict_free, dict_states, tracial)
 end
 
 function Base.show(io::IO, ::MIME"text/plain", tm::TraceMonoid)
@@ -38,7 +22,7 @@ function Base.show(io::IO, ::MIME"text/plain", tm::TraceMonoid)
 end
 
 # Identity element in TraceMonoid
-Base.one(TM::TraceMonoid) = one(TM.state_monoid)
+Base.one(TM::TraceMonoid) = Base.one(TM.state_monoid)
 
 # Display cyclic words
 function Base.show(io::IO, w::CyclicWord)
@@ -60,7 +44,7 @@ function coefficient(p::Polynomial, b::CyclicWord)
 end
 
 # Trace Words
-struct TraceWord{T <: AbstractMonomial} <: AbstractMonomial
+struct TraceWord{T<:AbstractMonomial} <: AbstractMonomial
     monoid::TraceMonoid
     free::T
     states::T
@@ -71,20 +55,26 @@ function Base.show(io::IO, w::TraceWord)
     println(io, w.free, w.states)
 end
 
-Base.:*(m1::TraceWord, m2::TraceWord) = trace_mult(m1, m2)
-Base.:(==)(m1::TraceWord, m2::TraceWord) = trace_equals(m1, m2)
+Base.:*(m1::TraceWord,m2::TraceWord) = trace_mult(m1, m2)
+Base.:(==)(m1::TraceWord,m2::TraceWord) = trace_equals(m1,m2)
 
-function trace_mult(m1::TraceWord, m2::TraceWord)
+function trace_mult(m1::TraceWord,m2::TraceWord)
     if m1.monoid !== m2.monoid
         error("These words do not belong to the same monoid!")
     else
-        return TraceWord(m1.monoid, m1.free*m2.free, m1.states*m2.states)
+        return TraceWord(
+            m1.monoid,
+            m1.free*m2.free,
+            m1.states*m2.states
+        )
     end
 end
 
-function trace_equals(m1::TraceWord, m2::TraceWord)
+function trace_equals(m1::TraceWord,m2::TraceWord)
     m1.monoid == m2.monoid && m1.free == m2.free && m1.states == m2.states
 end
+
+
 
 function list_projectors(M)
     projectors = []
@@ -132,13 +122,7 @@ end
     ``TM´´ has the variables in ``M´´ plus one commutative variable ``tr(w)´´
     for each monomial ``w´´ in ``M´´ with degree up to ``k´´
 """
-function make_trace_monoid(
-    M::AbstractMonoid,
-    k::Int;
-    statesymbol = "ρ",
-    monomialsymbol = "μ",
-    tracial = false,
-)
+function make_trace_monoid(M::AbstractMonoid, k::Int; statesymbol="ρ", monomialsymbol="μ", tracial=false)
     traces = mons_at_level(M, k)
     filter!(x -> !(x==one(M)), traces)
     if tracial
@@ -148,13 +132,10 @@ function make_trace_monoid(
 
     num_m = length(M.vertices)
     num_t = length(traces)
-    @eval @pcmonoid TM $(Symbol.(monomialsymbol, M.vertices)...) $(
-        Symbol.(statesymbol, "[", traces, "]")...
-    )
+    @eval @pcmonoid TM $(Symbol.(monomialsymbol, M.vertices)...) $(Symbol.(statesymbol, "[", traces, "]")...)
     μ = TM.vertices[1:num_m]
-    ρ = TM.vertices[(num_m + 1):end]
-    dict_monomials =
-        Dict{AbstractMonomial, Variable}(M.vertices[i] => μ[i] for i in 1:num_m)
+    ρ = TM.vertices[num_m+1:end]
+    dict_monomials = Dict{AbstractMonomial, Variable}(M.vertices[i] => μ[i] for i in 1:num_m)
     dict_traces = Dict{AbstractMonomial, Variable}(traces[i] => ρ[i] for i in 1:num_t)
     for (m1, m2) in M.commutations
         @comms [dict_monomials[m1], dict_monomials[m2]]
@@ -186,7 +167,7 @@ function make_trace_monoid(
         vertices_states = ρ,
         dict_free = dict_monomials,
         dict_states = dict_traces,
-        tracial = tracial,
+        tracial = tracial
     )
 end
 
@@ -217,7 +198,7 @@ end
     aρa, aρb, bρa, bρb, ρaρa, ρaρb, ρbρb
 
 """
-function trace_monomials(TM::TraceMonoid, k::Int, t::Int; tracial = false)
+function trace_monomials(TM::TraceMonoid, k::Int, t::Int; tracial=false)
     return union(mons_at_level(TM.vertices_free, k), mons_at_level(TM.vertices_states, t))
 end
 
@@ -225,7 +206,7 @@ degree(m::CyclicWord) = degree(m.ref_word)
 monomial_to_word(m::CyclicWord) = monomial_to_word(m.ref_word)
 
 using Combinatorics: partitions
-function pure_trace_monomials(TM::TraceMonoid, k::Int; tracial = false)
+function pure_trace_monomials(TM::TraceMonoid, k::Int; tracial=false)
     if k == 0
         return [one(TM)]
     end
@@ -248,37 +229,25 @@ function pure_trace_monomials(TM::TraceMonoid, k::Int; tracial = false)
     return all_monomials
 end
 
-function trace_monomials(
-    TM::TraceMonoid,
-    k::UnitRange{Int64};
-    tracial = false,
-    pure = false,
-)
-    union([trace_monomials(TM, n, tracial = tracial, pure = pure) for n in k]...)
+function trace_monomials(TM::TraceMonoid, k::UnitRange{Int64}; tracial=false, pure=false)
+    union([trace_monomials(TM, n, tracial=tracial, pure=pure) for n in k]...)
 end
 
-function trace_monomials(TM::TraceMonoid, k::Int64; tracial = false, pure = false)
+function trace_monomials(TM::TraceMonoid, k::Int64; tracial=false, pure=false)
     if pure
-        return pure_trace_monomials(TM, k, tracial = tracial)
+        return pure_trace_monomials(TM, k, tracial=tracial)   
     else
         base_monomials = mons_at_level(TM.base_monoid.vertices, k)
         if tracial
             base_monomials = cyclic_reduce.(base_monomials)
         end
-        dict_monomials =
-            Dict(n => [m for m in base_monomials if (degree(m) == n)] for n in 0:k)
-        dict_states = Dict(n => pure_trace_monomials(TM, n, tracial = tracial) for n in 0:k)
+        dict_monomials = Dict(n => [m for m in base_monomials if (degree(m) == n)] for n in 0:k)
+        dict_states = Dict(n => pure_trace_monomials(TM, n, tracial=tracial) for n in 0:k)
     end
-
+    
     all_monomials = [one(TM)]
     for n in 0:k
-        append!(
-            all_monomials,
-            [
-                state_embedding(w0, TM)*w1 for w0 in dict_monomials[n] for
-                w1 in dict_states[k - n]
-            ],
-        )
+        append!(all_monomials, [state_embedding(w0, TM)*w1 for w0 in dict_monomials[n] for w1 in dict_states[k-n]])
     end
 
     all_monomials = unique([clean_one(m, TM) for m in all_monomials])
@@ -302,7 +271,11 @@ end
 
 # Transform AbstractWord to TraceWord
 function word_to_state(word::AbstractMonomial, TM::TraceMonoid)
-    return TraceWord(TM, free_part(word, TM), state_part(word, TM))
+    return TraceWord(
+        TM,
+        free_part(word, TM),
+        state_part(word, TM)
+        )
 end
 
 # Embed word to StateWord
@@ -314,8 +287,7 @@ function state_embedding(word::AbstractMonomial, TM::TraceMonoid)
     end
 
     dict_free = TM.dict_free
-    base_word =
-        words_to_monomial(TM.state_monoid, [dict_free[a] for a in monomial_to_word(word)])
+    base_word =  words_to_monomial(TM.state_monoid, [dict_free[a] for a in monomial_to_word(word)])
 end
 
 function state_embedding(p::Polynomial, TM::TraceMonoid)
@@ -332,10 +304,7 @@ end
 """
 function state_projection(word::AbstractMonomial, TM::TraceMonoid)
     dict_free = Dict(value => key for (key, value) in TM.dict_free)
-    base_word = words_to_monomial(
-        TM.base_monoid,
-        [dict_free[a] for a in monomial_to_word(free_part(word, TM))],
-    )
+    base_word =  words_to_monomial(TM.base_monoid, [dict_free[a] for a in monomial_to_word(free_part(word, TM))])
     if base_word == one(TM.base_monoid)
         return state_part(word, TM)
     elseif TM.tracial
@@ -348,21 +317,22 @@ end
 function state_projection(word::TraceWord)
     TM = word.monoid
     dict_free = Dict(value => key for (key, value) in TM.dict_free)
-    base_word = words_to_monomial(
-        TM.base_monoid,
-        [dict_free[a] for a in monomial_to_word(word.free)],
-    )
+    base_word =  words_to_monomial(TM.base_monoid, [dict_free[a] for a in monomial_to_word(word.free)])
 
     if base_word == one(TM.base_monoid)
         return word
     elseif TM.tracial
         return TraceWord(
-            TM,
-            one(TM.state_monoid),
-            TM.dict_states[cyclic_reduce(base_word)]*word.states,
+        TM,
+        one(TM.state_monoid),
+        TM.dict_states[cyclic_reduce(base_word)]*word.states
         )
     else
-        return TraceWord(TM, one(TM.state_monoid), TM.dict_states[base_word]*word.states)
+        return TraceWord(
+        TM,
+        one(TM.state_monoid),
+        TM.dict_states[base_word]*word.states
+        )
     end
 end
 
@@ -417,7 +387,7 @@ end
     Moment relaxation Γ(u,v) = [u*v] cyclic class
     [w] = [σ(w)] for any cycle σ ∈ Sn 
     
-    Max sum_i p(i) Γ(i)
+    Max ∑ p(w) Γ(w)
     s.t. Γ(1) = 1
          Γ in PSD(k)
     
@@ -426,38 +396,25 @@ end
     Min t
     s.t. [t - p] in [TSOS(k)]    
 """
-function tpop_sos(
-    poly::Polynomial,
-    TM::TraceMonoid,
-    basis_psd;
-    equalities = [],
-    truncate = "degree",
-    tracial = false,
-)
-    if isempty(equalities)
-        matrix_psd =
-            [clean_one(state_projection(x'*y, TM), TM) for x in basis_psd, y in basis_psd]
+function tpop_sos(poly::Polynomial, TM::TraceMonoid, basis_psd; equalities = [], truncate = "degree", tracial=false)
+    if isempty(equalities)  
+        matrix_psd = [clean_one(state_projection(x'*y, TM), TM) for x in basis_psd, y in basis_psd]
     else
         max_degree = maximum([degree(g) for g in equalities])
-        if truncate == "degree"
+        if truncate == "degree"  
             truncate = max_degree
         elseif truncate < max_degree
-            throw(
-                ArgumentError(
-                    "Truncation degree $(truncate) expected at least constraints degree $(max_degree)",
-                ),
-            )
+            throw(ArgumentError("Truncation degree $(truncate) expected at least constraints degree $(max_degree)"))
         end
         # Extend equalities to state polynomials
         append!(equalities, [state_projection(r, TM) for r in equalities])
         grobner_truncated = macaulay_grobner(equalities, truncate)
-        matrix_psd = [
-            state_projection(reduce_grobner(Polynomial(x'*y), grobner_truncated), TM)
-            for x in basis_psd, y in basis_psd
-        ]
+        matrix_psd = [state_projection(reduce_grobner(Polynomial(x'*y), grobner_truncated), TM) for x in basis_psd, y in basis_psd]
         matrix_psd = reduce_duplicates(matrix_psd)
-    end
-    basis_constraints = StarAlgebras.Basis{UInt16}(unique(matrix_psd))
+    end   
+    basis_constraints = StarAlgebras.Basis{UInt16}(
+              unique(matrix_psd),
+            )
     Γ = [basis_constraints[m] for m in matrix_psd]
 
     sos_model = JuMP.Model()
@@ -488,150 +445,120 @@ end
     Moment relaxations (tracial) state polynomial optimization
 
 """
-function tpop(
-    poly::Polynomial,
-    TM::TraceMonoid,
-    basis_psd;
-    equalities = [],
-    truncate = "degree",
-    tracial = false,
-)
-    if isempty(equalities)
-        matrix_psd =
-            [clean_one(state_projection(x'*y, TM), TM) for x in basis_psd, y in basis_psd]
+
+function tpop(p::Polynomial, TM, basis_psd; equalities=[], 
+                                             inequalities=[], 
+                                             moments=[], 
+                                             normalize=true, 
+                                             tracial=false, 
+                                             truncate="degree")
+
+    cores_zero = Polynomial.(equalities)
+    cores_psd = union([Polynomial(one(p.monoid))], Polynomial.(inequalities))
+    if isempty(cores_zero)
+        cores = union(monomials.(cores_psd)...)
     else
-        max_degree = maximum([degree(g) for g in equalities])
-        if truncate == "degree"
-            truncate = max_degree
-        elseif truncate < max_degree
-            throw(
-                ArgumentError(
-                    "Truncation degree $(truncate) expected at least constraints degree $(max_degree)",
-                ),
-            )
-        end
-        # Extend equalities to state polynomials
-        append!(equalities, [state_projection(r, TM) for r in equalities])
-        grobner_truncated = macaulay_grobner(equalities, truncate)
-        matrix_psd = [
-            state_projection(reduce_grobner(Polynomial(x'*y), grobner_truncated), TM)
-            for x in basis_psd, y in basis_psd
-        ]
-        matrix_psd = reduce_duplicates(matrix_psd)
+        cores = union(union(monomials.(cores_psd)...), union(monomials.(cores_zero)...)) 
     end
-    basis_constraints = StarAlgebras.Basis{UInt16}(unique(matrix_psd))
-    Γ = [basis_constraints[m] for m in matrix_psd]
+    matrix_psd = Dict(s => [tracial_reduce(state_projection(x'*s*y,TM),tracial=tracial) for x in basis_psd, y in basis_psd] for s in cores)
+
+    basis_constraints = StarAlgebras.Basis{UInt16}(
+        unique(union([union(matrix_psd[s]) for s in cores]...)),
+        )
+
+    Γ = Dict(s=> [(basis_constraints[m]) for m in matrix_psd[s]] for s in cores)
+
+    if normalize
+        moments = union([(Polynomial(one(p.monoid)), 1)], moments)
+    end
 
     model = JuMP.Model()
     JuMP.@variable model y[1:length(basis_constraints)]
 
     # Objective function
-    objective = sum(c*y[basis_constraints[m]] for (m, c) in state_projection(poly, TM))
+    p = state_projection(p, TM)
+    if tracial
+        p = cyclic_reduce(p)
+        moments = [(cyclic_reduce(Polynomial(m[1])), m[2]) for m in moments]
+    end
+    objective = sum(c*y[basis_constraints[m]] for (m,c) in p)
     JuMP.@objective model Max objective
 
-    # Normalization y(1) = 1
-    JuMP.@constraint model y[basis_constraints[one(TM)]] == 1
+    # Moment constraints
+    for (s,b) in moments
+        JuMP.@constraint model sum(c*y[basis_constraints[m]] for (m,c) in s) == b
+    end
 
-    # Positivity Γ(y) ≥ 0
-    P = [y[i] for i in Γ]
-    JuMP.@constraint model P in PSDCone()
+    # Constraints
+    P = Dict(s=>[y[i] for i in Γ[s]] for s in cores)
+    # Positivity Γ(y) ≥ 0   
+    for s in cores_psd
+        JuMP.@constraint model sum(c*P[m] for (m, c) in s) in PSDCone()
+    end
+    # Zero Γ(y) = 0
+    for s in cores_zero
+        JuMP.@constraint model sum(c*P[m] for (m, c) in s) .== 0
+    end
 
     return model
 end
 
-function tpop(p::Polynomial, k::Int; equalities = [], truncate = "degree", tracial = false)
-    TM = make_trace_monoid(p.monoid, 2*k, tracial = tracial)
-    basis_psd = trace_monomials(TM, 0:k, tracial = tracial)
 
-    return tpop(
-        state_embedding(p, TM),
-        TM,
-        basis_psd,
-        equalities = equalities,
-        truncate = truncate,
-        tracial = tracial,
-    )
+function tpop(p::Polynomial, k::Int; equalities=[], inequalities=[], moments=[], normalize=true, truncate = "degree", tracial=false)
+    TM = make_trace_monoid(p.monoid, 2*k, tracial=tracial)
+    basis_psd = trace_monomials(TM, 0:k, tracial=tracial)
+
+    return tpop(state_embedding(p, TM), TM, basis_psd, equalities=equalities, 
+                                                inequalities=inequalities, 
+                                                moments=moments, 
+                                                normalize=normalize, 
+                                                tracial=tracial, 
+                                                truncate=truncate)
 end
 
-function tpop(
-    p::Polynomial,
-    k::Int,
-    t::Int;
-    equalities = [],
-    truncate = "degree",
-    tracial = false,
-)
-    TM = make_trace_monoid(p.monoid, 2*k, tracial = tracial)
-    basis_psd = trace_monomials(TM, k, t, tracial = tracial)
+function tpop(p::Polynomial, k::Int, t::Int; equalities=[], inequalities=[], moments=[], normalize=true, truncate = "degree", tracial=false)
+    TM = make_trace_monoid(p.monoid, 2*k, tracial=tracial)
+    basis_psd = trace_monomials(TM, k, t, tracial=tracial)
 
-    return tpop(
-        state_embedding(p, TM),
-        TM,
-        basis_psd,
-        equalities = equalities,
-        truncate = truncate,
-        tracial = tracial,
-    )
+    return tpop(state_embedding(p, TM), TM, basis_psd, equalities=equalities, 
+                                                        inequalities=inequalities, 
+                                                        moments=moments, 
+                                                        normalize=normalize, 
+                                                        tracial=tracial, 
+                                                        truncate=truncate)
 end
 
-function tpop_constraints(
-    p::Polynomial,
-    TM::TraceMonoid,
-    basis_psd;
-    inequalities = [],
-    equalities = [],
-    truncate = "degree",
-    tracial = false,
-    localize = false,
-)
+function tpop_constraints(p::Polynomial, TM::TraceMonoid, basis_psd; inequalities=[], equalities = [], truncate = "degree", tracial=false, localize=false)
     if localize
-        inequalities = union(inequalities, equalities, (-1) .* equalities)
+        inequalities = union(inequalities, equalities, (-1).*equalities)
         equalities = []
     end
-
+    
     cores_psd = union([Polynomial(one(p.monoid))], Polynomial.(inequalities))
     cores = union(monomials.(cores_psd)...)
     if isempty(equalities)
-        matrix_psd = Dict(
-            s=>[
-                clean_one(state_projection(x'*s*y, TM), TM) for
-                x in basis_psd, y in basis_psd
-            ] for s in cores
-        )
+        matrix_psd = Dict(s=>[clean_one(state_projection(x'*s*y, TM), TM) for x in basis_psd, y in basis_psd] for s in cores)
     else
         max_degree = maximum([degree(g) for g in equalities])
-        if truncate == "degree"
+        if truncate == "degree"  
             truncate = max_degree
         elseif truncate < max_degree
-            throw(
-                ArgumentError(
-                    "Truncation degree $(truncate) expected at least constraints degree $(max_degree)",
-                ),
-            )
+            throw(ArgumentError("Truncation degree $(truncate) expected at least constraints degree $(max_degree)"))
         end
         append!(equalities, [state_projection(r, TM) for r in equalities])
         grobner_truncated = macaulay_grobner(equalities, truncate)
-        matrix_psd = Dict(
-            s=>tracial_reduce.(
-                reduce_duplicates([
-                    state_projection(
-                        reduce_grobner(Polynomial(x'*s*y), grobner_truncated),
-                        TM,
-                    ) for x in basis_psd, y in basis_psd
-                ]),
-                tracial = tracial,
-            ) for s in cores
-        )
-    end
-    basis_constraints =
-        StarAlgebras.Basis{UInt16}(unique(union([union(matrix_psd[s]) for s in cores]...)))
-    Γ = Dict(s => [(basis_constraints[m]) for m in matrix_psd[s]] for s in cores)
+        matrix_psd = Dict(s=>tracial_reduce.(reduce_duplicates([state_projection(reduce_grobner(Polynomial(x'*s*y), grobner_truncated), TM) for x in basis_psd, y in basis_psd]), tracial=tracial) for s in cores)
+    end   
+    basis_constraints = StarAlgebras.Basis{UInt16}(
+              unique(union([union(matrix_psd[s]) for s in cores]...)),
+            )
+    Γ = Dict(s=> [(basis_constraints[m]) for m in matrix_psd[s]] for s in cores)
 
     model = JuMP.Model()
     JuMP.@variable model y[1:length(basis_constraints)]
-
+    
     # Objective function
-    objective = sum(c*y[basis_constraints[m]] for (m, c) in p)
+    objective = sum(c*y[basis_constraints[m]] for (m,c) in p)
     JuMP.@objective model Max objective
 
     # Normalization y(1) = 1
@@ -639,7 +566,7 @@ function tpop_constraints(
 
     # Positivity Γ(y) ≥ 0
     for s in cores_psd
-        P = sum(c*[y[i] for i in Γ[m]] for (m, c) in s)
+        P = sum(c*[y[i] for i in Γ[m]] for (m,c) in s)
         JuMP.@constraint model P in PSDCone()
     end
 
@@ -654,3 +581,4 @@ function clean_one(m::AbstractMonomial, TM::TraceMonoid)
     #return words_to_monomial(TM.state_monoid, m_word)
     return m
 end
+

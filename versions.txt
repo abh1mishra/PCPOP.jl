@@ -7,6 +7,7 @@ GroupsCore 0.4.2
 MutableArithmetics 1.6.4
 AbstractAlgebra 0.44.11
 RowEchelon 0.2.1
+SDPSymmetryReduction 0.2.1
 
 non-essential 
 
