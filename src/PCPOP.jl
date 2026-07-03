@@ -35,7 +35,8 @@ export @pcmonoid,
     state,
     trace_monomials,
     default_solver,
-    mosek_available
+    mosek_available,
+    OnLetters
 
 using Graphs,
     Combinatorics,
