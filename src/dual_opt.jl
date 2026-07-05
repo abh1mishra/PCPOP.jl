@@ -8,12 +8,20 @@ function npa_moment(
     operators::Vector,
     Zsi::Symmetric{VariableRef, Matrix{VariableRef}};
     cPoly = 1,
+    progress=false
 )
     N = length(operators)
     iops = collect(enumerate(operators))
     moment_D = Dict{AbstractMonomial, AbstractJuMPScalar}([])
+    if progress
+        println("Localizing at $(cPoly)")
+        prog_obj = Progress(N*(N+1)÷2, desc = "Localizing at $(cPoly)"; showspeed = true, output = stdout, dt = 0.0)
+    end
     for (i, x) in iops
         for (j, y) in iops[i:end]
+            if progress
+                next!(prog_obj)
+            end
             p = Polynomial(real_rep(conj(x)*cPoly*y))
             for (m, c) in p
                 term = c*Zsi[i, j]
@@ -37,12 +45,25 @@ function cyclic_npa_moment(
     operators::Vector,
     Zsi::Symmetric{VariableRef, Matrix{VariableRef}};
     cPoly = 1,
+    progress = false
 )
     N = length(operators)
     iops = collect(enumerate(operators))
     moment_D = Dict{AbstractMonomial, AbstractJuMPScalar}([])
+    if progress
+        prog_obj = Progress(
+            N*(N+1)÷2,
+            desc = "Creation of moment matrix for polynomial $(cPoly)";
+            showspeed = true,
+            output = stdout,
+            dt = 0.0,
+        )
+    end
     for (i, x) in iops
         for (j, y) in iops[i:end]
+            if progress
+                next!(prog_obj)
+            end
             p = Polynomial(conj(x)*cPoly*y)
             for (m, c) in p
                 m_, m__ = cyclic_reduce(m), cyclic_reduce(m')
@@ -89,6 +110,7 @@ function npa_dual(
     tracial = false,
     normalize = true,
     change_objective = false,
+    progress = false
 )
     model=Model()
 
@@ -113,8 +135,8 @@ function npa_dual(
     Zmge = [@variable(model, lower_bound=0) for i in tr_ge]
 
     LMI = [
-        tracial ? cyclic_npa_moment(ops_i, Zs[i]; cPoly = g) :
-        npa_moment(ops_i, Zs[i]; cPoly = g) for
+        tracial ? cyclic_npa_moment(ops_i, Zs[i]; cPoly = g, progress = progress) :
+        npa_moment(ops_i, Zs[i]; cPoly = g, progress = progress) for
         (i, (g, ops_i)) in enumerate(pair_mat_ops)
     ]
 

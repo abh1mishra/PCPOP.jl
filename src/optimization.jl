@@ -68,6 +68,7 @@ function pcpop(
     canonical = true,
     extra_zeros = false,
     silent = true,
+    progress = false
 )
     basis, basis_principal = basis_gen(p, k, op_eq, op_ge, tr_eq, tr_ge, list_vars, lvl_lm)
     return pcpop(
@@ -90,6 +91,7 @@ function pcpop(
         canonical = canonical,
         extra_zeros = extra_zeros,
         silent = silent,
+        progress = progress
     )
 end
 
@@ -151,6 +153,7 @@ function pcpop(
     canonical = true,
     extra_zeros = false,
     silent = true,
+    progress = false
 )
     if is_number(p)
         @warn "The objective function is a constant, it is a feasibility check"
@@ -182,6 +185,7 @@ function pcpop(
             normalize = normalize,
             tracial = tracial,
             extra_zeros = extra_zeros,
+            progress = progress,
         )
     elseif primal && !canonical
         model, Γ, PM = npa_nc(
@@ -195,6 +199,7 @@ function pcpop(
             tr_ge = tr_ge,
             normalize = normalize,
             tracial = tracial,
+            progress = progress,
         )
     else
         model, Γ, Zs = npa_dual(
@@ -208,6 +213,7 @@ function pcpop(
             tr_ge = tr_ge,
             normalize = normalize,
             tracial = tracial,
+            progress = progress
         )
     end
 

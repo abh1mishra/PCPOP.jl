@@ -49,7 +49,8 @@ using Graphs,
     MosekTools,
     Clarabel,
     StatsBase,
-    ClusteredLowRankSolver
+    ClusteredLowRankSolver,
+    ProgressMeter
 import MutableArithmetics as MA
 include("GM.jl")
 include("var.jl")

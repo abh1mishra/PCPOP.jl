@@ -8,4 +8,4 @@ end
 build(M)
 # Optimize semidefinite relaxation
 obj = sum(x[i]*x[(i % 5) + 1] for i in 1:5)
-model, _ = pcpop(obj, 2; min = true)
+ov,model, _ = pcpop(obj, 2; min = true)

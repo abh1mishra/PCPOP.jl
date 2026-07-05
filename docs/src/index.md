@@ -33,8 +33,15 @@ Pkg.add(url = "https://github.com/abh1mishra/PCPOP.jl.git", rev = "main")
 ```julia
 using PCPOP
 
-# Build a graph-product monoid, declare variables/relations, and optimize.
-# See the examples/ directory in the repository for full, runnable scripts.
+# CHSH inequality: maximal quantum value via the NPA hierarchy
+@pcmonoid M a[2,0] b[2,0]
+Unipotent.([a; b])
+@comms a b
+build(M)
+
+p = a[1]*b[1] + a[1]*b[2] + a[2]*b[1] - a[2]*b[2]
+val, model, _ = pcpop(p, 1; min = false)
+println("Optimal value ≈ ", val)   # ≈ 2√2
 ```
 
 ## Contents

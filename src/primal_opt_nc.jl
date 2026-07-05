@@ -4,6 +4,7 @@ function cyclic_npa_moments_block_nc(
     cPoly = 1,
     mons_D = Dict([]),
     eq = false,
+    progress = false,
 ) where {M <: AbstractMonomial}
 
     # Get the number of monomials
@@ -12,9 +13,22 @@ function cyclic_npa_moments_block_nc(
     # Initialize the matrix of JuMP variables
     moments_matrix = Matrix{JuMP.AffExpr}(undef, num_monomials, num_monomials)
 
+    if progress
+        prog_obj = Progress(
+            num_monomials^2,
+            desc = "Creation of moment matrix for polynomial $(cPoly)";
+            showspeed = true,
+            output = stdout,
+            dt = 0.0,
+        )
+    end
+
     # Iterate over the list of monomials to fill the matrix
     for i in 1:num_monomials
         for j in 1:num_monomials
+            if progress
+                next!(prog_obj)
+            end
 
             # Compute the product of the monomials
             monomial_product = list_monomials[i]' * cPoly * list_monomials[j]
@@ -58,6 +72,7 @@ function npa_moments_block_nc(
     cPoly = 1,
     mons_D = Dict([]),
     eq = false,
+    progress = false,
 ) where {M <: AbstractMonomial}
 
     # Get the number of monomials
@@ -66,9 +81,22 @@ function npa_moments_block_nc(
     # Initialize the matrix of JuMP variables
     moments_matrix = Matrix{JuMP.AffExpr}(undef, num_monomials, num_monomials)
 
+    if progress
+        prog_obj = Progress(
+            num_monomials*(num_monomials+1)÷2,
+            desc = "Creation of moment matrix for polynomial $(cPoly)";
+            showspeed = true,
+            output = stdout,
+            dt = 0.0,
+        )
+    end
+
     # Iterate over the list of monomials to fill the matrix
     for i in 1:num_monomials
         for j in i:num_monomials
+            if progress
+                next!(prog_obj)
+            end
             # Compute the product of the monomials
             monomial_product =
                 real_rep(Polynomial(list_monomials[i]' * cPoly * list_monomials[j]))
@@ -113,12 +141,14 @@ function npa_nc(
     tr_ge = [],
     tracial = false,
     normalize = true,
+    progress = false,
 )
     model=Model()
 
     principal_moments_matrix, mons_D =
-        tracial ? cyclic_npa_moments_block_nc(ops_principal, model) :
-        npa_moments_block_nc(ops_principal, model)
+        tracial ?
+        cyclic_npa_moments_block_nc(ops_principal, model; progress = progress) :
+        npa_moments_block_nc(ops_principal, model; progress = progress)
     # Add the constraints for the principal moment matrix
     if !isempty(tr_eq)
         for i in 1:length(tr_eq)
@@ -161,9 +191,21 @@ function npa_nc(
     if !isempty(op_ge)
         for i in 1:length(op_ge)
             if tracial
-                cyclic_npa_moments_block_nc(ops, model; cPoly = op_ge[i], mons_D = mons_D)
+                cyclic_npa_moments_block_nc(
+                    ops,
+                    model;
+                    cPoly = op_ge[i],
+                    mons_D = mons_D,
+                    progress = progress,
+                )
             else
-                npa_moments_block_nc(ops, model; cPoly = op_ge[i], mons_D = mons_D)
+                npa_moments_block_nc(
+                    ops,
+                    model;
+                    cPoly = op_ge[i],
+                    mons_D = mons_D,
+                    progress = progress,
+                )
             end
         end
     end
@@ -176,6 +218,7 @@ function npa_nc(
                     cPoly = op_eq[i],
                     mons_D = mons_D,
                     eq = true,
+                    progress = progress,
                 )
 
             else
@@ -185,6 +228,7 @@ function npa_nc(
                     cPoly = op_eq[i],
                     mons_D = mons_D,
                     eq = true,
+                    progress = progress,
                 )
             end
         end

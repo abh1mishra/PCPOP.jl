@@ -7,6 +7,7 @@ function cyclic_npa_moments_block!(
     mons_pos_D = Dict([]),
     offset = 0,
     extra_zeros = false,
+    progress = false,
 ) where {M <: AbstractMonomial}
 
     # Get the number of monomials
@@ -14,9 +15,22 @@ function cyclic_npa_moments_block!(
 
     # Initialize the matrix of JuMP variables
 
+    if progress
+        prog_obj = Progress(
+            num_monomials*(num_monomials+1)÷2,
+            desc = "Creation of moment matrix for polynomial $(cPoly)";
+            showspeed = true,
+            output = stdout,
+            dt = 0.0,
+        )
+    end
+
     # Iterate over the list of monomials to fill the matrix
     for i in 1:num_monomials
         for j in i:num_monomials
+            if progress
+                next!(prog_obj)
+            end
             if cPoly == 1
                 m = list_monomials[i]' * list_monomials[j]
                 m1, m2 = cyclic_reduce(m), cyclic_reduce(m')
@@ -80,13 +94,27 @@ function npa_moments_block!(
     mons_pos_D = Dict([]),
     offset = 0,
     extra_zeros = false,
+    progress = false,
 ) where {M <: AbstractMonomial}
     # Get the number of monomials
     num_monomials = length(list_monomials)
 
+    if progress
+        prog_obj = Progress(
+            num_monomials*(num_monomials+1)÷2,
+            desc = "Creation of moment matrix for polynomial $(cPoly)";
+            showspeed = true,
+            output = stdout,
+            dt = 0.0,
+        )
+    end
+
     # Iterate over the list of monomials to fill the matrix
     for i in 1:num_monomials
         for j in i:num_monomials
+            if progress
+                next!(prog_obj)
+            end
             if cPoly == 1
                 m = real_rep(list_monomials[i]' * list_monomials[j])
                 if m == 0
@@ -148,6 +176,7 @@ function npa(
     tracial = false,
     normalize = true,
     extra_zeros = false,
+    progress = false,
 )
     model=Model()
     tsize=sum(
@@ -167,7 +196,16 @@ function npa(
             tsize,
             model;
             extra_zeros = extra_zeros,
-        ) : npa_moments_block!(ops_principal, X, tsize, model; extra_zeros = extra_zeros)
+            progress = progress,
+        ) :
+        npa_moments_block!(
+            ops_principal,
+            X,
+            tsize,
+            model;
+            extra_zeros = extra_zeros,
+            progress = progress,
+        )
     offset = length(ops_principal)
     for i in 1:length(op_ge)
         if tracial
@@ -180,6 +218,7 @@ function npa(
                 mons_pos_D = mons_pos_D,
                 offset = offset,
                 extra_zeros = extra_zeros,
+                progress = progress,
             )
         else
             npa_moments_block!(
@@ -191,6 +230,7 @@ function npa(
                 mons_pos_D = mons_pos_D,
                 offset = offset,
                 extra_zeros = extra_zeros,
+                progress = progress,
             )
         end
         offset += length(ops)
@@ -207,6 +247,7 @@ function npa(
                 mons_pos_D = mons_pos_D,
                 offset = offset,
                 extra_zeros = extra_zeros,
+                progress = progress,
             )
             offset += length(ops)
             cyclic_npa_moments_block!(
@@ -218,6 +259,7 @@ function npa(
                 mons_pos_D = mons_pos_D,
                 offset = offset,
                 extra_zeros = extra_zeros,
+                progress = progress,
             )
             offset += length(ops)
 
@@ -231,6 +273,7 @@ function npa(
                 mons_pos_D = mons_pos_D,
                 offset = offset,
                 extra_zeros = extra_zeros,
+                progress = progress,
             )
             offset += length(ops)
             npa_moments_block!(
@@ -242,6 +285,7 @@ function npa(
                 mons_pos_D = mons_pos_D,
                 offset = offset,
                 extra_zeros = extra_zeros,
+                progress = progress,
             )
             offset += length(ops)
         end

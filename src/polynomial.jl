@@ -51,6 +51,7 @@ end
 function Base.show(io::IO, mime::MIME"text/print", p::Polynomial)
     return _show(io, mime, p)
 end
+Base.show(io::IO, p::Polynomial) = _show(io, MIME"text/plain"(), p)
 Base.print(p::Polynomial) = _show(stdout, MIME"text/plain", p)
 function _show(io::IO, mime, p::Polynomial)
     if p==0
