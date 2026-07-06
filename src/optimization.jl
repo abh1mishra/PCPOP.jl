@@ -68,7 +68,9 @@ function pcpop(
     canonical = true,
     extra_zeros = false,
     silent = true,
-    progress = false
+    progress = false,
+    complex = false,
+    epsilon = Base.rtoldefault(Float64)
 )
     basis, basis_principal = basis_gen(p, k, op_eq, op_ge, tr_eq, tr_ge, list_vars, lvl_lm)
     return pcpop(
@@ -91,7 +93,9 @@ function pcpop(
         canonical = canonical,
         extra_zeros = extra_zeros,
         silent = silent,
-        progress = progress
+        progress = progress,
+        complex = complex,
+        epsilon = epsilon
     )
 end
 
@@ -153,7 +157,9 @@ function pcpop(
     canonical = true,
     extra_zeros = false,
     silent = true,
-    progress = false
+    progress = false,
+    complex = false,
+    epsilon = Base.rtoldefault(Float64)
 )
     if is_number(p)
         @warn "The objective function is a constant, it is a feasibility check"
@@ -171,7 +177,7 @@ function pcpop(
             tracial = tracial,
             extra_zeros = extra_zeros,
         )
-        model, _, _ = jordan_reduce(C, A, b, complex = true, diagonalize = block_diag)
+        model, _, _ = jordan_reduce(C, A, b, complex = complex, epsilon=epsilon, diagonalize = block_diag)
     elseif primal && canonical
         model, Γ, X = npa(
             p,
