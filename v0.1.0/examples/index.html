@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Examples · PCPOP.jl</title><meta name="title" content="Examples · PCPOP.jl"/><meta property="og:title" content="Examples · PCPOP.jl"/><meta property="twitter:title" content="Examples · PCPOP.jl"/><meta name="description" content="Documentation for PCPOP.jl."/><meta property="og:description" content="Documentation for PCPOP.jl."/><meta property="twitter:description" content="Documentation for PCPOP.jl."/><meta property="og:url" content="https://abh1mishra.github.io/PCPOP.jl/examples/"/><meta property="twitter:url" content="https://abh1mishra.github.io/PCPOP.jl/examples/"/><link rel="canonical" href="https://abh1mishra.github.io/PCPOP.jl/examples/"/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">PCPOP.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../background/">Theoretical Background</a></li><li><a class="tocitem" href="../tutorial/">Tutorial</a></li><li class="is-active"><a class="tocitem" href>Examples</a><ul class="internal"><li><a class="tocitem" href="#Bell-scenarios"><span>Bell scenarios</span></a></li><li><a class="tocitem" href="#Contextuality-scenarios"><span>Contextuality scenarios</span></a></li><li><a class="tocitem" href="#Conditional-entropies"><span>Conditional entropies</span></a></li><li><a class="tocitem" href="#Quantum-networks"><span>Quantum networks</span></a></li><li><a class="tocitem" href="#Uncertainty-relations"><span>Uncertainty relations</span></a></li><li><a class="tocitem" href="#Almost-qudits"><span>Almost qudits</span></a></li><li><a class="tocitem" href="#Information-capacity"><span>Information capacity</span></a></li></ul></li><li><a class="tocitem" href="../api/">API</a></li><li><a class="tocitem" href="../references/">References</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Examples</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Examples</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/abh1mishra/PCPOP.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/abh1mishra/PCPOP.jl/blob/main/docs/src/examples.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Applications"><a class="docs-heading-anchor" href="#Applications">Applications</a><a id="Applications-1"></a><a class="docs-heading-anchor-permalink" href="#Applications" title="Permalink"></a></h1><p>In this chapter we review a collection of polynomial optimization problems that appear in current research in quantum information science. These include: characterizing quantum correlations in variations of Bell scenarios, contextuality scenarios and quantum networks, computing uncertainty relations and quantum relative entropies, and the security analysis of quantum cryptography protocols.</p><h2 id="Bell-scenarios"><a class="docs-heading-anchor" href="#Bell-scenarios">Bell scenarios</a><a id="Bell-scenarios-1"></a><a class="docs-heading-anchor-permalink" href="#Bell-scenarios" title="Permalink"></a></h2><p>Let us denote <span>$B(n, m, k)$</span> the <em>Bell scenario</em> with <span>$n$</span> parties, each with <span>$m$</span> measurement choices, each with <span>$k$</span> possible outcomes.</p><h3 id="Bell-inequalities"><a class="docs-heading-anchor" href="#Bell-inequalities">Bell inequalities</a><a id="Bell-inequalities-1"></a><a class="docs-heading-anchor-permalink" href="#Bell-inequalities" title="Permalink"></a></h3><p>Consider the Bell scenario <span>$B(2,2,2)$</span>, which involves four dichotomic measurements <span>$a_0, a_1, b_0, b_1$</span>. The maximal quantum value of the Clauser-Horne-Shimony-Holt (CHSH) [<a href="../references/#clauser1969proposed">39</a>] functional is the optimal value of the following polynomial optimzation problem </p><p class="math-container">\[\begin{align}
+    \sup \quad &amp; a_0 b_0 + a_0 b_1 + a_1 b_0 - a_1 b_1  \\
+    \operatorname{s.t.} \quad &amp; a_i^2 = 1 &amp; &amp;\forall i \in \{0,1\} \\ 
+    &amp; b_i^2 = 1 &amp; &amp;i \in \{0,1\} \\
+    &amp; a_i b_j = b_j a_i &amp; &amp;\forall i,j \in \{0,1\} 
+\end{align}\]</p><p>This is precisely the example that we considered in the previous chapter. The first level relaxation already achieves the optimal value <span>$2\sqrt{2}$</span> up to numerical precision.</p><pre><code class="language-julia hljs"># Initialize partially-commutative monoid with 4 variables
+@pcmonoid M a[2,0] b[2,0]
+# Set variables to unitaries
+Unipotent.([a;b])
+# Set commutation relations
+@comms a b
+# Build the monoid
+build(M)
+# Objective function
+p = a[1]*b[1] + a[1]*b[2] + a[2]*b[1] - a[2]*b[2]
+# Optimization of the semidefinite relaxation
+val, model, _ = pcpop(p, 1; min=false) 
+println(&quot;Optimal value is &quot;, val)</code></pre><h3 id="Routed-Bell-Scenario"><a class="docs-heading-anchor" href="#Routed-Bell-Scenario">Routed Bell Scenario</a><a id="Routed-Bell-Scenario-1"></a><a class="docs-heading-anchor-permalink" href="#Routed-Bell-Scenario" title="Permalink"></a></h3><p>Consider the modified Bell scenario introduced in [<a href="../references/#chaturvedi2024extending">40</a>, <a href="../references/#Lobo_2024">41</a>], where Bob possesses two measurement setups: a <em>short range</em> setup situated close to the source of quantum states and a <em>long range</em> setup situated far away. This routed configuration is designed to certify loophole-free Bell non-locality over long distances. Although it is experimentally challenging to keep quantum effects over large distances, strong quantum correlations between Alice and Bob&#39;s short range device (e.g. certified by a large CHSH value) can be exploited to put additional constraints over the classical correlations between Alice and Bob&#39;s long range device, which are termed <em>short-range quantum</em> correlations.</p><p>As an example, consider the routed Bell scenario with two dichotomic measurements. The maximal short-range quantum value for CHSH between Alice and Bob&#39;s long range device conditioned to a maximal quantum value for CHSH between Alice and Bob&#39;s short range device corresponds with the optimal value of the following optimization problem [<a href="../references/#Lobo_2024">41</a>] </p><p class="math-container">\[\begin{align}
+    \sup \quad &amp; a_0 b_{0,L} + a_0 b_{1,L} + a_1 b_{0,L} - a_1 b_{1,L} \\
+    \operatorname{s.t.} \quad &amp; a_i^2 = \mathbf{1}&amp; &amp;\forall i \in \{0,1\} \\ 
+    &amp; b_{i,S}^2 = \mathbf{1}&amp; &amp;i \in \{0,1\} \\
+    &amp; b_{i,L}^2 = \mathbf{1}&amp; &amp;i \in \{0,1\} \\
+    &amp; a_i b_{j,S} = b_{j,S} a_i &amp; &amp;\forall i,j \in \{0,1\} \\
+    &amp; a_i b_{j,L} = b_{j,L} a_i &amp; &amp;\forall i,j \in \{0,1\}  \\
+    &amp; b_{i,L} b_{j,L} = b_{j,L} b_{i,L} &amp; &amp;\forall i,j \in \{0,1\}  \\
+    &amp; a_0 b_{0,S} + a_0 b_{1,S} + a_1 b_{0,S} - a_1 b_{1,S} = 2\sqrt{2} 
+\end{align}\]</p><p>This has optimal value <span>$2$</span>, which is attained with the second level semidefinite relaxation up to numerical precision. The implementation in <code>PCPOP</code> is shown below.</p><pre><code class="language-julia hljs"># Initialize monoid with Alice and Bob (short and large) setups
+@pcmonoid M A[2,0] BS[2,0] BL[2,0]
+Unipotent.(M.vertices)
+@comms A BS
+@comms A BL
+@comms BL # joint measurability
+build(M)
+# Objective function
+obj = A[1]*BL[1] + A[1]*BL[2] + A[2]*BL[1] - A[2]*BL[2]
+# Constraints
+T = A[1]*BS[1] + A[1]*BS[2] + A[2]*BS[1] - A[2]*BS[2]
+tr_eq = [[T, 2*sqrt(2)]]
+# Semidefinite relaxation
+val, model, _=pcpop(obj, 2; tr_eq=tr_eq, min=false)
+println(&quot;Optimal value is &quot;, val)</code></pre><h3 id="Genuine-multipartite-nonlocality"><a class="docs-heading-anchor" href="#Genuine-multipartite-nonlocality">Genuine multipartite nonlocality</a><a id="Genuine-multipartite-nonlocality-1"></a><a class="docs-heading-anchor-permalink" href="#Genuine-multipartite-nonlocality" title="Permalink"></a></h3><p>Consider the problem of certifying genuine multipartite nonlocality in a Bell scenario with <span>$n$</span> parties and two dichotomic measurements proposed in [<a href="../references/#adhikary2024self">42</a>]. This problem involves only linear constraints on the expectation values of the operators under the state, therefore it is not necessary to consider the state polynomial optimization framework. The problem for <span>$n = 2$</span> reads: </p><p class="math-container">\[\begin{align}
+       \inf \quad &amp; a_1 b_1 \\
+    \operatorname{s.t} \quad &amp; [a_i,b_j] =0 &amp; \forall i,j \in \{1,2\} \, ,  \\
+    &amp; a_i^2-a_i = b_j^2-b_j = 0 &amp; \forall i,j \in \{1,2\} \, ,  \\
+    &amp; \rho(a_2  b_1) = \rho(a_1  b_2) = 0 \, ,  \\
+    &amp; \rho((1-a_2)  (1-b_2)) = 0 \, . 
+\end{align}\]</p><p>The second level relaxation matches the upper bound <span>$0.0902$</span> obtained in [<a href="../references/#adhikary2024self">42</a>] up to numerical precision. The implementation in <code>PCPOP</code> is shown below.</p><pre><code class="language-julia hljs"># Initialize partially-commutative monoid with 4 variables
+@pcmonoid M a[2,0] b[2,0]
+# Set variables to projectors
+Projector.([a;b])
+# Set commutation relations
+@comms a b
+# Build the monoid
+build(M)
+# Objective function
+obj = a[1]*b[1]
+# Linear constraints on the moments
+tr_eq = [[a[2]*b[1], 0],
+         [a[1]*b[2], 0],
+         [(1-a[2])*(1-b[2]), 0]]
+# Optimization of the semidefinite relaxation
+val, model,_ = pcpop(obj, 2; tr_eq=tr_eq, min=false)
+println(&quot;Optimal value is &quot;, val)</code></pre><h3 id="Overlapping-Bell-scenario"><a class="docs-heading-anchor" href="#Overlapping-Bell-scenario">Overlapping Bell scenario</a><a id="Overlapping-Bell-scenario-1"></a><a class="docs-heading-anchor-permalink" href="#Overlapping-Bell-scenario" title="Permalink"></a></h3><p>Consider a physical system with two unitary operators acting over each of the three separate components <span>$A$</span>, <span>$B$</span> and <span>$C$</span>, and two more unitary operators acting jointly over components <span>$BC$</span>. The maximal quantum value of three CHSH functionals among <span>$A$</span> and <span>$B$</span>, <span>$C$</span> and <span>$BC$</span> is the optimal value of the polynomial optimization problem </p><p class="math-container">\[\begin{align}
+       \sup \quad &amp;  a_0(b_0 + b_1 + c_0 + c_1 + x_0 + x_1) + a_1(b_0 - b_1 + c_0 - c_1 + x_0 - x_1) \\
+    \operatorname{s.t} \quad &amp; [a_i,b_j] =0 \, \hspace{3em} a_i^2 = \mathbf{1}\, ,  \\
+    &amp; [a_i,c_j] =0 \hspace{3em} b_i^2 = \mathbf{1}\,  ,  \\
+    &amp; [b_i,c_j] =0 \hspace{3em} c_i^2 = \mathbf{1}\,  ,  \\
+    &amp; [a_i,x_j] =0 \hspace{3em} x_i^2 = \mathbf{1}\,  . 
+\end{align}\]</p><p>The effects of overlapping measurements in Bell scenarios can be used to witness physical dimensions [<a href="../references/#moran2023bell">43</a>], but here we consider no constraints on the dimension. The second level semidefinite relaxations already shows a form of Bell monogamy for these correlations: the optimal value is <span>$2\sqrt{2} + 4$</span> up to numerical precision, which corresponds with one inequality attaining the maximal quantum value and the other two classical values. The implementation in <code>PCPOP</code> is shown below. The implementation with graph products offers a short-cut to encode commutation relations. Although there is no significant gain in this simple scenario, it is shown for illustrative purposes.</p><pre><code class="language-julia hljs"># Initialize local monoids
+@ncmonoid A a1 a2
+@ncmonoid B b1 b2
+@ncmonoid C c1 c2
+@ncmonoid BC x1 x2
+Unipotent.([a1, a2, b1, b2, c1, c2, x1, x2])
+# Build global monoid
+M = GraphProductMonoid(&quot;M&quot;,[A, B, C, BC])
+@comms A B C
+@comms A BC
+build(M)
+# Objective function.
+p  = a1*(b1 + b2) + a2*(b1 - b2)
+p += a1*(c1 + c2) + a2*(c1 - c2)
+p += a1*(x1 + x2) + a2*(x1 - x2) 
+# Optimize semidefinite relaxation
+val,_ = pcpop(p,2, min=false) 
+println(&quot;Optimal value is   &quot;, val)</code></pre><h3 id="Non-linear-Bell-inequalities"><a class="docs-heading-anchor" href="#Non-linear-Bell-inequalities">Non-linear Bell inequalities</a><a id="Non-linear-Bell-inequalities-1"></a><a class="docs-heading-anchor-permalink" href="#Non-linear-Bell-inequalities" title="Permalink"></a></h3><p>The maximal quantum value of a non-linear Bell inequality corresponds with the optimal value of a state polynomial optimization problem. As an illustration, we have already shown in Section <a href="#sec:spop">[sec:spop]</a> how to implement the state polynomial optimization problem corresponding with quadratic Bell inequality proposed in [<a href="../references/#uffink2002quadratic">38</a>]. Namely, </p><p class="math-container">\[\begin{align}
+    \sup \quad &amp; (\rho(a_1 b_2) + \rho(a_2 b_1))^2 + (\rho(a_1 b_1) - \rho(a_2 b_2))^2 
+ \\
+    \operatorname{s.t.} \quad &amp; a_0^2 = 1 \, , \hspace{3em} a_0 b_0 = b_0 a_0 \, ,  \\
+    &amp; a_1^2 = 1 \, , \hspace{3em} a_1 b_0 = b_0 a_1 \, ,  \\
+    &amp; b_0^2 = 1 \, , \hspace{3em}  a_0 b_1 = b_1 a_0 \, ,  \\
+    &amp; b_1^2 = 1 \, , \hspace{3em} a_1 b_1 = b_1 a_1 \, . 
+\end{align}\]</p><p>We obtain the optimal value <span>$4$</span> at level three relaxation up to numerical precision. The implementation in <code>PCPOP</code> is again shown below.</p><pre><code class="language-julia hljs">using JuMP,Mosek,MosekTools
+# Initialize partially-commutative monoid with 4 variables
+@pcmonoid M a[2,0] b[2,0]
+# Set variables to projectors
+Unipotent.(a)
+Unipotent.(b)
+@comms a b
+# Build the monoid
+build(M)
+# Build new monoid with state monomials up to degree 6
+TM = make_trace_monoid(M, 6, tracial=false)
+# Objective function
+p  = (state(a[1]*b[2], TM) + state(a[2]*b[1], TM))^2 
+p += (state(a[1]*b[1], TM) - state(a[2]*b[2], TM))^2
+# Basis for the semidefinite relaxation
+basis = trace_monomials(TM, 0:3)
+# Build sum of squares relaxation
+sos_model = tpop(p, TM, basis)
+# Optimization of the semidefinite relaxation
+set_optimizer(sos_model, Mosek.Optimizer)
+optimize!(sos_model)
+println(&quot;Optimal value is &quot;, objective_value(sos_model))</code></pre><h2 id="Contextuality-scenarios"><a class="docs-heading-anchor" href="#Contextuality-scenarios">Contextuality scenarios</a><a id="Contextuality-scenarios-1"></a><a class="docs-heading-anchor-permalink" href="#Contextuality-scenarios" title="Permalink"></a></h2><h3 id="Magic-square-game"><a class="docs-heading-anchor" href="#Magic-square-game">Magic square game</a><a id="Magic-square-game-1"></a><a class="docs-heading-anchor-permalink" href="#Magic-square-game" title="Permalink"></a></h3><p>As an example of a contextuality scenario, consider the magic square game [<a href="../references/#peres1990incompatible">44</a>, <a href="../references/#mermin1990simple">45</a>]. The game asks whether there exist <span>$9$</span> unitary operators assembled in a <span>$3 \times 3$</span> matrix such that (i) elements in each row commute and their product is the identity, and (ii) elements in each column commute and their product is minus the identity. This can be posed as a polynomial feasibility problem:</p><p class="math-container">\[\begin{align}
+    \sup \quad &amp; 0
+ \\
+    \operatorname{s.t.} \quad &amp; x_{ij}x_{ij}^* = \mathbf{1}\, ,  \\
+    &amp; x_{ij}x_{ik} = x_{ik} x_{ij} \, ,  \\
+    &amp; x_{ij}x_{kj} = x_{kj} x_{ij} \, ,  \\
+    &amp; x_{i1}x_{i2}x_{i3} = \mathbf{1}\, ,  \\
+    &amp; x_{1i}x_{2i}x_{3i} = -\mathbf{1}\, . 
+\end{align}\]</p><p>The following collection of two qubit Pauli operators provides a feasible solution </p><p class="math-container">\[\begin{equation}
+\begin{array}{rrr}
+    \phantom{-}I \otimes Z &amp;  \phantom{-}Z \otimes I &amp;  Z \otimes Z \\
+    \phantom{-}X \otimes I &amp; I \otimes X &amp; \phantom{-}X \otimes X \\
+    -X \otimes Z &amp; -Z\otimes X &amp; Y \otimes Y
+\end{array} \, .
+\end{equation}\]</p><p>Therefore, every semidefinite relaxation of Problem <a href="#eq:tpop_example">[eq:tpop_example]</a> must be feasible. The implementation in <code>PCPOP</code> is shown below.</p><pre><code class="language-julia hljs"># Build the monoid
+using JuMP
+@pcmonoid M X[9,0]
+Unipotent.(X)
+x = reshape(X,(3,3))
+for i in 1:3
+    @comms x[i, 1] x[i, 2] x[i, 3]
+    @comms x[1, i] x[2, i] x[3, i]
+end
+build(M)
+# Conditions on the game
+R = [x[1,1]*x[1,2]*x[1,3] - 1,
+     x[2,1]*x[2,2]*x[2,3] - 1,
+     x[3,1]*x[3,2]*x[3,3] - 1,
+     x[1,1]*x[2,1]*x[3,1] + 1,
+     x[1,2]*x[2,2]*x[3,2] + 1,
+     x[1,3]*x[2,3]*x[3,3] + 1]
+# Optimize semidefinite relaxation
+val, model, _ = pcpop(0, 2; op_eq=R, lvl_lm=0)
+println(&quot;Termination status &quot;, termination_status(model))</code></pre><h3 id="Contextuality-hypergraph"><a class="docs-heading-anchor" href="#Contextuality-hypergraph">Contextuality hypergraph</a><a id="Contextuality-hypergraph-1"></a><a class="docs-heading-anchor-permalink" href="#Contextuality-hypergraph" title="Permalink"></a></h3><p>A <em>contextuality hypergraph</em> <span>$H=(V, E)$</span> represents a measurement scenario with outcomes <span>$V$</span> and measurements <span>$E$</span>. A quantum realization of <span>$H$</span> is an assignment <span>$P : V \to \mathcal P(H)$</span> of projectors in a Hilbert space <span>$H$</span> that satisfies that <span>$\sum_{v \in e} P(v) = \mathbf{1}$</span> for each hyperedge <span>$e \in E$</span> [<a href="../references/#acin2015combinatorial">46</a>]. That is, quantum realizations are solutions of a polynomial optimization problem </p><p class="math-container">\[\begin{align}
+    \sup \quad &amp; 0
+ \\
+    \operatorname{s.t.} \quad &amp; P_{v}P_{v} = P_v &amp; v \in V \, ,  \\
+    &amp; \sum_{v\in e} P_v = \mathbf{1}&amp; e \in E \, . 
+\end{align}\]</p><p>For instance, the contextuality hypergraph with <span>$16$</span> vertices and <span>$12$</span> edges in [@acin2015combinatorial Figure 7] corresponds with a bipartite Bell scenario with two dichotomic measurements. Therefore, the maximal quantum value for the contextuality inequality corresponding with the CHSH functional is <span>$2\sqrt 2$</span>. Namely, </p><p class="math-container">\[\begin{align}
+        \sup \quad &amp; \sum_{a+b=xy} P_{ab|xy}
+ \\
+    \operatorname{s.t.} \quad &amp; P_{ab|xy}P_{ab|xy} = P_{ab|xy} \, ,  \\
+    &amp; P_{00|xy} +  P_{01|xy} +  P_{10|xy} +  P_{11|xy} = \mathbf{1}\, ,  \\
+    &amp; P_{00|x0} +  P_{01|x0} +  P_{10|x1} +  P_{11|x1} = \mathbf{1}\, ,  \\
+    &amp; P_{00|x1} +  P_{01|x1} +  P_{10|x0} +  P_{11|x0} = \mathbf{1}\, ,  \\
+    &amp; P_{00|0y} +  P_{10|0y} +  P_{01|1y} +  P_{11|1y} = \mathbf{1}\, ,  \\
+    &amp; P_{00|1y} +  P_{10|1y} +  P_{01|0y} +  P_{11|0y} = \mathbf{1}\, . 
+\end{align}\]</p><p>This value can be attained with the semidefinite relaxation of the corresponding polynomial optimization problem, where level 1 for the localizing matrix is used. The implementation in <code>PCPOP</code> is shown below.</p><pre><code class="language-julia hljs">using JuMP
+# Build the monoid
+@pcmonoid M a[16,0]
+Projector.(a)
+A = reshape(a, 4, 4)
+for i in 1:4
+    @comms A[i, :]
+    @comms A[:, i]
+end
+@comms union(A[1:2,1:2])
+@comms union(A[1:2,3:4])
+@comms union(A[3:4,1:2])
+@comms union(A[3:4,3:4])
+build(M)
+# Objective function
+p = A[2,2] + A[1,3] + A[3,1] + A[1,1]
+p+= A[2,4] + A[4,2] + A[4,3] + A[3,4]
+p+=-A[1,2] - A[1,4] - A[2,1] - A[2,3]
+p+=-A[3,2] - A[3,3] - A[4,1] - A[4,4]
+# Constraints
+R = []
+for i in 1:4
+    append!(R, [one(M) - sum(A[i,:])])
+    append!(R, [one(M) - sum(A[:,i])])
+end
+append!(R, [one(M) - sum(A[1:2,1:2])])
+append!(R, [one(M) - sum(A[1:2,3:4])])
+append!(R, [one(M) - sum(A[3:4,1:2])])
+append!(R, [one(M) - sum(A[3:4,3:4])])
+# Semidefinite relaxation
+val, model, _, _ = pcpop(p, 1; min = false, op_eq = R)
+println(&quot;Termination status &quot;, termination_status(model))
+println(&quot;Optimal value is   &quot;, objective_value(model))</code></pre><h3 id="Cycle-contextuality-scenarios"><a class="docs-heading-anchor" href="#Cycle-contextuality-scenarios">Cycle contextuality scenarios</a><a id="Cycle-contextuality-scenarios-1"></a><a class="docs-heading-anchor-permalink" href="#Cycle-contextuality-scenarios" title="Permalink"></a></h3><p>The <span>$n$</span>-cycle contextuality scenario consists of <span>$n$</span> parties distributed among an <span>$n$</span>-cycle, such that operators acting on adjacent parties commute. Correlations in these scenarios when each party has one dichotomic observable has been analysed in [<a href="../references/#n-contextuality">47</a>]. In particular, the <span>$4$</span>-cycle recovers CHSH scenario and the <span>$5$</span>-cycle recovers KCBS scenario. The maximal quantum value of Klyachko-Can-Binicioglu-Shumovsky (KCBS) inequality [<a href="../references/#klyachko2008simple">48</a>] corresponds with the optimal value of the polynomial optimization problem </p><p class="math-container">\[\begin{align}
+
+        \sup \quad &amp; x_0x_1 + x_1x_2 + x_2 x_3 + x_3 x_4 + x_4x_0 \\
+    \operatorname{s.t.} \quad &amp; x_i^2 = \mathbf{1}\, ,  \\
+    &amp; x_i x_{i+1} = x_{i+1} x_{i} \, . 
+\end{align}\]</p><p>The second level semidefinite relaxation gives the value <span>$-3.9443$</span>, which coincides with the quantum bound in [@n-contextuality Theorem 7] up to numerical precision. The implementation in <code>PCPOP</code> is shown below.</p><pre><code class="language-julia hljs"># Build monoid
+@pcmonoid M x[5,0]
+Unipotent.(M.vertices)
+for i in 1:5
+    @comms x[i] x[(i%5)+1]
+end
+build(M)
+# Optimize semidefinite relaxation
+obj= sum(x[i]*x[(i%5)+1] for i in 1:5)
+val,_ = pcpop(obj, 2; min=true)
+println(&quot;Optimal value&quot;, val)</code></pre><p>Now consider the <span>$n$</span>-cycle scenario where each party has two dichotomic observables that uses to play CHSH games with adjacents parties. The optimal quantum value of the joint <span>$n$</span>-cyclic CHSH game corresponds with the optimal value of the polynomial optimization problem </p><p class="math-container">\[\begin{align}
+
+        \sup \quad &amp; \sum_i x_{i,0} x_{i+1, 0} + x_{i,0} x_{i+1, 1} + x_{i,1} x_{i+1, 0} - x_{i,1} x_{i+1, 1}\\
+    \operatorname{s.t.} \quad &amp; x_{i,j}^2 = \mathbf{1}\, \quad \forall i \in [n], \forall j \in \{0,1\} ,  \\
+    &amp; x_{i,j} x_{i+1,j} = x_{i+1,j} x_{i,j} \, \quad \forall i \in [n], \forall j \in \{0,1\}. 
+\end{align}\]</p><p>The implementation of the second level relaxation in <code>PCPOP</code> is shown below. We use this example in Chapter <a href="#ch:benchmarking">[ch:benchmarking]</a> to benchmark the performance of <code>PCPOP</code> against other polynomial optimization packages (implemented with projectors instead of unipotents for the sake of the comparison). We remark that the equality constraints for odd-cycles scenarios do not admit finite Gröbner bases for any monomial ordering, while <code>PCPOP</code> implements alternative canonical forms for all the constraints involved in this scenarios. Therefore it comes with no surprise that <code>PCPOP</code> outperforms other non-specialised implementations based on general replacement rules.</p><pre><code class="language-julia hljs"># Build monoid
+n = 5
+@pcmonoid M x[2*n,0]
+Projector.(M.vertices)
+x = reshape(x, n, 2)
+for i in 1:n
+    @comms x[i,:] x[(i%5)+1,:]
+end
+build(M)
+# Optimize semidefinite relaxation
+obj = sum([let (a, b) = (x[i,:], x[(i%n)+1,:]); (1-2*a[1])*(1-2*b[1]) + (1-2*a[1])*(1-2*b[2]) + (1-2*a[2])*(1-2*b[1]) - (1-2*a[2])*(1-2*b[2]) end for i in 1:n])
+val,model,_ = pcpop(obj, 2; min=false, primal=true)
+printlb(&quot;Optimla value&quot;, val)</code></pre><h2 id="Conditional-entropies"><a class="docs-heading-anchor" href="#Conditional-entropies">Conditional entropies</a><a id="Conditional-entropies-1"></a><a class="docs-heading-anchor-permalink" href="#Conditional-entropies" title="Permalink"></a></h2><p>The conditional quantum entropy <span>$H(A|B)_\rho = S(\rho_{AB}) - S(\rho_{B})$</span> quantifies the amount of information needed to describe a quantum state <span>$\rho_{AB}$</span> from its marginal <span>$\rho_{B}$</span>, where <span>$S(\rho) = \operatorname{tr}\rho \log \rho$</span> is the von Neumann entropy. Conditional quantum entropies encode the security of different quantum cryptographic protocols. For instance, the asymptotic rate of randomness extraction [<a href="../references/#miller2014universal">49</a>] or quantum key distribution [<a href="../references/#devetak2005distillation">50</a>]. Polynomial optimization provides device independent bounds for the conditional quantum entropy [<a href="../references/#brown2024device">51</a>]. Consider a bipartite Bell scenario. The asymptotic rate of randomness that can be extracted from Alice&#39;s outcome <span>$a$</span> on the fixed setting <span>$x=0$</span> is </p><p class="math-container">\[\begin{equation}
+H(A|x=0,E) \geq \sum_{i=0}^{m-1} \frac{w_i}{t_i \ln 2} (1+V_i) \, .
+\end{equation}\]</p><p>Here, <span>$t_i$</span> and <span>$w_i$</span> are the nodes and weights of the Gauss-Radau quadrature over <span>$[0,1]$</span> with <span>$m$</span> points and fixed end <span>$t=1$</span>; and <span>$V_i$</span> is the optimal value of the polynomial optimization problem below in the hermitian variables <span>$A_{a|x}$</span> and <span>$B_{b|y}$</span> corresponding to the operators in the Bell experiment, plus non-hermitian variables <span>$Z_{a}$</span>. Namely, </p><p class="math-container">\[\begin{align}
+  V_i = \inf \quad &amp; \sum_a A_{a|0} (Z_a + Z_a^* + (1 - t_i)Z_a^*Z_a + t_i Z_a Za^*)
+ \\
+    \operatorname{s.t.} \quad &amp; A_{a|x}^2 = A_{a|x} \, ,  \\
+    &amp; B_{b|y}^2 = B_{b|y} \, ,  \\
+    &amp; [A_{a|x}, B_{b|y}] = 0 \, ,  \\
+    &amp; [A_{a|x}, Z_a] = 0 \, ,  \\
+    &amp; [B_{b|y}, Z_a] = 0 \, ,  \\
+    &amp; Z_a Z_a^* \leq \alpha_i \, ,  \\
+    &amp; Z_a^* Z_a \leq \alpha_i \, ,  \\
+    &amp; p(ab|xy) = \rho (A_{a|x} B_{b|y}) \, . 
+\end{align}\]</p><p>Notice that the success of the protocol relies on some observed condition on the correlations <span>$p(ab|xy)$</span>, which enters the polynomial optimization as linear constraints over the moments. In this case, we assume a maximal violation of CHSH inequality. The implementation in <code>PCPOP</code> of the semidefinite relaxations is shown below.</p><pre><code class="language-julia hljs">using JuMP,Mosek,MosekTools,FastGaussQuadrature
+function gaussradau(m)
+    x, v = FastGaussQuadrature.gaussradau(m);
+    t = 0.5*(1 .- x);
+    w = 0.5*v;
+
+    return (t, w)
+end
+
+k=2
+m=8
+t, w = gaussradau(m)
+t = t[2:end]
+w = w[2:end]
+f(A,z,t) = A * (z + conj(z) + (1-t)*conj(z)*z) + t*z*conj(z)
+γ = 2*(sqrt(2))
+# Build monoid
+@pcmonoid M Z[0, 2] a0 a1 b0 b1
+z = M.vertices[1:2]
+@comms [a0, a1] [b0, b1] z
+Projector.([a0, a1, b0, b1])
+build(M)
+Id = one(M)
+# Constraints CHSH violation B(p) ≥ γ
+B  = (1-2*a0)*(1-2*b0) + (1-2*a0)*(1-2*b1)
+B += (1-2*a1)*(1-2*b0) - (1-2*a1)*(1-2*b1)
+tr_ge = [[B, γ]]
+basis_principal = mons_at_level(M, k)
+basis = basis_principal
+H = 0.0
+obj = f(a0, z[1], t[1]) + f(1-a0, z[2], t[1])
+
+model,S,V,mons,LMI = npa_dual(obj,basis,basis_principal; tr_ge=tr_ge, min=true,change_objective=true)
+
+set_optimizer(model, Mosek.Optimizer)
+optimize!(model)
+ov1 = objective_value(model)
+H += w[1]/(t[1]*log(2))*(1 + ov1)
+old_obj = obj
+for i in 2:length(t)
+    obj = f(a0, z[1], t[i]) + f(1-a0, z[2], t[i])
+    S = S+old_obj-obj
+    model,V = model_new_obj(model,S,V,mons,LMI,-1)
+    # set_silent(model)
+    optimize!(model);ovi = objective_value(model)
+    old_obj = obj
+    H += w[i]/(t[i]*log(2))*(1 + ovi)
+end
+println(&quot;Conditional entropy : &quot;,H)</code></pre><h2 id="Quantum-networks"><a class="docs-heading-anchor" href="#Quantum-networks">Quantum networks</a><a id="Quantum-networks-1"></a><a class="docs-heading-anchor-permalink" href="#Quantum-networks" title="Permalink"></a></h2><p>One paradigmatic example of a quantum network that has been widely studied in the literature is the <em>bilocal scenario</em> [<a href="../references/#wolfe2019inflation">35</a>, <a href="../references/#wolfe2021quantum">36</a>, <a href="../references/#tavakoli2022bell">52</a>–<a href="../references/#renou2026two">54</a>]. This scenario considers three parties that share two sources <span>$\rho_{AB}$</span> and <span>$\rho_{B&#39;C}$</span>, and perform measurements <span>$A_{a|x}$</span>, <span>$B_{b|y}$</span> and <span>$C_{c|z}$</span> over systems <span>$A$</span>, <span>$BB&#39;$</span> and <span>$C$</span> respectively. We consider the following state polynomial optimization problem, corresponding to the maximal quantum value of Mermin inequality in the bilocal scenario with two measurement settings and two outcomes per party: </p><p class="math-container">\[\begin{align}
+\sup \ \ &amp;   \rho(a_0b_0c_1 + a_0b_1c_0 + a_1b_0c_0 - a_1b_1c_1)   \\
+s.t. \ \ 
+&amp; a_i^2 = \mathbf{1}\, , \hspace{2em} [b_j, c_k] = 0 \, ,  \\
+&amp; b_j^2 = \mathbf{1}\, , \hspace{2em} [a_i, c_k] = 0 \, ,  \\
+&amp; c_k^2 = \mathbf{1}\, , \hspace{2em} [a_i, b_j] = 0 \, ,  \\
+&amp; \rho(u(a_0, a_1) v(c_0, c_1)) = \rho(u(a_0, a_1))\rho(v(c_0, c_1)) \, . 
+\end{align}\]</p><p>Here <span>$u(a_0, a_1)$</span> and <span>$v(c_0, c_1)$</span> run over all words in the letters <span>$(a_0, a_1)$</span> and <span>$(c_0, c_1)$</span> respectively. Similar constraints to capture the separability of states in causal networks has been proposed in [<a href="../references/#klep2024state">7</a>, <a href="../references/#renou2026two">54</a>–<a href="../references/#ligthart2023inflation">56</a>]. The optimal value is <span>$2\sqrt{2}$</span>, which is attained with the second level semidefinite relaxation. The implementation in <code>PCPOP</code> is shown below.</p><pre><code class="language-julia hljs">using JuMP
+# Build the monoid
+@pcmonoid M a[2,0] b[2,0] c[2,0]
+Unipotent.(M.vertices)
+@comms a b c
+build(M)
+k = 2
+TM = make_trace_monoid(M, 2*k, tracial=false) 
+# Objective function.
+p = state(a[1]*b[1]*c[2] + a[1]*b[2]*c[1], TM)
+p+= state(a[2]*b[1]*c[1] - a[2]*b[2]*c[2], TM)
+# Equality constraints
+basis = trace_monomials(TM, 0:k)
+wα = mons_at_level(a, k)
+wγ = mons_at_level(c, k)
+R = [state(u*v, TM) - state(u, TM)*state(v, TM) for u in wα for v in wγ]
+R = unique([r for r in R if !(r==0)])
+model = tpop(p, TM, basis, equalities=R)
+set_optimizer(model, Mosek.Optimizer)
+optimize!(model)
+println(&quot;Termination status &quot;, termination_status(model))
+println(&quot;Optimal value is   &quot;, val)</code></pre><h2 id="Uncertainty-relations"><a class="docs-heading-anchor" href="#Uncertainty-relations">Uncertainty relations</a><a id="Uncertainty-relations-1"></a><a class="docs-heading-anchor-permalink" href="#Uncertainty-relations" title="Permalink"></a></h2><p>State polynomial optimization can be used to characterize algebraic uncertainty relations [<a href="../references/#moran2024uncertainty">57</a>]. As an example, consider the problem of finding the maximum sum of the squared expectation values of three unitary anti-commuting operators. In the state polynomial algebra over the variables <span>$(x, y, z)$</span> with state symbol <span>$\rho$</span>, this problem corresponds with </p><p class="math-container">\[\begin{align}
+\sup \ \ &amp;  \rho(x)^2  + \rho(y)^2 + \rho(z)^2   \\
+s.t. \ \ &amp; x^2 = \mathbf{1}\,, \hspace{1cm} yz = -zy \,,  \\
+         &amp; y^2 = \mathbf{1}\,, \hspace{1cm} zx = -xz \,,  \\
+         &amp; z^2 = \mathbf{1}\,, \hspace{1cm} xy = -yx \,. 
+\end{align}\]</p><p>The semidefinite relaxation over the four dimensional subspace spanned by the state monomials <span>$\{\mathbf{1}, x \rho (x), y \rho (y), z \rho(z)\}$</span> becomes </p><p class="math-container">\[\begin{align}
+1 = \sup \ \ &amp; a + b + c \\
+
+\operatorname{s.t.}&amp; \begin{pmatrix}
+1 &amp; a &amp; b &amp; c \\
+a &amp; a &amp; 0 &amp; 0 \\
+b &amp; 0 &amp; b &amp; 0 \\
+c &amp; 0 &amp; 0 &amp; c
+\end{pmatrix} \geq 0 \, . 
+\end{align}\]</p><p>This has optimal value <span>$1$</span>, which already matches the lower bound obtained with Pauli matrices. The implementation in <code>PCPOP</code> is shown below.</p><pre><code class="language-julia hljs">using JuMP
+# Build base monoid in variables x, y, z
+@pcmonoid M x y z
+Unipotent.([x, y, z])
+build(M)
+# Build state monoid over M
+TM = make_trace_monoid(M, 6, tracial=false)
+# Objective function
+ρx = state(x, TM)
+ρy = state(y, TM)
+ρz = state(z, TM)
+p = ρx^2 + ρy^2 + ρz^2
+# Anti-commutation relations
+R = [μx*μy + μy*μx,
+     μy*μz + μz*μy,
+     μz*μx + μx*μz]
+# Optimize semidefinite relaxation
+basis = union(trace_monomials(TM, 0:1), [μx*ρx, μy*ρy, μz*ρz])
+sos_model = tpop(p, TM, basis, equalities=R)
+set_optimizer(sos_model, Mosek.Optimizer)
+optimize!(sos_model)
+println(&quot;Termination status &quot;, termination_status(sos_model))
+println(&quot;Optimal value is   &quot;, objective_value(sos_model))</code></pre><h2 id="Almost-qudits"><a class="docs-heading-anchor" href="#Almost-qudits">Almost qudits</a><a id="Almost-qudits-1"></a><a class="docs-heading-anchor-permalink" href="#Almost-qudits" title="Permalink"></a></h2><p>The framework proposed in [<a href="../references/#pauwels2022almost">58</a>] allows to quantify the effects of the assumptions on the physical dimension in certain quantum information protocols. An <em>almost qudit</em> is a state whose support is almost contained in a <span>$d$</span>-dimensional space. Correlations in prepare and measurement scenarios with almost qudits can be approximated with semidefinite programs. Let <span>$\rho_{x_1 x_2}$</span> be an almost qubit and <span>$M_{b|y}$</span> projective measurement effect where each <span>$x_1, x_2, b, y$</span> is a bit. The randomness in <span>$b$</span> for a fixed setting <span>$x_1,x_2,y=1$</span> conditioned to a random access code value <span>$\sum p(x_y|x_1x_2y) = c$</span> is given by the guessing probability, which can be approximated with a tracial polynomial optimization problem, with normalization <span>$\tau(\rho_{x_1x_2}) = 1$</span> instead of <span>$\tau(\mathbf{1}) = 1$</span> (<span>$\tau$</span> is the tracial state symbol). Namely, </p><p class="math-container">\[\begin{align}
+    \mathbb P_g(b) \, = \, \sup \, &amp; \rho_{11} M_{b|1} \\
+    \operatorname{s.t.} \, 
+    &amp; \rho_{x_1 x_2}^2 = \rho_{x_1 x_2} \, ,  \\
+    &amp; M_{b|y}^2 = M_{b|y} \, ,  \\
+    &amp; \Pi^2 = \Pi \, ,  \\
+    &amp;\tau(\rho_{x_1 x_2}) = 1 \, , \\
+    &amp;\tau(\Pi) = d \, , \\
+    &amp;\tau(\rho_{x_1x_2} \Pi) \geq 1 - \varepsilon\, ,  \\
+    &amp; \textstyle \sum \tau(\rho_{x_1x_2} M_{x_y|y}) = c \, . 
+\end{align}\]</p><p>The implementation in <code>PCPOP</code> of the semidefinite relaxations is bellow. </p><pre><code class="language-julia hljs">using JuMP
+
+#Parameters
+d = 2
+ϵ = 0.01
+c = 2*(2+sqrt(2))
+
+# Build monoid
+@pcmonoid M ρ[4, 0] B[2, 0] P[1, 0]
+Projector.(ρ)
+Projector.(B)
+Projector.(P)
+build(M)
+
+# Objective function
+obj = ρ[1]*B[1]
+# Random access code
+rac = ρ[1]*B[1] + ρ[2]*B[1] + ρ[3]*(1-B[1]) + ρ[4]*(1-B[1])
+rac += ρ[1]*B[2] + ρ[2]*(1-B[2]) + ρ[3]*B[2] + ρ[4]*(1-B[2])
+# Linear equalities on the moments
+tr_eq = [[ρ[1], 1], [ρ[2], 1], [ρ[3], 1], [ρ[4], 1], [P[1], d], [rac, c]]
+# Linear inequalities on the moments
+tr_ge = [[ρ[1]*P[1], 1 - ϵ], [ρ[2]*P[1], 1 - ϵ], [ρ[3]*P[1], 1 - ϵ], [ρ[4]*P[1], 1 - ϵ]]
+
+# Level of semidefinite relaxation
+k = 3
+# Optimization of the semidefinite relaxation
+val, model, _ = pcpop(
+    obj,
+    k;
+    tr_eq = tr_eq,
+    tr_ge = tr_ge,
+    min = false,
+    tracial = true,
+    normalize = false,
+)
+println(&quot;Termination status &quot;, termination_status(model))
+println(&quot;Optimal value      &quot;, val)</code></pre><h2 id="Information-capacity"><a class="docs-heading-anchor" href="#Information-capacity">Information capacity</a><a id="Information-capacity-1"></a><a class="docs-heading-anchor-permalink" href="#Information-capacity" title="Permalink"></a></h2><p>We consider the prepare and measure scenario with constraints on the communication proposed in [<a href="../references/#tavakoli2022informationally">59</a>]. In the prepare and measure scenario <span>$(X, Y, B)$</span>, for each input value <span>$x \in X$</span>, the sender prepares a physical state <span>$\rho_x$</span> that sends to the receiver, who performs a measure chosen with the input value <span>$y \in Y$</span> and obtains an outcome <span>$b\in B$</span>. A constraint on the communication appears as an upper bound on the probability to guess the input value <span>$x$</span>, which is simply the maximal discrimination probability for the states <span>$\rho_x$</span> when <span>$x$</span> are uniformly distributed. Namely, <span>$P_g(X) \leq G$</span> for some <span>$G \in [0,1]$</span>.</p><p>Classical correlations are the feasible solutions of a linear program, while quantum correlations are the feasible solutions of a tracial polynomial optimization problem, which can be approximated with semidefinite relaxations. We consider the bounds obtained in [@tavakoli2022informationally §4.3], which correspond with the problem [@tavakoli2022informationally Equation 76] for the scenario <span>$(3,2,2)$</span> with the linear witness in [@tavakoli2022informationally Equation 46] and uniformly distributed <span>$x$</span>.</p><p class="math-container">\[\begin{align}
+    \sup \, &amp; - \tau(\rho_0 a_{0}) - \tau(\rho_0 a_{1}) - \tau(\rho_1 a_0) + \tau(\rho_1a_1) + \tau(\rho_2a_0) \\
+    \operatorname{s.t.} \, 
+    &amp; \tau(\rho_x) = 1 \, ,  \\
+    &amp; \tau(\sigma) \leq G \, ,  \\
+    &amp; a_i^2 = \mathbf{1}\, ,  \\
+    &amp; \rho_x \geq \rho_x^2 \, ,  \\
+    &amp; \sigma \geq \rho_x/3 \, . 
+\end{align}\]</p><p>Here, <span>$\rho_x$</span> denote states prepared by the sender, <span>$a_i$</span> the dichotomic measurements performed by the receiver, and <span>$\tau$</span> the tracial state with normalization <span>$\tau(\rho_x) = 1$</span> instead of <span>$\tau(\mathbf{1}) = 1$</span>. The auxiliary operator <span>$\sigma$</span> incorporates the constraints on the communication. The optimal value for this expression over classical correlations is <span>$6G-1$</span>, which is <span>$3.8$</span> for <span>$G=0.8$</span>. The second level semidefinite relaxation for the quantum correlations with <span>$G=0.8$</span> has optimal value gives an upper bound <span>$4.4128$</span>. The implementation in <code>PCPOP</code> is shown below.</p><pre><code class="language-julia hljs">G = 0.8
+# Build the monoid
+@pcmonoid M ρ[3,0] σ a[2,0]
+Unipotent.(a)
+build(M)
+# Conditions on the operators
+op_ge = vcat([σ-(1 /3)*r for r in ρ], [r-r^2 for r in ρ]) 
+# Conditions on the moments
+tr_ge = [[-σ,-G]]
+tr_eq = [[ρ[x],1] for x in 1:3]
+# Optimization of the semidefinite relaxation
+obj = -a[1]*ρ[1] - a[2]*ρ[1] - a[1]*ρ[2] +  a[2]*ρ[2] + a[1]*ρ[3]
+val, model, _ = pcpop(obj, 2; min=false,
+                 op_ge=op_ge,
+                 tr_eq=tr_eq,
+                 tr_ge=tr_ge,
+                 tracial=true,
+                 normalize=false)
+println(&quot;Optimal value is &quot;, val)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tutorial/">« Tutorial</a><a class="docs-footer-nextpage" href="../api/">API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Wednesday 8 July 2026 00:22">Wednesday 8 July 2026</span>. Using Julia version 1.10.11.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
