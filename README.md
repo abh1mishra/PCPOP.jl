@@ -7,7 +7,7 @@ A Julia package for **P**artially **C**ommutative **P**olynomial **O**ptimizatio
 **P**roblems. `PCPOP` builds and solves semidefinite programming relaxations for
 polynomial optimization over partially commutative, non-commutative, tracial,
 state, and trace polynomial algebras — with NPA-style moment/SOS hierarchies,
-Gröbner-basis reductions, and symmetry / Jordan-algebra reductions. It is aimed
+Gröbner-basis reductions, symmetry and Jordan-algebra reductions. It is aimed
 at problems in quantum information science (Bell scenarios, contextuality,
 quantum networks, entropic quantities, and more).
 
@@ -56,7 +56,7 @@ API reference — is available at:
 
 **https://abh1mishra.github.io/PCPOP.jl/dev/**
 
-Runnable example scripts also live in the [`examples/`](examples/) directory.
+Runnable example scripts are available in the [`examples/`](examples/) directory.
 
 ## Authors
 
