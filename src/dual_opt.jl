@@ -67,7 +67,9 @@ function cyclic_npa_moment(
             p = Polynomial(conj(x)*cPoly*y)
             for (m, c) in p
                 m_, m__ = cyclic_reduce(m), cyclic_reduce(m')
-
+                if iszero(m_) || iszero(m__)
+                    continue
+                end
                 term = c*Zsi[i, j]
                 if i != j
                     term += c*Zsi[j, i]

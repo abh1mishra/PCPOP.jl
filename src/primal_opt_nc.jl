@@ -2,7 +2,7 @@ function cyclic_npa_moments_block_nc(
     list_monomials::Vector{M},
     model;
     cPoly = 1,
-    mons_D = Dict([]),
+    mons_D = Dict{AbstractMonomial,AbstractJuMPScalar}([]),
     eq = false,
     progress = false,
 ) where {M <: AbstractMonomial}
@@ -63,14 +63,14 @@ function cyclic_npa_moments_block_nc(
         @constraint(model, moments_matrix .== 0)
     end
 
-    return moments_matrix, unique_mons, unique_vars
+    return moments_matrix, mons_D
 end
 
 function npa_moments_block_nc(
     list_monomials::Vector{M},
     model;
     cPoly = 1,
-    mons_D = Dict([]),
+    mons_D = Dict{AbstractMonomial,AbstractJuMPScalar}([]),
     eq = false,
     progress = false,
 ) where {M <: AbstractMonomial}
@@ -145,10 +145,22 @@ function npa_nc(
 )
     model=Model()
 
-    principal_moments_matrix, mons_D =
-        tracial ?
-        cyclic_npa_moments_block_nc(ops_principal, model; progress = progress) :
-        npa_moments_block_nc(ops_principal, model; progress = progress)
+    if eltype(ops_principal) <: AbstractMonomial
+        principal_moments_matrix, mons_D =
+            tracial ?
+            cyclic_npa_moments_block_nc(ops_principal, model; progress = progress) :
+            npa_moments_block_nc(ops_principal, model; progress = progress)
+    else
+        PMS = []
+        mons_D = Dict{AbstractMonomial,AbstractJuMPScalar}([])
+        for (i, ops_principal_i) in enumerate(ops_principal)
+            principal_moments_matrix_i, mons_D =
+                tracial ?
+                cyclic_npa_moments_block_nc(ops_principal_i, model; progress = progress,mons_D=mons_D) :
+                npa_moments_block_nc(ops_principal_i, model; progress = progress,mons_D=mons_D)
+            push!(PMS, principal_moments_matrix_i)
+        end
+    end
     # Add the constraints for the principal moment matrix
     if !isempty(tr_eq)
         for i in 1:length(tr_eq)
@@ -176,7 +188,7 @@ function npa_nc(
                 for (m, c) in Polynomial(tr_ge[i][1])
                     m1, m2 = (cyclic_reduce(m), cyclic_reduce(m'))
                     var = haskey(mons_D, m1) ? mons_D[m1] : mons_D[m2]
-                    tr_eq_p += c*var
+                    tr_ge_p += c*var
                 end
             else
                 tr_ge_poly=real_rep(Polynomial(Polynomial(tr_ge[i][1])))
@@ -234,7 +246,7 @@ function npa_nc(
         end
     end
     if normalize
-        id_elem=one(first(ops_principal))
+        eltype(ops_principal)<:AbstractMonomial ? id_elem=one(first(ops_principal)) : id_elem=one(prod([first(i) for i in ops_principal]))
         if tracial
             id_elem=cyclic_reduce(id_elem)
             @constraint(model, mons_D[id_elem]==1.0)
@@ -261,5 +273,9 @@ function npa_nc(
         min ? @objective(model, Min, obj_p) : @objective(model, Max, obj_p)
     end
 
-    return model, mons_D, principal_moments_matrix
+    if eltype(ops_principal) <: AbstractMonomial
+        return model, mons_D, principal_moments_matrix
+    else
+        return model, mons_D, PMS
+    end
 end

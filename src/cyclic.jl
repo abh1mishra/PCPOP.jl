@@ -104,7 +104,7 @@ function Base.hash(t::CyclicWord, h::UInt)
 end
 
 Base.zero(p::Polynomial{C_T, CyclicWord}) where {C_T} =
-    Polynomial(CyclicWord[], Float64[], p.monoid)
+    Polynomial(CyclicWord[], C_T[], p.monoid)
 
 function add_poly(
     p::Polynomial{C_T_1, CyclicWord},
@@ -189,3 +189,6 @@ Base.:+(x::Number, m::CyclicWord) = x+Polynomial(m)
 Base.:+(m::CyclicWord, x::Number) = x+Polynomial(m)
 Base.:-(m::CyclicWord, x::Number) = (-x)+Polynomial(m)
 Base.:-(x::Number, m::CyclicWord) = x+(-Polynomial(m))
+
+# Assuming m is coming from cyclic_reduce of some monomial
+Base.iszero(m::CyclicWord) = false
