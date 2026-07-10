@@ -3,13 +3,7 @@
 [![Documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://abh1mishra.github.io/PCPOP.jl/dev/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-A Julia package for **P**artially **C**ommutative **P**olynomial **O**ptimization
-**P**roblems. `PCPOP` builds and solves semidefinite programming relaxations for
-polynomial optimization over partially commutative, non-commutative, tracial,
-state, and trace polynomial algebras — with NPA-style moment/SOS hierarchies,
-Gröbner-basis reductions, symmetry and Jordan-algebra reductions. It is aimed
-at problems in quantum information science (Bell scenarios, contextuality,
-quantum networks, entropic quantities, and more).
+A Julia package for **P**artially **C**ommutative **P**olynomial **O**ptimization **P**roblems. `PCPOP` builds and solves semidefinite programming relaxations for polynomial optimization over partially commutative, non-commutative, tracial, state, and trace polynomial algebras — with NPA-style moment/SOS hierarchies, Gröbner basis reductions, symmetry and Jordan algebra reductions. It is aimed at problems in quantum information science (Bell scenarios, contextuality, quantum networks, entropic quantities, and more).
 
 ## Installation
 
@@ -25,13 +19,10 @@ Pkg.add(url = "https://github.com/abh1mishra/PCPOP.jl.git", rev = "main")
 
 `PCPOP` solves its SDP relaxations with an automatically selected solver:
 
-- If a working **[Mosek](https://www.mosek.com/)** installation with a valid
-  license is detected, it is used.
+- If a working **[Mosek](https://www.mosek.com/)** installation with a valid license is detected, it is used.
 - Otherwise it falls back to the open-source **[Clarabel](https://github.com/oxfordcontrol/Clarabel.jl)** solver.
 
-No Mosek license is required to install or use the package. You can query or
-override the choice with the exported `default_solver()` / `mosek_available()`,
-or pass `solver = ...` to the optimization routines.
+No Mosek license is required to install or use the package. You can query or override the choice with the exported `default_solver()` / `mosek_available()`, or pass `solver = ...` to the optimization routines.
 
 ## Quick start
 
@@ -51,8 +42,7 @@ println("Optimal value ≈ ", val)   # ≈ 2√2
 
 ## Documentation
 
-Full documentation — theoretical background, tutorial, worked examples, and the
-API reference — is available at:
+Full documentation — theoretical background, tutorial, worked examples, and the API reference — is available at:
 
 **https://abh1mishra.github.io/PCPOP.jl/dev/**
 
