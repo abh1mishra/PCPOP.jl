@@ -454,6 +454,7 @@ function tpop(p::Polynomial, TM, basis_psd; min = false,
                                             normalize=true, 
                                             tracial=false)
 
+    id = one(TM.state_monoid)
     cores_zero = Polynomial.(op_eq)
     cores_psd = union([Polynomial(one(p.monoid))], Polynomial.(op_ge))
     if isempty(cores_zero)
@@ -498,7 +499,7 @@ function tpop(p::Polynomial, TM, basis_psd; min = false,
     end
 
     if normalize
-        JuMP.@constraint model y[basis_constraints[one(p)]] == 1
+        JuMP.@constraint model y[basis_constraints[id]] == 1
     end
 
     # Constraints
