@@ -476,6 +476,7 @@ function tpop(p::Polynomial, TM, basis_psd; min = false,
 
     # Tracial identifications
     if tracial
+        id = cyclic_reduce(id)
         p = cyclic_reduce(p)
         tr_eq = [(cyclic_reduce(Polynomial(m[1])), m[2]) for m in tr_eq]
         tr_ge = [(cyclic_reduce(Polynomial(m[1])), m[2]) for m in tr_ge]
