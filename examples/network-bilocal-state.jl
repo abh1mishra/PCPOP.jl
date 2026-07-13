@@ -18,7 +18,7 @@ wγ = mons_at_level(c, k)
 R = [state(u*v, TM) - state(u, TM)*state(v, TM) for u in wα for v in wγ]
 R = unique([r for r in R if !(r==0)])
 println("Building model...")
-model = tpop(p, TM, basis, equalities = R)
+model = tpop(p, TM, basis, op_eq = R)
 set_optimizer(model, Mosek.Optimizer)
 println("Optimizing...")
 optimize!(model)

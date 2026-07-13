@@ -446,47 +446,59 @@ end
 
 """
 
-function tpop(p::Polynomial, TM, basis_psd; equalities=[], 
-                                             inequalities=[], 
-                                             moments=[], 
-                                             normalize=true, 
-                                             tracial=false, 
-                                             truncate="degree")
+function tpop(p::Polynomial, TM, basis_psd; min = false,
+                                            op_eq = [], 
+                                            op_ge =[], 
+                                            tr_eq = [],
+                                            tr_ge = [], 
+                                            normalize=true, 
+                                            tracial=false)
 
-    cores_zero = Polynomial.(equalities)
-    cores_psd = union([Polynomial(one(p.monoid))], Polynomial.(inequalities))
+    cores_zero = Polynomial.(op_eq)
+    cores_psd = union([Polynomial(one(p.monoid))], Polynomial.(op_ge))
     if isempty(cores_zero)
         cores = union(monomials.(cores_psd)...)
     else
         cores = union(union(monomials.(cores_psd)...), union(monomials.(cores_zero)...)) 
     end
     matrix_psd = Dict(s => [tracial_reduce(state_projection(x'*s*y,TM),tracial=tracial) for x in basis_psd, y in basis_psd] for s in cores)
-
     basis_constraints = StarAlgebras.Basis{UInt16}(
         unique(union([union(matrix_psd[s]) for s in cores]...)),
-        )
-
+    )
     Γ = Dict(s=> [(basis_constraints[m]) for m in matrix_psd[s]] for s in cores)
-
-    if normalize
-        moments = union([(Polynomial(one(p.monoid)), 1)], moments)
-    end
 
     model = JuMP.Model()
     JuMP.@variable model y[1:length(basis_constraints)]
 
     # Objective function
     p = state_projection(p, TM)
+
+    # Tracial identifications
     if tracial
         p = cyclic_reduce(p)
-        moments = [(cyclic_reduce(Polynomial(m[1])), m[2]) for m in moments]
+        tr_eq = [(cyclic_reduce(Polynomial(m[1])), m[2]) for m in tr_eq]
+        tr_ge = [(cyclic_reduce(Polynomial(m[1])), m[2]) for m in tr_ge]
     end
+
     objective = sum(c*y[basis_constraints[m]] for (m,c) in p)
-    JuMP.@objective model Max objective
+    
+    if min
+        JuMP.@objective model Min objective
+    else
+        JuMP.@objective model Max objective
+    end
 
     # Moment constraints
-    for (s,b) in moments
+    for (s,b) in tr_eq
         JuMP.@constraint model sum(c*y[basis_constraints[m]] for (m,c) in s) == b
+    end
+
+    for (s,b) in tr_ge
+        JuMP.@constraint model sum(c*y[basis_constraints[m]] for (m,c) in s) >= b
+    end
+
+    if normalize
+        JuMP.@constraint model y[basis_constraints[one(p)]] == 1
     end
 
     # Constraints
@@ -500,32 +512,57 @@ function tpop(p::Polynomial, TM, basis_psd; equalities=[],
         JuMP.@constraint model sum(c*P[m] for (m, c) in s) .== 0
     end
 
+    # Real Γ(y) = Γ(y')
+    # for m in basis_constraints
+    #    if m !== m'
+    #        JuMP.@constraint model y[basis_constraints[m]] == y[basis_constraints[m']]
+    #    end
+    #end
+
     return model
 end
 
 
-function tpop(p::Polynomial, k::Int; equalities=[], inequalities=[], moments=[], normalize=true, truncate = "degree", tracial=false)
+function tpop(p::Polynomial, k::Int; min = false,
+                                     op_eq = [], 
+                                     op_ge = [], 
+                                     tr_eq = [], 
+                                     tr_ge = [],
+                                     normalize=true,
+                                     tracial=false)
     TM = make_trace_monoid(p.monoid, 2*k, tracial=tracial)
     basis_psd = trace_monomials(TM, 0:k, tracial=tracial)
 
-    return tpop(state_embedding(p, TM), TM, basis_psd, equalities=equalities, 
-                                                inequalities=inequalities, 
-                                                moments=moments, 
-                                                normalize=normalize, 
-                                                tracial=tracial, 
-                                                truncate=truncate)
+    return tpop(state_embedding(p, TM), TM, basis_psd, 
+                min = min,
+                op_eq = op_eq, 
+                op_ge = op_ge, 
+                tr_eq = tr_eq, 
+                tr_ge = tr_ge,
+                normalize = normalize,
+                tracial = tracial)
 end
 
-function tpop(p::Polynomial, k::Int, t::Int; equalities=[], inequalities=[], moments=[], normalize=true, truncate = "degree", tracial=false)
+function tpop(p::Polynomial, k::Int, t::Int; 
+    min = false,
+    op_eq = [], 
+    op_ge = [], 
+    tr_eq = [], 
+    tr_ge = [],
+    normalize=true,
+    tracial=false)
+
     TM = make_trace_monoid(p.monoid, 2*k, tracial=tracial)
     basis_psd = trace_monomials(TM, k, t, tracial=tracial)
 
-    return tpop(state_embedding(p, TM), TM, basis_psd, equalities=equalities, 
-                                                        inequalities=inequalities, 
-                                                        moments=moments, 
-                                                        normalize=normalize, 
-                                                        tracial=tracial, 
-                                                        truncate=truncate)
+    return tpop(state_embedding(p, TM), TM, basis_psd, 
+                    min = min,
+                    op_eq = op_eq, 
+                    op_ge = op_ge, 
+                    tr_eq = tr_eq, 
+                    tr_ge = tr_ge,
+                    normalize = normalize,
+                    tracial = tracial)
 end
 
 function tpop_constraints(p::Polynomial, TM::TraceMonoid, basis_psd; inequalities=[], equalities = [], truncate = "degree", tracial=false, localize=false)
