@@ -133,6 +133,8 @@ function make_trace_monoid(M::AbstractMonoid, k::Int; statesymbol="ρ", monomial
     num_m = length(M.vertices)
     num_t = length(traces)
     @eval @pcmonoid TM $(Symbol.(monomialsymbol, M.vertices)...) $(Symbol.(statesymbol, "[", traces, "]")...)
+    # Re-fetch the just-eval'd binding in the latest world (Julia 1.12 world-age rules)
+    TM = Base.invokelatest(getglobal, @__MODULE__, :TM)
     μ = TM.vertices[1:num_m]
     ρ = TM.vertices[num_m+1:end]
     dict_monomials = Dict{AbstractMonomial, Variable}(M.vertices[i] => μ[i] for i in 1:num_m)

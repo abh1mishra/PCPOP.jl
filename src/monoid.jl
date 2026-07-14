@@ -460,3 +460,8 @@ function Base.one(M::GraphProductMonoid{T}) where {T <: AbstractMonoid}
         Set{t}(),
     )
 end
+
+function change_display!(M::GraphProductMonoid, level::Int)
+    (level<1 || level>3) && throw("Display level must be 1, 2 or 3")
+    M.show_level[]=level
+end

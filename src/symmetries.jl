@@ -14,8 +14,7 @@ using SymbolicWedderburn.StarAlgebras
 struct OnLetters <: SymbolicWedderburn.ByPermutations end
 function SymbolicWedderburn.action(
     ::OnLetters,
-    perm::PG.Perms.AbstractPermutation,
-    # perm::AbstractPermutations.AbstractPermutation,
+    perm::AP.AbstractPermutation,
     word::Variable,
 )
     vertices = monomial(word).monoid.vertices
@@ -24,8 +23,7 @@ end
 
 function SymbolicWedderburn.action(
     ::OnLetters,
-    perm::PG.Perms.AbstractPermutation,
-    # perm::AbstractPermutations.AbstractPermutation,
+    perm::AP.AbstractPermutation,
     word::Vector{Variable},
 )
     return [SymbolicWedderburn.action(OnLetters(), perm, letter) for letter in word]
@@ -33,8 +31,7 @@ end
 
 function SymbolicWedderburn.action(
     ::OnLetters,
-    perm::PG.Perms.AbstractPermutation,
-    # perm::AbstractPermutations.AbstractPermutation,
+    perm::AP.AbstractPermutation,
     word::AbstractMonomial,
 )
     if word == one(word)
@@ -47,8 +44,7 @@ end
 
 function SymbolicWedderburn.action(
     ::OnLetters,
-    perm::PG.Perms.AbstractPermutation,
-    # perm::AbstractPermutations.AbstractPermutation,
+    perm::AP.AbstractPermutation,
     word::Polynomial,
 )
     return sum([
