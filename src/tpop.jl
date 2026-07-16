@@ -122,8 +122,7 @@ end
     ``TM´´ has the variables in ``M´´ plus one commutative variable ``tr(w)´´
     for each monomial ``w´´ in ``M´´ with degree up to ``k´´
 """
-function make_trace_monoid(M::AbstractMonoid, k::Int; statesymbol="ρ", monomialsymbol="μ", tracial=false)
-    traces = mons_at_level(M, k)
+function make_trace_monoid(M::AbstractMonoid, traces; statesymbol="ρ", monomialsymbol="μ", tracial=false)
     filter!(x -> !(x==one(M)), traces)
     if tracial
         traces = unique([cyclic_reduce(t) for t in traces])
@@ -173,6 +172,15 @@ function make_trace_monoid(M::AbstractMonoid, k::Int; statesymbol="ρ", monomial
     )
 end
 
+function make_trace_monoid(M::AbstractMonoid, k::Int; statesymbol="ρ", monomialsymbol="μ", tracial=false)
+
+    traces = mons_at_level(M, k)
+    return make_trace_monoid(M, traces,
+                            statesymbol=statesymbol,
+                            monomialsymbol=monomialsymbol,
+                            tracial=tracial)
+
+end
 """
 
     Return trace monomials in ``M´´ up to degree ``k´´
