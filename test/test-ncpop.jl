@@ -1,4 +1,4 @@
-@testset "ncpop" begin
+@testset "ncpop                    " begin
     # To define the non-commutative variables X1,X2 and Non-commutative monoid M
     @ncmonoid M X1 X2
     #  To define the equality constraints
