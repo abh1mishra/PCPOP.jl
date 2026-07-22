@@ -1,4 +1,4 @@
-@testset "Standard NPA" begin
+@testset "Standard NPA             " begin
     @pcmonoid M a[2, 0] b[2, 0]
     @comms a b
     Unipotent.([a; b])
@@ -8,7 +8,8 @@
     optimal_value, _, _=pcpop(chsh, level; min = false)
     @test abs(optimal_value-2*sqrt(2)) < 1e-6
 end
-@testset "Standard NPA with Cyclic Reduction" begin
+
+@testset "Standard NPA Cyclic      " begin
     @pcmonoid M a b c d e
     @comms [a, b] [c, d]
     Unipotent.([a, b, c, d])
@@ -30,7 +31,7 @@ end
     @test abs(optimal_value-2*sqrt(2)) < 1e-6
 end
 
-@testset "Standard NPA with Cyclic Reduction and Unipotent" begin
+@testset "Standard NPA Cyclic Unip " begin
     G=0.8  # value of the guessing probability
     @pcmonoid M a b c d e f
     ρ=[b, c, d]
