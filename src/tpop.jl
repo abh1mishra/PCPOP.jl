@@ -114,13 +114,39 @@ end
     #Input:
     - ``M::AbstractMonoid´´ : Base monoid
     - ``k::Integer´´ : Degree of traces
-    - ``tracial::Boolean´´ : Tracial state
+    - ``tracial::Boolean´´ : decides tracial condition
 
     #Output:
     - ``TM::AbstractMonoid´´ : Monoid of traces in M up to degree k.
 
     ``TM´´ has the variables in ``M´´ plus one commutative variable ``tr(w)´´
-    for each monomial ``w´´ in ``M´´ with degree up to ``k´´
+    for each monomial ``w´´ in ``M´´ with degree up to ``k´´.
+"""
+function make_trace_monoid(M::AbstractMonoid, k::Int; statesymbol="ρ", monomialsymbol="μ", tracial=false)
+
+    traces = mons_at_level(M, k)
+    return make_trace_monoid(M, traces,
+                            statesymbol=statesymbol,
+                            monomialsymbol=monomialsymbol,
+                            tracial=tracial)
+
+end
+
+"""
+    function make_trace_monoid(M::AbstractMonoid, traces; tracial=false)
+
+    Build monoid of traces in ``M´´ with trace monomials ``traces´´.
+
+    #Input:
+    - ``M::AbstractMonoid´´ : Base monoid
+    - ``traces´´ : List of trace monomials
+    - ``tracial::Boolean´´ : decides tracial condition
+
+    #Output:
+    - ``TM::AbstractMonoid´´ : Monoid of traces in M.
+
+    ``TM´´ has the variables in ``M´´ plus one commutative variable ``tr(w)´´
+    for each monomial ``w´´ in ``traces´´.
 """
 function make_trace_monoid(M::AbstractMonoid, traces; statesymbol="ρ", monomialsymbol="μ", tracial=false)
     filter!(x -> !(x==one(M)), traces)
@@ -172,15 +198,7 @@ function make_trace_monoid(M::AbstractMonoid, traces; statesymbol="ρ", monomial
     )
 end
 
-function make_trace_monoid(M::AbstractMonoid, k::Int; statesymbol="ρ", monomialsymbol="μ", tracial=false)
 
-    traces = mons_at_level(M, k)
-    return make_trace_monoid(M, traces,
-                            statesymbol=statesymbol,
-                            monomialsymbol=monomialsymbol,
-                            tracial=tracial)
-
-end
 """
 
     Return trace monomials in ``M´´ up to degree ``k´´
