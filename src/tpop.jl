@@ -157,7 +157,8 @@ function make_trace_monoid(M::AbstractMonoid, traces; statesymbol="ρ", monomial
 
     num_m = length(M.vertices)
     num_t = length(traces)
-    @eval @pcmonoid TM $(Symbol.(monomialsymbol, M.vertices)...) $(Symbol.(statesymbol, "[", traces, "]")...)
+    @eval @pcmonoid TM $(Symbol.(monomialsymbol, "[", M.vertices, "]")...) $(Symbol.(statesymbol, "[", traces, "]")...)
+    #@eval @pcmonoid TM $(Symbol.(monomialsymbol, "[", 1:num_m, "]")...) $(Symbol.(statesymbol, "[", 1:num_t, "]")...)
     # Re-fetch the just-eval'd binding in the latest world (Julia 1.12 world-age rules)
     TM = Base.invokelatest(getglobal, @__MODULE__, :TM)
     μ = TM.vertices[1:num_m]
