@@ -104,7 +104,7 @@ function looper(args)
     exprs=[]
     for var in args
         if isa(var, Symbol)
-            if (contains(string(var), "_"))
+            if (endswith(string(var), "_"))
                 var_conj=Symbol(string(var)*"_")
                 push!(vars, var_conj)
                 push!(vars, var)
