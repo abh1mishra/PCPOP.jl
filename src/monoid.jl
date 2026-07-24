@@ -33,7 +33,7 @@ struct GraphProductMonoid{T <: Union{AbstractMonoid, Variable}} <: AbstractMonoi
     name::String
     parent_monoid::Base.RefValue{AbstractMonoid}
     is_built::Base.RefValue{Bool}
-    conj_type::Base.RefValue{Bool}
+    clique_conj_dict::Base.RefValue{Union{Nothing, Dict{Int,Int}}}
 
     # technical fields
     vertices::Vector{T}
@@ -68,7 +68,7 @@ struct GraphProductMonoid{T <: Union{AbstractMonoid, Variable}} <: AbstractMonoi
             name,
             parent_monoid,
             Base.RefValue(false),
-            Base.RefValue(false),
+            Base.RefValue{Union{Nothing, Dict{Int, Int}}}(nothing),
             vertices,
             commutations,
             empty_cliques,
@@ -380,14 +380,6 @@ function build(parent_monoid::GraphProductMonoid)
             end
         end
 
-        # Check if the the cliques in the dependency graph are closed under conjugation, if so, then taking conjugate just conjugates the cliques words : tuple sof non-commutative words.
-        all(
-            i -> (
-                Set(i.commutes_with)==Set(conj(i).commutes_with) &&
-                !(i in conj(i).commutes_with)
-            ),
-            parent_monoid.vertices,
-        ) && (parent_monoid.conj_type[]=true)
 
         # Build the conj_indices mapping for O(1) conjugate lookup (PCMonomial optimization)
         n = length(parent_monoid.vertices)
@@ -406,10 +398,25 @@ function build(parent_monoid::GraphProductMonoid)
         parent_monoid.conj_indices[] = conj_indices
     end
 
+    ncliques = length(cliques)
+    # Precompute each clique's variable set once
+    clique_sets = [Set(clique) for clique in cliques]
+    parent_monoid.clique_conj_dict[] = Dict{Int, Int}()
+    clique_conj_dict = parent_monoid.clique_conj_dict[]
+    @inbounds for i in 1:ncliques
+        i_clique_conjs = Set([v' for v in cliques[i]])
+        for j in 1:ncliques
+            if clique_sets[j] == i_clique_conjs
+                clique_conj_dict[i] = j
+                break
+            end
+        end
+    end
+
+
     # if the parent monoid is a GraphProductMonoid of other monoids, build the child monoids as well
     if isa(parent_monoid.vertices[1], AbstractMonoid)
         build.(parent_monoid.vertices)
-        parent_monoid.conj_type[]=true
     end
 
     #  Monoid now finally built
