@@ -579,14 +579,14 @@ function conjugate(m::PCMonomial, conj_indices::Vector{UInt32})
     @inbounds for i in 1:n_cliques
         ci = m.clique_words[i]
         if isempty(ci)
-            new_clique_words[i] = UInt32[]
+            new_clique_words[m.monoid.clique_conj_dict[][i]] = UInt32[]
         else
             # Reverse and conjugate each index
             new_ci = Vector{UInt32}(undef, length(ci))
             for j in eachindex(ci)
                 new_ci[j] = conj_indices[ci[end - j + 1]]
             end
-            new_clique_words[i] = new_ci
+            new_clique_words[m.monoid.clique_conj_dict[][i]] = new_ci
         end
     end
 
@@ -614,9 +614,7 @@ end
 
 function Base.conj(m::PCMonomial)
     is_identity(m) && return m
-    m.monoid.conj_type[] && return conjugate(m)
-    w=monomial_to_word(m)
-    return prod(conj.(reverse(w)))
+    return conjugate(m)
 end
 Base.adjoint(m::PCMonomial) = conj(m)
 
