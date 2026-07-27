@@ -58,6 +58,24 @@
     @test state_projection(g, TM) == 0
 end
 
+@testset "Non-Hermitian Monoid     " begin
+    @pcmonoid M a[0,2] b[0,2]
+    @comms a b
+    build(M)
+    
+    TM = make_trace_monoid(M, 2)
+    μ = TM.vertices_free
+
+    @test μ[1]' == μ[3]
+    @test μ[8]' == μ[6]
+    
+    @test (μ[1]*μ[3])' == μ[1]*μ[3] == μ[3]'*(μ[1]')
+    @test (μ[1]*μ[6])' == μ[3]*μ[8] == μ[6]'*(μ[1]')
+
+    @test (1*μ[1])' == 1*μ[3] == 1*(μ[1]') 
+    @test (1*μ[6])' == 1*μ[8] == 1*(μ[6]') 
+end
+
 @testset "Trace Optimization       " begin
     @pcmonoid M a b c d
     @comms [a, b] [c, d]
