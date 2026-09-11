@@ -137,7 +137,9 @@ function Base.conj(p::Polynomial{C_T}) where {C_T}
         push!(q.monomials, conj(p.monomials[i]))
         push!(q.coeffs, conj(p.coeffs[i]))
     end
-    return q
+    # conj reverses each word, so the terms come out permuted: restore the
+    # descending order that add_poly's merge and == rely on
+    return sort_polynomial!(q)
 end
 Base.adjoint(p::Polynomial{C_T}) where {C_T} = Base.conj(p)
 Base.:*(x, m::AbstractMonomial) = x==0 ? zero(Polynomial(m, x)) : Polynomial(m, x)
