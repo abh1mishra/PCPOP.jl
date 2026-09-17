@@ -60,7 +60,7 @@ end
 
 @testset "Non-Hermitian Monoid     " begin
     @pcmonoid M a[0,2] b[0,2]
-    @comms a b
+    @comms a_ b_
     build(M)
     
     TM = make_trace_monoid(M, 2)
