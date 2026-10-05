@@ -425,7 +425,6 @@ function moments(
     tr_ge = [],
     normalize = true,
     tracial = false,
-    solver = default_solver(),
     optimize = false,
 )
     cores_zero = Polynomial.(op_eq)
