@@ -277,7 +277,7 @@ function sos(
     else
         JuMP.@objective model Min sum([tr_eq[i][2]*t[i] for i in 1:n])
     end
-    N = length(basis_psd)
+    N = length(basis)
 
     P = Dict(
         s => JuMP.@variable model [1:N, 1:N] in PSDCone() for
